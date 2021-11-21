@@ -1,0 +1,7 @@
+{
+  "python.pythonPath": "/usr/bin/python3",
+  "editor.fontFamily": "'Courier'",
+  "editor.fontSize": 13,
+  "print.colourScheme": "Atom One",
+  "debug.javascript.unmapMissingSources": true
+}

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<dosages>
+  <dosage id='1'>
+    <label>
+    Dosage des ions fer II Fer'2+' par le permanganate MnO_4_'-'
+    </label>
+    <type>1</type>
+    <indic>[]</indic>
+    <mesure>6</mesure>
+    <n_reaction>1</n_reaction>
+    <titre>Fe'2+'</titre>
+    <titrant>MnO_4_'-'</titrant>
+    <produits>Fe'3+',Mn'2+',H_2_O</produits>
+    <reaction id = '1'>
+      <reactifs>Fe'2+',MnO_4_'-',H_3_O'+'</reactifs>
+      <produits>Fe'3+',Mn'2+',H_2_O</produits>
+      <spectateurs>Cl'-',K'+',Cl'-'</spectateurs>
+    </reaction>
+    <potentiels>
+      <titre>[0.77,1]</titre>
+      <titrant>[1.51,5]</titrant>
+    </potentiels>
+    <pH>5</pH>
+    <ctitre>vert_pale</ctitre>
+    <ctitrant>violet</ctitrant>
+    <cfinale>violet</cfinale>
+  </dosage>
+
+  <dosage id = '2'>
+    <label>Dosage des ions fer II Fer'2+' par le dichromate Cr_2_O_7_'2-'</label>
+    <n_reaction>1</n_reaction>
+    <indic>[]</indic>
+    <mesure>6</mesure>
+    <titre>Fe'2+'</titre>
+    <titrant>Cr_2_O_7_'2-'</titrant>
+    <produits>Fe'3+',Cr'3+',H_2_O</produits>
+    <reaction id = '1'>
+      <reactifs>Fe'2+',Cr_2_O_7_'2-',H_3_O'+'</reactifs>
+      <produits>Fe'3+',Cr'3+',H_2_O</produits>
+      <spectateurs>Cl'-',K'+',Cl'-'</spectateurs>
+    </reaction>
+    <pH>0.5</pH>
+    <potentiels>
+      <titre>[0.77, 1]</titre>
+      <titrant>[1.33, 6]</titrant>
+    </potentiels>
+    <ctitre>vert_pale</ctitre>
+    <ctitrant>jaune</ctitrant>
+    <cfinale>jaune</cfinale>
+    <type>1</type>
+  </dosage>
+
+  <dosage id = '3'>
+    <label>Dosage des ions chlorure Cl'-' par les ions argent Ag'+'</label>
+    <n_reaction>1</n_reaction>
+    <indic>[]</indic>
+    <mesure>2</mesure>
+    <titre>Cl'-'</titre>
+    <titrant>Ag'+'</titrant>
+    <produits>AgCl</produits>
+    <reaction id = '1'>
+      <reactifs>Cl'-',Ag'+'</reactifs>
+      <produits>AgCl</produits>
+      <spectateurs>Na'+',NO_3_'-',K'+'</spectateurs>
+    </reaction>
+    <pH>7</pH>
+    <ctitre>incolore</ctitre>
+    <ctitrant>incolore</ctitrant>
+    <ccourant>blanc</ccourant>
+    <cfinale>rouge</cfinale>
+    <type>1</type>
+  </dosage>
+  
+  <dosage id = '4'>
+    <label>Dosage des ions sulfate SO_4_'2-' par les ions baryum Ba'2+'</label>
+    <n_reaction>1</n_reaction>
+    <mesure>2</mesure>
+    <indic>[]</indic>
+    <titre>Ba'2+'</titre>
+    <titrant>SO_4_'2-'</titrant>
+    <produits>BaSO_4_</produits>
+    <reaction id = '1'>
+      <reactifs>Ba'2+',SO_4_'2-'</reactifs>
+      <produits>BaSO_4_</produits>
+      <spectateurs>Na'+',Cl'-'</spectateurs>
+    </reaction>
+    <pH>7</pH>
+    <ctitre>incolore</ctitre>
+    <ctitrant>incolore</ctitrant>
+    <ccourant>blanc</ccourant>
+    <cfinale>blanc</cfinale>
+    <type>1</type>
+  </dosage>
+
+  <dosage id = '5'>
+    <label>Dosage des ions nitrate NO_3_'-' par le permanganate MnO_4_'-' (retour)</label>
+    <n_reaction>2</n_reaction>
+    <mesure>2</mesure>
+    <indic>[]</indic>
+    <titre>NO_3_'-'</titre>
+    <titrant>MnO_4_'-'</titrant>
+    <reaction id='1'>
+      <reactifs>NO_3_'-',Fe'2+',H_3_O'+'</reactifs>
+      <produits>NO,Fe'3+',H_2_O</produits>
+      <spectateurs>Ba'2+',Cl'-',Cl'-'</spectateurs>
+    </reaction>
+    <reaction id='2'>
+      <reactifs>Fe'2+',MnO_4_'-',H_3_O'+'</reactifs>
+      <produits>Fe'3+',Mn'2+',H_2_O</produits>
+      <spectateurs>Cl'-',K'+',Cl'-'</spectateurs>
+    </reaction>
+    <potentiels>
+      <titre>[0.96, 3]</titre>
+      <titrant>[1,51,5]</titrant>
+      <reactif>[0.77, 1]</reactif>
+    </potentiels>
+    <pH>0.5</pH>
+    <ctitre>incolore</ctitre>
+    <ctitrant>violet</ctitrant>
+    <ccourant>vert_pale</ccourant>
+    <cfinale>violet</cfinale>
+    <type>2</type>
+  </dosage>
+
+  <dosage id = '6'>
+    <label>
+    Dosage des ions calcium Ca'2+' par l' EDTA
+    </label>
+    <type>1</type>
+    <indic>[5]</indic>
+    <mesure>2</mesure>
+    <n_reaction>1</n_reaction>
+    <titre>Ca'2+'</titre>
+    <titrant>Y'4-'</titrant>
+    <reaction id = '1'>
+      <reactifs>CaNt'-',Y'4-',H_2_O</reactifs>
+      <produits>CaY'2-',HNt'2-',HO'-'</produits>
+      <spectateurs>Cl'-',Na'+',H_2_O</spectateurs>
+    </reaction>
+    <pH>10</pH>
+    <ctitre>incolore</ctitre>
+    <ctitrant>incolore</ctitrant>
+    <cfinale>incolore</cfinale>
+  </dosage>
+  
+  <dosage id = '7'>
+    <label>
+    Dosage des ions cuivre II Cu'2+' par le thiosulfate S_2_O_3_'2-' (indirect)
+    </label>
+    <n_reaction>2</n_reaction>
+    <mesure>2</mesure>
+    <indic>[6]</indic>
+    <titre>Cu'2+'</titre>
+    <titrant>S_2_O_3_'2-'</titrant>
+    <produits>CuI,S_4_O_6_'2-'</produits>
+    <reaction id = '1'>
+      <reactifs>Cu'2+',I'-'</reactifs>
+      <produits>CuI,I_2_</produits>
+      <spectateurs>SO_4_'2-',K'+'</spectateurs>
+    </reaction>
+    <reaction id = '2'>
+      <reactifs>I_2_,S_2_O_3_'2-'</reactifs>
+      <produits>I'-',S_4_O_6_'2-'</produits>
+      <spectateurs>SO_4_'2-',K'+'</spectateurs>
+    </reaction>
+    <potentiels>
+      <titre>[0.16, 1]</titre>
+      <titrant>[0.09, 2]</titrant>
+      <reactif>[0.62, 2]</reactif>
+    </potentiels>
+    <pH>4</pH>
+    <ctitre>brun</ctitre>
+    <ctitrant>jaune</ctitrant>
+    <cfinale>jaune_pale</cfinale>
+    <reactif_nom>Empois d'amidon</reactif_nom>
+    <reactif_formule>(C_6_H_10_O_5_)_n_</reactif_formule>
+    <type>3</type>
+  </dosage>
+</dosages>

@@ -1,0 +1,315 @@
+html {
+    height: 100%
+}
+
+h3 {
+    padding-left: 2px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    color: #bed650;
+}
+
+.title {
+    background-color: #176BE8;
+    color:#bed650;
+    font-size: 1.5em;
+    padding-left: 10px;
+}
+
+body {
+    min-height: 100%;
+    padding: 0px;
+    margin: 0px;
+    position: relative;
+    padding-bottom: 5em;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #176BE8;
+    color: #E9F02B;
+    font-family: sans-serif;
+    font-style: italic;
+    font-size: 0.8em;
+    padding-left: 0.4em;
+    padding: 0.5em;
+}
+
+.footer {
+    padding-left: 10px;
+    margin: 0px;
+}
+
+* {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.font-solution {
+    font-style: italic;
+    font-family: Mathjax Tex;
+    font-size: 1.1rem;
+}
+
+#title-bar {
+    -webkit-app-region: drag;
+    height: 34px;
+    background-color: grey;
+    padding: none;
+    margin: 0px;
+}
+
+#title {
+    position: fixed;
+    top: 0px;
+    left: 6px;
+}
+
+#title-bar-btns {
+    -webkit-app-region: no-drag;
+    position: fixed;
+    top: 0px;
+    margin: 4px;
+    right: 6px;
+}
+
+.form-coeffs {
+    width: 4em !important;
+    display: inline;
+    margin-right: 5px;
+    margin-left: 5px;
+    height: 2em;
+    margin-top: 0.5em;
+}
+
+.form-quantite {
+    width: 6em;
+    height: 2em;
+}
+
+.disabledTab {
+    pointer-events: none;
+}
+
+.equation {
+    font-size: 1.2em;
+}
+
+fieldset.type-border {
+    border: solid 1px #DDD !important;
+    padding: 0 10px 10px 10px;
+    border-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+legend.type-border {
+    width: auto !important;
+    border: none;
+    font-size: 1em;
+    color:#176BE8
+}
+
+.alert {
+    margin-top: 1rem;
+}
+
+input[type=radio] {
+    margin: 0rem 1rem;
+}
+
+
+
+input[type=text],
+input[type=password] {
+    margin: 0.5rem 1rem; 
+}
+
+.btn {
+    margin: 10px 5px;
+}
+
+.red {
+    color: red;
+}
+
+.zomm {
+    transform-origin: 0% 0%;
+}
+
+.img {
+    width: 100%;
+}
+
+#pb_img {
+    transition: transform 1s linear;
+}
+
+.info {
+    padding-top: 1rem;
+    padding-left: 0px
+}
+
+.lclose {
+    left: 0;
+    color: red;
+    font-size: 1.2rem;
+    padding: 0;
+}
+
+@media (min-width: 576px) {
+    .modal-xlg {
+        width: 80%;
+        max-width: 80%;
+    }
+}
+
+.info1 {
+    font-weight: bold;
+    color: #4400EE;
+}
+
+.mmol {
+    margin-right: 2em;
+}
+
+.icon {
+    margin: 1em;
+    background-color: #E4EFFF;
+    border: 1px solid #9FC6FF;
+    padding: 5px;
+    /*arrondir les coins en haut à gauche et en bas à droite*/
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.canvas {
+    border: 2px solid rgb(150, 153, 153);
+    margin-top: 10px;
+}
+
+.graph {
+    width: 510px;
+    height: 600px !important;
+}
+
+.chart-container {
+    width: 50% !important; 
+    height: 100% !important;
+    max-height: 680px;
+    max-width: 680px;
+}
+
+.error_feedback, .valid_feedback {
+    font-size: small;
+    padding-left: 5px;
+    display: none;
+    /* max-width: 12em; */
+}
+
+.error_feedback{
+    color: red !important;
+}
+
+.is-valid{
+    border-color: green !important;
+    border-width: 2px !important;
+}
+
+.is-invalid{
+    border-color: red !important;
+    border-width: 2px !important;
+}
+
+.valid_feedback {
+    color: rgb(50, 141, 14);
+}
+
+.feedback {
+    color: red;
+    font-size: small;
+    /* padding: 10px; */
+}
+
+.btn-dosage {
+    padding-left: O;
+    padding-right: O;
+    font-size: 70%;
+}
+
+.btn-image:before {
+    content: "";
+    width: 60px;
+    height: 47px;
+    display: inline-block;
+    margin-right: 5px;
+    vertical-align: middle;
+    background-color: transparent;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.link-item:hover{
+    background-color: #76abcf !important;
+}
+
+.bt-derivee:before {
+    background-image: url(../static/resources/img/dosage/bt_derivee.png);
+}
+
+.bt-tan1:before {
+    background-image: url(../static/resources/img/dosage/bt_tan1.png);
+}
+
+.bt-tan2:before {
+    background-image: url(../static/resources/img/dosage/bt_tan2.png);
+}
+
+.bt-perp:before {
+    background-image: url(../static/resources/img/dosage/bt_perp.png);
+}
+
+.bt-courbe:before {
+    background-image: url(../static/resources/img/dosage/bt_courbe.png);
+}
+
+.active-button:before{
+    background-color: #e6eef0 !important;
+    border: 3px solid rgb(80, 162, 216) !important;
+}
+
+.space {
+    margin-left: 10px;
+    float: right
+}
+
+.label {
+    white-space: normal;
+}
+
+.objectif {
+    color:#000
+}
+
+.intro {
+    font-weight: bold;
+    color: #176BE8
+}
+
+.form-input{
+  height: calc(1.5em + .75rem + 2px);
+  padding: .375rem .75rem;
+  font-family: 1rem;
+  font-weight: 400;
+  line-height: 1,5;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;;
+  border-radius: .25rem;
+  transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+

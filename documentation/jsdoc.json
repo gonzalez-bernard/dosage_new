@@ -1,0 +1,40 @@
+{
+  "tags": {
+      "allowUnknownTags": true
+  },
+  "source": {
+    "include": ["src"],
+    "exclude": [],
+    "includePattern": ".js$",
+    "excludePattern":"(node_modules/|docs)"
+  },
+  "plugins": [
+      "plugins/markdown"
+  ],
+  "templates": {
+      "cleverLinks": false,
+      "monospaceLinks": true,
+      "useLongnameInNav": false,
+      "showInheritedInNav": true
+  },
+  "opts": {
+      "destination": "./docs/",
+      "encoding": "utf8",
+      "private": true,
+      "recurse": true,
+      "template": "./node_modules/clean-jsdoc-theme"
+  },
+  "extendedConfig": {
+    "navbar": {
+      "logo": {
+        "img": "https://unitybase.info/img/UB-logo.png",
+        "href": "index.html"
+      }
+      
+    },
+    "extends": [
+      "./src/generators/gettingStarted",
+      "./src/generators/mainDocPage"
+    ]
+  }
+}

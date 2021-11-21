@@ -1,0 +1,27 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  },  
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true,
+    "amd": true
+  },
+  "globals": {
+    "browser": true,
+    "console": true
+  },
+  "rules": {
+    "@typescript-eslint/ban-ts-comment": "off",
+    "strict": [
+      2,
+      "global"
+    ]
+  }
+}

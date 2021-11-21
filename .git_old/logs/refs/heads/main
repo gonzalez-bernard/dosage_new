@@ -1,0 +1,28 @@
+0000000000000000000000000000000000000000 cebdc5d74cad7ecacc22edefef29529f8a7155fd gonzalez.bernard <gonzalez.bernard@gmail.com> 1619600963 +0200	commit (initial): archives
+cebdc5d74cad7ecacc22edefef29529f8a7155fd 9f988504c65274c212cec2831b145cb597d77bcd gonzalez.bernard <gonzalez.bernard@gmail.com> 1619601110 +0200	commit: Clonage initial
+9f988504c65274c212cec2831b145cb597d77bcd a3b654213e7dc3bfd1719548ca981bf0d29910a2 gonzalez.bernard <gonzalez.bernard@gmail.com> 1619601296 +0200	commit: Clonage suite
+a3b654213e7dc3bfd1719548ca981bf0d29910a2 25211882c6077bcb38e5ce86507e6252876d452e gonzalez.bernard <gonzalez.bernard@gmail.com> 1619601554 +0200	commit: Clonage suite
+25211882c6077bcb38e5ce86507e6252876d452e 3b8c565370b006e2171164e7c77b20512663248b gonzalez.bernard <gonzalez.bernard@gmail.com> 1619601706 +0200	commit: Clonage fin
+3b8c565370b006e2171164e7c77b20512663248b 23e2e79f25a68cdb21e4dcadc3e6108b5a94c778 gonzalez.bernard <gonzalez.bernard@gmail.com> 1619601734 +0200	commit: git_ignore
+23e2e79f25a68cdb21e4dcadc3e6108b5a94c778 333e9ba25aa5ff44f11e3598560ca83437b4da0a gonzalez.bernard <gonzalez.bernard@gmail.com> 1619603850 +0200	commit: formatage
+333e9ba25aa5ff44f11e3598560ca83437b4da0a bc44a99c91f1b7bb063095abd07198a0aa362b2a gonzalez.bernard <gonzalez.bernard@gmail.com> 1619604277 +0200	commit: creation dossier py et déplacement des fonctions
+bc44a99c91f1b7bb063095abd07198a0aa362b2a 28f23505548df5f2b87b80b228300e3d179593ca gonzalez.bernard <gonzalez.bernard@gmail.com> 1619613514 +0200	commit: dosage formatage et création dossier py et ui
+28f23505548df5f2b87b80b228300e3d179593ca 7b957e91fac565cc9dc360bbdc131b967adc6e47 gonzalez.bernard <gonzalez.bernard@gmail.com> 1619766923 +0200	commit: Modification graphe
+7b957e91fac565cc9dc360bbdc131b967adc6e47 951583eab8417769ad2b261b35354ad0c995bb54 gonzalez.bernard <gonzalez.bernard@gmail.com> 1619773692 +0200	commit: déplacement interface
+951583eab8417769ad2b261b35354ad0c995bb54 fbbb93bfa92988acf2225e3364118ce5268e0f12 gonzalez.bernard <gonzalez.bernard@gmail.com> 1619810790 +0200	commit: Mise en forme
+fbbb93bfa92988acf2225e3364118ce5268e0f12 68c0fe47bbddf7578a0bdc676684ce12e4c8ef5a gonzalez.bernard <gonzalez.bernard@gmail.com> 1619860653 +0200	commit: modification infos.js
+68c0fe47bbddf7578a0bdc676684ce12e4c8ef5a ec1771d6bbcb9a0e5aeee9dfe77ff39c6b35331a gonzalez.bernard <gonzalez.bernard@gmail.com> 1625052815 +0200	commit: refonte
+ec1771d6bbcb9a0e5aeee9dfe77ff39c6b35331a ed76a1486ddb6723170589bd8c5c958805de61ef gonzalez.bernard <gonzalez.bernard@gmail.com> 1625062756 +0200	commit: ajout exc volume
+ed76a1486ddb6723170589bd8c5c958805de61ef 5b7d3500b08d2f39a2b9382e6d2bbb6cef545474 gonzalez.bernard <gonzalez.bernard@gmail.com> 1628193266 +0200	commit: modifications
+5b7d3500b08d2f39a2b9382e6d2bbb6cef545474 27ddb174c6bebf1d50e16fabea8b246ed448bcc2 gonzalez.bernard <gonzalez.bernard@gmail.com> 1628522483 +0200	commit: Gestion erreurs
+27ddb174c6bebf1d50e16fabea8b246ed448bcc2 27ddb174c6bebf1d50e16fabea8b246ed448bcc2 gonzalez.bernard <gonzalez.bernard@gmail.com> 1628523146 +0200	Branch: renamed refs/heads/master to refs/heads/main
+27ddb174c6bebf1d50e16fabea8b246ed448bcc2 4e74c7583168eff9a8dda39fa4ea5ca282974897 gonzalez.bernard <gonzalez.bernard@gmail.com> 1630307952 +0200	commit: Mise à jour
+4e74c7583168eff9a8dda39fa4ea5ca282974897 44e36f97f57a37250a32bdc8e6484b3cb9ac9d5e gonzalez.bernard <gonzalez.bernard@gmail.com> 1631707783 +0200	commit: Modification structurel importante
+44e36f97f57a37250a32bdc8e6484b3cb9ac9d5e 16f713639e010cdbc0d42dc19caad9a0289ecef0 gonzalez.bernard <gonzalez.bernard@gmail.com> 1631736489 +0200	commit: Essai
+16f713639e010cdbc0d42dc19caad9a0289ecef0 5708c8768bf90042486a452c85689678b28e0182 gonzalez.bernard <gonzalez.bernard@gmail.com> 1633088196 +0200	commit: jsdoc
+5708c8768bf90042486a452c85689678b28e0182 90be6c41e27477682637c16738805ae9280efd1d gonzalez.bernard <gonzalez.bernard@gmail.com> 1633806800 +0200	commit: restructuration
+90be6c41e27477682637c16738805ae9280efd1d e6ed41e1fd1290d339079424f8704f443dfd75f7 gonzalez.bernard <gonzalez.bernard@gmail.com> 1635163889 +0200	commit: typescript1
+e6ed41e1fd1290d339079424f8704f443dfd75f7 9e9a9bcb867724cc9d98657ebdbc7e58c6580792 gonzalez.bernard <gonzalez.bernard@gmail.com> 1637486746 +0100	commit: modif_1
+9e9a9bcb867724cc9d98657ebdbc7e58c6580792 e6ed41e1fd1290d339079424f8704f443dfd75f7 gonzalez.bernard <gonzalez.bernard@gmail.com> 1637487560 +0100	reset: moving to HEAD~
+e6ed41e1fd1290d339079424f8704f443dfd75f7 8e21c2e8cb595e842a42fb16887bd5a5cdf6c7bc gonzalez.bernard <gonzalez.bernard@gmail.com> 1637487765 +0100	commit: modif_1
+8e21c2e8cb595e842a42fb16887bd5a5cdf6c7bc e6ed41e1fd1290d339079424f8704f443dfd75f7 gonzalez.bernard <gonzalez.bernard@gmail.com> 1637497952 +0100	reset: moving to HEAD~

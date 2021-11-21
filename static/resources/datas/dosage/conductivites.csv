@@ -1,0 +1,44 @@
+formule,nom,conductivite
+Ag'+',Argent,6.19
+Al'3+',Aluminium,18.9
+Ca'2+',Calcium,11.9
+Fe'2+',Ferreux,10.7
+Fe'3+',Ferrique,20.4
+H_3_O'+',Hydrogène,35.0
+K'+',Potassium,7.4
+Mn'2+',Manganèse,10.7
+Mg'2+',Magnésium,10.6
+Na'+',Sodium,5.0
+NH_4_'+',Ammonium,7.3
+Zn'2+',Zinc,10.6
+Cl'-',Chlorure,7.6
+HCO_3_'-',Hydrogénocarbonate,4.5
+CO_3_'2-',Carbonate,13.9
+MnO_4_'-',Permanganate,6.1
+NO_3_'-',Nitrate,7.1
+HO'-',Hydroxyde,19.9
+OH'-',Hydroxyde,19.9
+HSO_4_'-',Hydrogénosulfate,5.2
+SO_4_'2-',Sulfate,16.0
+CH_3_CO_2_'-',Ethanoate,4.1
+CH_3_COO'-',Ethanoate,4.1
+H_2_PO_4_'-',Dihydrogénophosphate,3.6
+HPO_4_'2-',Hydrogénophosphate,5.7
+PO_4_'3-', Phosphate, 27,8
+HCOO'-',Méthanoate,5.5
+HCO_2_'-',Méthanoate,5.5
+C_6_H_5_CO_2_'-',Benzoate,3.2
+C_6_H_5_COO'-',Benzoate,3.2
+Ba'2+',Baryum,12.7
+Cr_2_O_7_'2-',dichromate,19.9
+Cr'3+',chrome,20.1
+CaNt'-',complexe calcium-noir erichrome, 5.0
+Y'4-', ion edta, 8.0
+HNt'2-',hydrogène-noir erichrome, 12.0
+CaY'2-', sel edta-calcium, 7.0,
+CH_3_NH_3_'+', methylammonium,5,9
+Cu'2+', cuivrique, 10.7
+Cu'+', cuivreux, 8.4
+S_2_O_3_'2-', thiosulfate, 17
+S_4_O_6_'2-', tetrathionate, 18 
+I'-', iodure, 7.7
