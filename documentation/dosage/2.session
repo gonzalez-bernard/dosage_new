@@ -1,0 +1,12 @@
+window_sizes 1800 894 450 1344 717 120
+cleanlooks_style
+diagrams
+  active  activitydiagram_ref 128258 // d
+    1075 573 100 A4 0 0
+end
+show_stereotypes
+selected activitydiagram_ref 128258 // d
+open
+  activity_ref 128002 // act
+end
+end

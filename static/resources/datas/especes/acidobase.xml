@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<especes>
+  <espece id='1'>
+    <formule>HCl</formule>
+    <indics>[0,1,2,3,4]</indics>
+    <nom>Acide Chlorhydrique</nom>
+    <nomc>de l'Acide Chlorhydrique</nomc>
+    <acide>H_3_O'+'</acide>
+    <base>H_2_O</base>
+    <spec>Cl'-'</spec>
+    <nom_acide>ion hydronium</nom_acide>
+    <nom_base>ion chlorure</nom_base>
+    <pka>-6</pka>
+    <type>0</type>
+  </espece>
+
+  <espece id='2'>
+    <formule>HNO_3_</formule>
+    <indics>[0,1,2,3,4]</indics>
+    <nom>Acide nitrique</nom>
+    <nomc>de l'Acide nitrique</nomc>
+    <acide>H_3_O'+'</acide>
+    <base>NO_3_'-'</base>
+    <nom_acide>ion hydronium</nom_acide>
+    <nom_base>ion nitrate</nom_base>
+    <pka>-2</pka>
+    <type>0</type>
+  </espece>
+  
+  <espece id='3'>
+    <formule>H_2_SO_4_</formule>
+    <nom>Acide sulfurique</nom>
+    <nomc>de l'Acide sulfurique</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>H_2_SO_4_</acide>
+    <ampho>HSO_4_'-'</ampho>
+    <base>SO_4_'2-'</base>
+    <nom_acide>ion hydronium</nom_acide>
+    <nom_ampho>ion hydrogénosulfate</nom_ampho>
+    <nom_base>ion sulfate</nom_base>
+    <pka>-4,1.9</pka>
+    <type>2</type>
+  </espece>
+
+  <espece id='4'>
+    <formule>CH_3_CO_2_H</formule>
+    <nom>Acide éthanoïque</nom>
+    <nomc>de l'Acide éthanoïque</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>CH_3_COOH</acide>
+    <base>CH_3_COO'-'</base>
+    <nom_acide>Acide éthanoïque</nom_acide>
+    <nom_base>ion éthanoate</nom_base>
+    <pka>4.75</pka>
+    <type>1</type>
+  </espece>
+
+  <espece id='5'>
+    <formule>H_3_PO_4_</formule>
+    <nom>Acide phosphorique</nom>
+    <nomc>de l'Acide phosphorique</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>H_3_PO_4_</acide>
+    <ampho>H_2_PO_4_'-'</ampho>
+    <base>HPO_4_'2-'</base>
+    <spec>Na'+'</spec>
+    <nom_acide>Acide phosphorique</nom_acide>
+    <nom_base>ion dihydrogénophosphate</nom_base>
+    <nom_ampho>ion hydrogénophosphate</nom_ampho>
+    <pka>2.15,7.2</pka>
+    <type>3</type>
+  </espece>
+
+  <espece id='6'>
+    <formule>CO_2_,H_2_O</formule>
+    <nom>Dioxyde de carbone dissous</nom>
+    <nomc>du Dioxyde de carbone dissous</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>CO_2_,H_2_O</acide>
+    <ampho>HCO_3_'-'</ampho>
+    <base>CO_3_'2-'</base>
+    <nom_acide>Dioxyde de carbone dissous</nom_acide>
+    <nom_ampho>ion hydrogénocarbonate</nom_ampho>
+    <nom_base>ion carbonate</nom_base>
+    <pka>6.1,10.3</pka>
+    <type>3</type>
+  </espece>
+
+  <espece id='7'>
+    <formule>HCOOH</formule>
+    <nom>Acide formique</nom>
+    <nomc>de l'Acide formique</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>HCOOH</acide>
+    <base>HCOO'-'</base>
+    <nom_acide>Acide formique</nom_acide>
+    <nom_base>ion formiate</nom_base>
+    <pka>3.74</pka>
+    <type>1</type>
+  </espece>
+
+  <espece id='8'>
+    <formule>C_6_H_6_CO_2_H</formule>
+    <nom>Acide benzoïque</nom>
+    <nomc>de l'Acide benzoïque</nomc>
+    <acide>C_6_H_5_COOH</acide>
+    <indics>[0,1,2,3,4]</indics>
+    <base>C_6_H_5_COO'-'</base>
+    <nom_acide>Acide benzoïque</nom_acide>
+    <nom_base>ion benzoate</nom_base>
+    <pka>4.2</pka>
+    <type>1</type>
+  </espece>
+
+  <espece id='9'>
+    <formule>NH_4_Cl</formule>
+    <nom>Chlorure d'Ammonium</nom>
+    <nomc>du Chlorure d'Ammonium</nomc>
+    <acide>NH_4_'+'</acide>
+    <indics>[0,1,2,3,4]</indics>
+    <base>NH_3_</base>
+    <spec>Cl'-'</spec>
+    <nom_acide>ion ammonium</nom_acide>
+    <nom_base>Ammoniac</nom_base>
+    <pka>9.2</pka>
+    <type>1</type>
+  </espece>
+
+  <espece id='10'>
+    <formule>NH_3_,H_2_O</formule>
+    <nom>Ammoniaque</nom>
+    <nomc>de l'Ammoniaque</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>NH_4_'+'</acide>
+    <base>NH_3_</base>
+    <nom_acide>ion ammonium</nom_acide>
+    <nom_base>Ammoniac</nom_base>
+    <pka>9.2</pka>
+    <type>5</type>
+  </espece>
+
+  <espece id='11'>
+    <formule>NaOH</formule>
+    <nom>Hydroxyde de sodium</nom>
+    <nomc>de l'Hydroxyde de sodium</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>H_2_O</acide>
+    <base>HO'-'</base>
+    <spec>Na'+'</spec>
+    <nom_acide>eau</nom_acide>
+    <nom_base>ion hydroxyde</nom_base>
+    <pka>14</pka>
+    <type>4</type>
+  </espece>
+
+  <espece id='12'>
+    <formule>KOH</formule>
+    <nom>Hydroxyde de potassium</nom>
+    <nomc>de l'Hydroxyde de potassium</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>H_2_O</acide>
+    <base>HO'-'</base>
+    <spec>K'+'</spec>
+    <nom_acide>eau</nom_acide>
+    <nom_base>ion hydroxyde</nom_base>
+    <pka>14</pka>
+    <type>4</type>
+  </espece>
+
+  <espece id='13'>
+    <formule>CH_3_NH_2_</formule>
+    <nom>Méthylamine</nom>
+    <nomc>de la Méthylamine</nomc>
+    <indics>[0,1,2,3,4]</indics>
+    <acide>CH_3_NH_3_'+'</acide>
+    <base>CH_3NH_2_</base>
+    <nom_acide>ion méthylammonium</nom_acide>
+    <nom_base>Méthylamine</nom_base>
+    <pka>10.7</pka>
+    <type>5</type>
+  </espece>
+</especes>

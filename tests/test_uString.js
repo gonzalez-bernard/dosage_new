@@ -1,0 +1,20 @@
+import { uString } from "../src/modules/utils/utilsString.js";
+
+var t = new uString("toto c'est --> bien H_2_O'3+'");
+console.log(t)
+t.insertMotif("xx",2)
+console.log(t)
+t.insertMotif("yy",2)
+console.log(t.val)
+t.capitalize()
+console.log(t)
+t.convertHtmlChar()
+console.log(t)
+t.convertArrow()
+console.log(t)
+console.log(t.html)
+t.convertExpoIndice()
+console.log(t)
+var d = new uString("[a,b]")
+d.strListToArray()
+console.log (d.array)

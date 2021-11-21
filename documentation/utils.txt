@@ -1,0 +1,27 @@
+MODULE : UTILS.JS
+
+convertExpoIndice
+convertHtmlChar
+dspHtmlLatex
+dspModalInfo
+formSetFeedback
+formSetOptions
+formValidButtons
+  _valid_class
+  _verif_inputfields
+    _valid_class
+  _valid_inputfield
+  _valid_passwords
+    _valid_class
+getArrayObjectExtremumValues
+getArrayObjectNearIndex
+getArrayNearIndex
+getDecimal
+getInterval
+hexToRgb
+mathArrondir
+regToHex
+roundDecimal
+valuesToRgba
+
+

@@ -1,0 +1,67 @@
+/*** especes.ui ***/
+updSaisieSelect       OK
+initDataInfo          OK
+dspPH                 OK
+changeOxSelect        OK
+updEspeces            OK
+inputValidSaisie      OK
+getListEspeceTitrante OK
+_initEspeces          OK
+_updEspece            OK
+_setListOxydo         OK
+_setListAcideBase     OK
+
+/** initAgitateur **/
+initAgitateur         OK
+
+/** initAppareil **/
+display               OK
+
+/** initBecher  **/
+initBecher            OK
+
+/** initConductimetre  **/
+initConductimetre     OK
+
+/** initPhmetre   **/
+initPhmetre           OK
+setPhmetre            OK
+
+/** initTooltip  **/
+initTooltip           OK
+
+/** burette.js  **/
+vidange               OK
+leave                 OK
+showDetails           OK
+setColor              OK
+reset                 OK
+
+/**  becher.js  **/
+setColor              OK
+remplir               OK
+showDetail            OK
+reset                 OK
+
+/**  flacon.js   **/
+vidange               OK
+chgText               OK
+dispose               OK
+
+/**  tooltip.js  **/
+dspText               OK
+
+/**  dosage_ox.js **/
+initDosageOX          OK
+
+/**  dosage.js  **/
+createLab             OK
+dspMessage            OK
+getColor              OK
+vidange               OK
+
+/**  dosage.ui.js  **/
+setClassMenu          OK
+setButtonState        OK
+setButtonClass        OK
+

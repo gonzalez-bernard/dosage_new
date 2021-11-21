@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<problems>
+  <problem id="1">
+    <level>2</level>
+    <type>1</type>
+    <objectif>Apprendre à utiliser le logiciel</objectif>
+    <context>Le pH d&apos;une solution d&apos;acide chlorhydrique dépend de sa concentration.[br/]</context>
+    <question>Quel est le pH d&apos;une solution d&apos;acide chlorhydrique de concentration c = #ci# mol/L ?</question>
+    <donnees>#ci#=round(uniform(0.005,0.05),2);#vi#=10</donnees>
+    <inconnu>
+      <label>Le pH de l&apos;acide est de : </label>
+      <field>
+        <name></name>
+        <value>#X#</value>
+        <unit></unit>
+        <precision>[0.01,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>1</value>
+      </field>
+    </inconnu>
+    <calcul>#X#=round(-math.log10(#ci#),2)</calcul>
+    <solution></solution>
+    <help>[p]Utiliser [b]la mesure du pH[/b] pour déterminer le [b]pH initial[/b].[/p][p] Attention à ne pas mettre d&apos;eau dans le bécher pour ne pas diluer l&apos;acide.[/p]
+    </help>
+    <img>labo1.png</img>
+  </problem>
+
+  <problem id="2">
+    <level>2</level>
+    <type>1</type>
+    <objectif>Apprendre à utiliser le logiciel</objectif>
+    <context>Le pH d&apos;une solution d&apos;acide nitrique dépend de sa concentration.[br/]</context>
+    <question>Quel est le pH d&apos;une prise d&apos;essai de #vi# mL d&apos;une solution d&apos;acide nitrique de concentration c = #ci# mol/L dans un bécher contenant initialement #ve# mL d&apos;eau ?</question>
+    <donnees>#ci#=round(uniform(0.005,0.05),2);#vi#=random.choice([5,10,15,20]); #ve#= random.choice([10,20,30,40])</donnees>
+    <inconnu>
+      <label>Le pH de l&apos;acide est de : </label>
+      <field>
+        <name></name>
+        <value>#X#</value>
+        <unit>mol/L</unit>
+        <precision>[0.05,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>2</value>
+      </field>
+    </inconnu>
+    <calcul>#X#=round(-math.log10(#ci# * #vi#/(#vi# + #ve#)),2)</calcul>
+    <solution></solution>
+    <help>Utiliser [b]la mesure du pH[/b] pour déterminer le [b]pH initial[/b]. Attention à ne pas mettre d&apos;eau dans le bécher pour ne pas diluer l&apos;acide.
+    </help>
+    <img>labo2.png</img>
+  </problem>
+
+  <problem id="3">
+    <level>2</level>
+    <type>1</type>
+    <objectif>Réaliser un dosage acido-basique pour déterminer la constante Ka d&apos;un acide faible</objectif>
+    <context>On dose une solution d&apos;acide éthanoïque par une solution d&apos;hydroxyde de sodium de concentration molaire c(NaOH) = #ct# mol/L.[br/]
+    On mesure ainsi le pKa pour en déduire la constante d&apos;acidité Ka</context>
+    <question>Réaliser le dosage pour en déduire la constante d&apos;acidité Ka de l&apos;acide.</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=10</donnees>
+    <inconnu>
+      <label>La constante d&apos;acidité Ka de l&apos;acide est de : </label>
+      <field>
+        <name></name>
+        <value>#X#</value>
+        <unit></unit>
+        <precision>[0.1,0.2]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>4</value>
+      </field>
+      <field>
+        <name>stitrant</name>
+        <value>11</value>
+      </field>
+    </inconnu>
+    <calcul>#X#=formatSignificatif(math.pow(10,-4.75),3)</calcul>
+    <help>Utiliser un [b]indicateur coloré[/b] ou la [b]mesure du pH[/b] pour déterminer le [br/]volume à l&apos;équivalence Ve[/b]. [br/]Pour un volume de prise d&apos;essai de 10 mL d&apos;acide, la constante d&apos;acidité Ka se déduit de la mesure du pKa par la relation  : [br/]
+      $$ K_a = 10^{-pKa} $$
+    La mesure du pKa correspond au pH à la demi-équivalence c&apos;est à dire pour V = Ve/2
+    </help>
+    <img>titration4.jpg</img>
+  </problem>
+
+  <problem id="4">
+    <level>1</level>
+    <type>1</type>
+    <objectif>Réaliser un dosage acido-basique pour déterminer la concentration d&apos;un acide, en mesurant le volume équivalent.</objectif>
+    <context>On dose une solution [b] d&apos;acide chlorhydrique[/b] par une solution [br/]d&apos;hydroxyde de sodium[/b] de concentration molaire [br/]c(NaOH) = #ct# mol/L.[br/][hr/]</context>
+    <question>Réaliser le dosage pour en déduire la concentration molaire de l&apos;acide.</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=10;#ci#=round(uniform(0.005,0.05),3)</donnees>
+    <inconnu>
+      <label>La concentration molaire de l&apos;acide est de : </label>
+      <field>
+        <name>ci</name>
+        <value>#ci#</value>
+        <unit>mol/L</unit>
+        <precision>[0.01,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>1</value>
+      </field>
+      <field>
+        <name>stitrant</name>
+        <value>11</value>
+      </field>
+  
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <help>Utiliser un [b]indicateur coloré[/b] ou la [b] mesure du pH[/b] pour déterminer le [br/]volume à l&apos;équivalence Ve[/b]. [br/]Pour un volume de prise d&apos;essai de 10 mL d&apos;acide, la concentration en acide sera donnée par la relation : [br/]
+      $$ c(HCl) = c(NaOH) \times \frac{Veq}{V(HCl)} = #ct# \times \frac{Veq}{#vi#}. $$
+    </help>
+    <img>titration1.gif</img>
+  </problem>
+
+  <problem id="5">
+    <level>1</level>
+    <type>1</type>
+    <objectif>Réaliser un dosage acido-basique pour déterminer la concentration d&apos;un acide</objectif>
+    <context>On dose une solution d&apos;acide sulfurique H_2_SO_4_ par une solution d&apos;hydroxyde de sodium de concentration molaire c(NaOH) = #ct# mol/L.[br/]</context>
+    <question>Réaliser le dosage pour en déduire la concentration molaire de l&apos;acide.</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=10;#ci#=round(uniform(0.002,0.02),3)</donnees>
+    <inconnu>
+      <label>La concentration molaire de l&apos;acide est de : </label>
+      <field>
+        <name>ci</name>
+        <value>#ci#</value>
+        <unit>mol/L</unit>
+        <precision>[0.01,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>3</value>
+      </field>
+      <field>
+        <name>stitrant</name>
+        <value>11</value>
+      </field>
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <help>Utiliser un [b]indicateur coloré[/b] ou la [b]mesure du pH[/b] pour déterminer le [b]volume à l&apos;équivalence Ve[/b]. [br/]Pour un volume de prise d&apos;essai de 10 mL d&apos;acide, la concentration en acide sera donnée par la relation : [br/]
+      $$ c(H_2SO_4) = 0.5 \times c(NaOH) \times \frac{V_{eq}}{V(H_2SO_4)} $$
+    L&apos;acide sulfurique est un diacide considéré comme fort ce qui justifie le coefficient 0.5 dans la formule.
+    </help>
+    <img>titration1.gif</img>
+  </problem>
+
+  <problem id="6">
+    <level>1</level>
+    <type>1</type>
+    <objectif>Réaliser un dosage acido-basique pour déterminer la concentration d&apos;une base</objectif>
+    <context>On veut doser une solution d&apos;hydroxyde de sodium par une solution d&apos;acide de concentration connue.[br/]</context>
+    <question>Réaliser le dosage pour en déduire la concentration molaire de la base.</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=10;#ci#=round(uniform(0.002,0.02),3)</donnees>
+    <inconnu>
+      <label>La concentration molaire de l&apos;hydroxyde de sodium est de : </label>
+      <field>
+        <name>ci</name>
+        <value>#ci#</value>
+        <unit>mol/L</unit>
+        <precision>[0.01,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>11</value>
+      </field>
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <help>Utiliser un [b]indicateur coloré[/b] ou la [b]mesure du pH[/b] pour déterminer le [b]volume à l&apos;équivalence Ve[/b]. [br/]Pour un volume de prise d&apos;essai de 10 mL de base, la concentration en base sera donnée par la relation : [br/]
+      $$ c(NaOH) = c(acide) \times \frac{V_{eq}}{V(acide)} = #ct# \times \frac{V_{eq}}{#vi#}. $$
+    </help>
+    <img>titration3.jpg</img>
+  </problem>
+
+  <problem id="7">
+    <level>1</level>
+    <type>2</type>
+    <objectif>Dosage d&apos;oxydo-réduction</objectif>
+    <context>On dose une solution d&apos;ions fer II (Fe&apos;2+&apos;) par une solution d&apos;ions permanganate (MnO_4_&apos;-&apos;) de concentration connue.[br/]</context>
+    <question>Quelle est la concentration en ions fer de la solution ?[br/]Le titrage s&apos;effectue dans une prise d&apos;essai de #vi# mL de solution ?</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=random.choice([5,10,15,20]);#ci#=round(uniform(0.025,0.20),2)</donnees>
+    <inconnu>
+      <label>La concentration en ions Fe&apos;2+&apos; est de : </label>
+      <field>
+        <name>ci</name>
+        <value>#ci#</value>
+        <unit>mol/L</unit>
+        <precision>[0.01,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>1</value>
+      </field>
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <help>L&apos;équation de la réaction est 5 Fe&apos;2+&apos; + MnO_4_&apos;-&apos; + 8 H_3_O&apos;+&apos; -&gt; 5 Fe&apos;3+&apos; + Mn&apos;2+&apos; + 4 H_2_O[br/]
+    A l&apos;équivalence la quantité d&apos;ions Fe&apos;2+&apos; consommé est 5 fois plus importante que celle des ions MnO_4_&apos;-&apos;. On peut donc écrire :
+    $$ c(Fe^{2+}) = 5 \times \frac{c(MnO_4^-) \times V_{eq}}{V(Fe^{2+})} $$ 
+    Le volume équivalent peut être déterminé par conductimétrie ou par le changement de coloration de la solution.
+    </help>
+    <img>labo3.jpg</img>
+  </problem>
+
+  <problem id="8">
+    <level>1</level>
+    <type>2</type>
+    <objectif>Dosage d&apos;oxydo-réduction</objectif>
+    <context>On dose une solution d&apos;ions fer II (Fe&apos;2+&apos;) par une solution d&apos;ions dichromate (Cr_2_O_7_&apos;2-&apos;) de concentration connue.[br/]</context>
+    <question>Quelle est la concentration en ions fer de la solution ?[br/]Le titrage s&apos;effectue dans une prise d&apos;essai de #vi# mL de solution ?</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=random.choice([5,10,15,20]);#ci#=round(uniform(0.025,0.20),2)</donnees>
+    <inconnu>
+      <label>La concentration en ions Fe&apos;2+&apos; est de : </label>
+      <field>
+        <name>ci</name>
+        <value>#ci#</value>
+        <unit>mol/L</unit>
+        <precision>[0.05,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>2</value>
+      </field>
+
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <help>L&apos;équation de la réaction est 6 Fe&apos;2+&apos; + Cr_2_O_7_&apos;2-&apos; + 14 H_3_O&apos;+&apos; -&gt; 6 Fe&apos;3+&apos; + 2 Cr&apos;3+&apos; + 21 H_2_O[br/]
+    A l&apos;équivalence la quantité d&apos;ions Fe&apos;2+&apos; consommé est 6 fois plus importante que celle des ions Cr_2_O_7_&apos;2-&apos;. On peut donc écrire :
+    $$ c(Fe^{2+}) = C \times \frac{c(Cr_2_O_7_&apos;2-&apos;) \times V_{eq}}{V(Fe^{2+})} $$ 
+    Le volume équivalent peut être déterminé par conductimétrie ou par le changement de coloration de la solution.
+    </help>
+    <img>labo1.png</img>
+  </problem>
+
+  <problem id="9">
+    <level>1</level>
+    <type>3</type>
+    <objectif>Dosage par précipitation</objectif>
+    <context>Les ions argent Ag&apos;+&apos; et chlorure Cl&apos;-&apos; précipitent pour former du chlorure d&apos;argent blanc AgCl.[br/]On peut ainsi doser les ions chlorure par une solution de nitrate d&apos;argent (Ag&apos;+&apos;, NO_3_&apos;-&apos;) de concentration connue.</context>
+    <question>Trouver la concentration de la solution en ions chlorure ?[br/]Le titrage s&apos;effectue dans une prise d&apos;essai de #vi# mL de solution ?</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=random.choice([5,10,15,20]);#ci#=round(uniform(0.005,0.10),2)</donnees>
+    <inconnu>
+      <label>La concentration en ions chlorure Cl&apos;-&apos;&apos; est de : </label>
+      <field>
+        <name>ci</name>
+        <value>#ci#</value>
+        <unit>mol/L</unit>
+        <precision>[0.05,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>3</value>
+      </field>
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <help>L&apos;équation de la réaction est Cl&apos;-&apos;(aq) + Ag&apos;+&apos;(aq) -&gt; AgCl(s)[br/]
+    A l&apos;équivalence les quantités d&apos;ions Ag&apos;+&apos; et Cl&apos;-&apos; sont égales.[br/]
+    Le volume équivalent doit être déterminé par conductimétrie.
+    </help>
+    <img>labo2.png</img>
+  </problem>
+
+  <problem id="10">
+    <level>1</level>
+    <type>3</type>
+    <objectif>Dosage par précipitation</objectif>
+    <context>Les ions baryum Ba&apos;2+&apos; et sulfate SO_4_&apos;2-&apos; précipitent pour former du sulfate de baryum blanc BaSO_4_.[br/]On peut ainsi doser les ions sulfate par une solution de chlorure de baryum (Ba&apos;2+&apos;, SO_4_&apos;2-&apos;) de concentration connue.</context>
+    <question>Trouver la concentration de la solution en ions sulfate ?[br/]Le titrage s&apos;effectue dans une prise d&apos;essai de #vi# mL de solution ?</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=random.choice([5,10,15,20]);#ci#=round(uniform(0.005,0.10),2)</donnees>
+    <inconnu>
+      <label>La concentration en ions sulfate est SO_4_&apos;2-&apos;&apos; est de : </label>
+      <field>
+        <name>ci</name>
+        <value>#ci#</value>
+        <unit>mol/L</unit>
+        <precision>[0.05,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>4</value>
+      </field>
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <help>L&apos;équation de la réaction est SO_4_&apos;2-&apos;(aq) + Ba&apos;2+&apos;(aq) -&gt; BaSO_4_(s)[br/]
+    A l&apos;équivalence les quantités d&apos;ions Ba&apos;2+&apos; et SO_4_&apos;2-&apos; sont égales. [br/]
+    Le volume équivalent doit être déterminé par conductimétrie.
+    </help>
+    <img>labo3.jpg</img>
+  </problem>
+
+  <problem id="11">
+    <level>2</level>
+    <type>2</type>
+    <objectif>Dosage en retour par réaction d&apos;oxydoréduction</objectif>
+    <context>Les ions nitrate NO_3_&apos;-&apos; peuvent être dosés par les ions permanganate MnO_4_&apos;-&apos; de façon indirecte. En effet, l&apos;ion nitrate est l&apos;oxydant du couple NO_3_&apos;-&apos;/NO et l&apos;ion permanganate est aussi un oxydant du couple MnO_4_&apos;-&apos;/Mn&apos;2+&apos;.[br/]
+    On utilise donc un réactif (réducteur) intermédiaire : l&apos;ion fer II Fe&apos;2+&apos;.[br/]
+    Celui-ci mis en excès va consommer tous les ions nitrate.[br/]
+    Il suffit alors de doser les ions Fer II restants avec le permanganate.</context>
+    <question>Trouver la concentration de la solution en ions nitrate ?[br/]Le titrage s&apos;effectue dans une prise d&apos;essai de #vi# mL de solution ?</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=random.choice([5,10,15,20]);#ci#=round(uniform(0.005,0.10),4)</donnees>
+    <inconnu>
+      <label>La concentration en ions NO_3_&apos;-&apos; est de : </label>
+      <field>
+        <name>ci</name>
+        <value>#ci#</value>
+        <unit>mol/L</unit>
+        <precision>[0.05,0,1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>5</value>
+      </field>
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <help>La quantité de matière en ions nitrate est donnée par la relation :
+    $$ n(NO_3^-) = \frac{n_i(Fe^{2+}) - 5 \times c(MnO_4^-) \times V_{eq}}{3} $$
+    Le volume équivalent doit être déterminé par conductimétrie ou colorimétrie.
+    </help>
+    <img>titration4.jpg</img>
+  </problem>
+
+  <problem id="12">
+    <level>1</level>
+    <type>3</type>
+    <objectif>Dosage des ions calcium par complexation</objectif>
+    <context>On utilise la formation de complexation des ions calcium avec l&apos;EDTA (EthylèneDiamineTétraAcétique) et le NET (Noir Eriochrome).[br/]
+    L&apos;ajout de NET à une solution contenant des ions calcium forme un complexe rouge.[br/]
+    Quand on verse de l&apos;EDTA, celui fixe le calcium. Quand tout le calcium est complexé avec l&apos;EDTA, la couleur rouge disparaît. </context>
+    <question>Trouver la concentration de la solution en ions calcium ?[br/]Le titrage s&apos;effectue dans une prise d&apos;essai de #vi# mL de solution ?</question>
+    <donnees>#ct#=round(uniform(0.005,0.05),2);#vi#=random.choice([5,10,15,20]);#ci#=round(uniform(0.005,0.10),4)</donnees>
+    <inconnu>
+      <label>La concentration en ions Ca&apos;2+&apos; est de : </label>
+      <field>
+        <name></name>
+        <value>#ci#</value>
+        <unit> mol/L</unit>
+        <precision>[0.05,0.1]</precision>
+      </field>
+      <field>
+        <name>stitre</name>
+        <value>6</value>
+      </field>
+    </inconnu>
+    <calcul>#vt# = #ci# * #vi# / #ct#</calcul>
+    <help>L&apos;équation montre que les quantités de matière qui réagissent sont égales.
+    </help>
+    <solution>Le volume à l&apos;équivalence est : #vt# mL avec un réactif titrant de concentration #ct# mol/L.[br/]</solution>
+    <img>titration3.jpg</img>
+  </problem>
+</problems>

@@ -1,0 +1,24 @@
+Légende fichier dosage.xml
+
+<dosages>
+  <dosage id='1'>																# index du dosage
+    <label>																			# label dans liste déroulante
+    Dosage des ions fer II Fer'2+' par le permanganate MnO_4_'-'
+    </label>
+    <type> Oxydo-réduction </type>								# type de réaction
+    <n_reaction>1</n_reaction>										# nombre de réaction utilisé pour dosage en retour ou par différence
+    <titre>Fe'2+'</titre>													# ion titré
+    <titrant>MnO_4_'-'</titrant>										# ion titrant
+    <excipient>H_3_O'+'</excipient>								# ion nécessaire
+    <produits>Fe'3+',Mn'2+',H_2_O</produits>			# espèces obtenues
+    <reaction id = '1'>														# réaction
+      <reactifs>Fe'2+',MnO_4_'-',H_3_O'+'</reactifs>	# réactifs
+      <produits>Fe'3+',Mn'2+',H_2_O</produits>			# produits
+      <spectateur>Cl'-'</spectateur>								# espèce présente dans l'espèce titrée
+      <ajout>K'+'</ajout>													# espèce présente dans l'espèce titrante
+    </reaction>
+    <pH>4</pH>																# pH
+    <ctitre>vert_pale</ctitre>											# couleur expèce titrée
+    <ctitrant>violet</ctitrant>											# couleur espèce titrante
+    <cproduits>incolore</cproduits>								# couleur à l'équivalence
+  </dosage>
