@@ -1,5 +1,5 @@
 /** DISPATCHER - dispatcher.js*/
-
+//test
 // @ts-nocheck
 var { PythonShell } = require( "python-shell" );
 
@@ -30,8 +30,8 @@ dispatcher = function( io ) {
         } );
 
         // Récupération des especes
-        socket.on( ES_TITLE, function( ) {
-            
+        socket.on( ES_TITLE, function() {
+
             const pyshell = new PythonShell( ES_CALLBACK, options );
             pyshell.send( JSON.stringify( {} ) );
             pyshell.on( "message", function( message ) {
@@ -45,27 +45,27 @@ dispatcher = function( io ) {
 
         // Récupération du dosage
         socket.on( DOS_TITLE, function( data ) {
-            
+
             const pyshell = new PythonShell( DOS_CALLBACK, options );
             pyshell.send( data );
             pyshell.on( "message", function( message ) {
                 socket.emit( DOS_OK, message );
             } );
-            pyshell.on( "pyerror", function( err) {
-                    console.log('The exit code was: ' + err.code);
-                    console.log('The exit signal was: ' + err.signal);
-                    console.log('finished');
-                });
-                //socket.emit("pyerror", err)
-            
+            pyshell.on( "pyerror", function( err ) {
+                console.log( 'The exit code was: ' + err.code );
+                console.log( 'The exit signal was: ' + err.signal );
+                console.log( 'finished' );
+            } );
+            //socket.emit("pyerror", err)
+
             pyshell.end( function( err, code, signal ) {
-                if (err){
-                    console.log('The err was: ' + err);
-                    throw (err)
+                if ( err ) {
+                    console.log( 'The err was: ' + err );
+                    throw ( err )
                 }
-                
-                    console.log('The exit signal was: ' + signal);
-                    console.log('finished');
+
+                console.log( 'The exit signal was: ' + signal );
+                console.log( 'finished' );
             } );
         } );
 
@@ -90,11 +90,9 @@ dispatcher = function( io ) {
                 socket.emit( "getProblems_ok", message );
             } );
 
-            pyshell.end( function( err) {
+            pyshell.end( function( err ) {
                 if ( err ) console.log( err );
             } );
         } );
     } );
 }
-
-
