@@ -1,22 +1,15 @@
 /**
  * @class Flacon
  * @classdesc Gestion des flacons
- * @property {Canvas} canvas
- * @property {number} ox abcisse
- * @property {number} oy ordonnée
- * @property {number} angle angle d'inclinaison
- * @property {number} verse
- * @property {number} vidage
- * @property {number} id ID
- * @property {object} fond image du flacon
- * @property {object} flacon_image
- * @property {object} contenu_flacon
- * @property {object} texte_flacon
- * @property {object} liquide
- * @param {object} flacon flacon : {x, y, w, h, color, image}
- * @param {Canvas} canvas
  */
+
 import {getColor} from "../../dosage.js"
+
+/**
+ * @typedef {import('../../../../types/classes').Canvas} Canvas
+ * @typedef {import('../../../../types/classes').Becher} Becher
+ * @typedef {import('../../../../types/types').tFLACON} tFLACON
+ */
 
  class Flacon {
  
@@ -98,6 +91,7 @@ import {getColor} from "../../dosage.js"
    * @file flacon.js
    */
   vidange(becher){
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     var instance = this
 
     let angle = this.angle*Math.PI/180

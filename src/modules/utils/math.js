@@ -10,12 +10,17 @@ import {hasKey} from "./object.js"
 import * as e from "./errors.js"
 import {isObject} from "./type.js"
 
+/**
+ * @typedef {import ("../../../types/types").tPoint} tPoint 
+ */
+
 /** Calcule la distance entre 2 points
  * 
- * @param {Point} p1 point N°1   
- * @param {Point} p2 point N°2
+ * @param {tPoint} p1 point N°1   
+ * @param {tPoint} p2 point N°2
  * @throws {error}
- * @returns {number} distance 
+ * @returns {number} distance
+ * @file 'modules/utils/math.js'
  */
 function calcDistance2Pts( p1, p2, factor = 1 ) {
     if ( !isObject(p1) || !isObject(p2) ) throw new TypeError(e.ERROR_OBJ)
@@ -28,10 +33,11 @@ function calcDistance2Pts( p1, p2, factor = 1 ) {
 /** Calcul des distances entre points
  *
  * Calcule la distance entre la droite formée par p1 et p2 et le point p
- * @param {Point} p1
- * @param {Point} p2
- * @param {Point} p
+ * @param {tPoint} p1
+ * @param {tPoint} p2
+ * @param {tPoint} p
  * @returns {number} distance
+ * @file 'modules/utils/math.js'
  */
  function calcDistanceOrtho( p1, p2, p ) {
     if ( !isObject(p1) || !isObject(p2) || !isObject(p)) throw new TypeError(e.ERROR_OBJ)
@@ -44,10 +50,10 @@ function calcDistance2Pts( p1, p2, factor = 1 ) {
 
 /** Calcule le point milieu
  * 
- * @param {Point} p1 premier point 
- * @param {Point} p2 second point
- * @returns {Point} Point milieu
- * @throws (error)
+ * @param {tPoint} p1 premier point 
+ * @param {tPoint} p2 second point
+ * @returns {tPoint} Point milieu
+ * @file 'modules/utils/math.js'
  */
 function getMedium( p1, p2 ) {
     if ( !isObject(p1) || !isObject(p2) ) throw new TypeError(e.ERROR_OBJ)
@@ -62,12 +68,13 @@ function getMedium( p1, p2 ) {
 
 /** Calcule les coordonnées de la tangente en tenant compte de limites
  * 
- * @param {Point} point point initial
+ * @param {tPoint} point point initial
  * @param {number[]} xlim tableau des valeurs limites sur x
  * @param {number[]} ylim idem
  * @param {number} pente donc arctan(angle)
  * @param {number} dep incrément (default = 0.1)
- * @returns {Point[]} tableau des points, le point initial étant celui d'indice 1
+ * @returns {tPoint[]} tableau des points, le point initial étant celui d'indice 1
+ * @file 'modules/utils/math.js'
  */
  function getCoordsTangente(point, xlim, ylim, pente, dep = 0.1){
     let x =  point.x

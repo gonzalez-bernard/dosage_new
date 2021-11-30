@@ -7,11 +7,12 @@
  * ***export isNumeric, isFloat, isInteger, isColor, isDefined, isUndefined, isString, isArray,isBoolean, isEvent, assert, isValidArgs, isStrNum, isObject, isPoint***
  */ 
 
-/** Détecte si la chaine passée en raguments correspond à un code couleur CSS
+/** Détecte si la chaine passée en arguments correspond à un code couleur CSS
  * 
  * #rvb, #rrvvbb, #rrvvbbaa, rgb(r,v,b), rgba(r,v,b,a) ou constante
  * @param {string} strColor 
  * @returns {boolean}
+ * @file 'modules/utils/type.js'
  */
  const isColor = function( strColor ) {
   var s = new Option().style;
@@ -26,30 +27,56 @@
 
 /** Détecte si un nombre est un réel
  * 
- * Attention si la martie décimale est nulle, la fonction renvoie false
+ * Attention si la partie décimale est nulle, la fonction renvoie false
  * @param {number} n 
  * @return {boolean}
+ * @file 'modules/utils/type.js'
  */
 const isFloat = function( n ) {
   return Number( n ) === n && n % 1 !== 0;
 }
 
+/** détecte si nombre entier */
 const isInteger = function( n ) {
   return !isNaN(n) && Number.isInteger(parseFloat(n));;
 }
 
+/** détecte si argument non défini
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isUndefined = function(arg){
   return (typeof arg === 'undefined' )
 }
 
+/** détecte si argument défini
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isDefined = function (arg){
   return ! (typeof arg === 'undefined' )
 }
 
+/** détecte si argument chaîne
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isString = function(arg){
   return (typeof arg === 'string')
 }
 
+/** détecte si argument tableau
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isArray = function(arg){
   return Array.isArray(arg)
 }
@@ -65,10 +92,22 @@ const isNumeric = function( n ) {
   return true
 }
 
+/** détecte si argument booléen
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isBoolean = function(arg){
   return (typeof arg === 'boolean' )
 }
 
+/** détecte si argument est un événement
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isEvent = function(arg){
   const isObject = typeof arg  === 'object'
   if (isObject && arg.hasOwnProperty('originalEvent'))
@@ -76,21 +115,44 @@ const isEvent = function(arg){
   return false; 
 }
 
+/** détecte si argument est un objet
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isObject = function(arg){
   return (typeof arg === "object")
 }
 
+/** détecte si argument une chaîne ou  un nombre 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isStrNum = function(arg){
   if ( isString(arg) || !isNumeric(arg)) return true
   return false
 }
 
+/** détecte si argument est un point
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isPoint = function (arg){
   if (! isObject(arg)) return false
   if (!arg.hasOwnProperty('x') || !arg.hasOwnProperty('y')) return false
   return true
 }
 
+/** détecte si argument est une fonction
+ * 
+ * @param {any} arg 
+ * @returns {boolean}
+ * @file 'modules/utils/type.js'
+ */
 const isFunction = function(arg){
   return typeof arg === 'function'
 }
@@ -104,6 +166,7 @@ const isFunction = function(arg){
  * types : ["undefined","object","boolean","number","string","symbol","function"]
  * ex: [{'type': "string|number", 'arg': toto},{...}]
  * @returns {boolean}
+ * @file 'modules/utils/type.js'
  */
 const isValidArgs = function( args ) {
   let elt
@@ -123,9 +186,10 @@ const isValidArgs = function( args ) {
 }
 
 /** Vérification validité paramètre
-* 
-* @param {boolean} condition   test  
-* @param {string} message message 
+ * 
+ * @param {boolean} condition   test  
+ * @param {string} message message 
+ * @file 'modules/utils/type.js'
 */
 const assert = function( condition, message ) {
   if ( !condition )

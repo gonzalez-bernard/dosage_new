@@ -2,6 +2,12 @@ import {isNumeric, isColor, isObject} from "../../../modules/utils/type.js"
 import * as e from "../../../modules/utils/errors.js"
 
 /**
+ * @typedef {import ('../../../../types/classes').Canvas} Canvas
+ * @typedef {import ('../../../../types/classes').Becher} Becher
+ * @typedef {import ('../../../../types/types').tBURETTE} tBURETTE
+ */
+
+/**
  * @class Burette
  * @classdesc Construit l'objet Burette
  * @param {tBURETTE} burette structure
@@ -113,6 +119,7 @@ class Burette {
     if (! isNumeric(debit)) throw new TypeError(e.ERROR_NUM)
     if (! isObject(becher)) throw new TypeError(e.ERROR_OBJ)
 
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
     var o = this
     
     this.liquide.y = this.burette_f.y + this.burette_f.height/2 - 2

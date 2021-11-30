@@ -2,6 +2,11 @@
 import {isNumeric, isColor} from "../../../modules/utils/type.js"
 import {ERROR_COLOR, ERROR_NUM, ERROR_RANGE} from "../../../modules/utils/errors.js"
 
+/**
+ * @typedef {import ('../../../../types/classes').Canvas} Canvas
+ * @typedef {import ('../../../../types/types').tBECHER} tBECHER
+ */
+
 /**  Création bécher 
  *
  * @class Becher

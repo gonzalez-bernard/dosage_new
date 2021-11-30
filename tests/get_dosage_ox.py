@@ -23,7 +23,7 @@ datas.append({
   'v4': 1,
   've': 40,
   'v_max':25,
-  'ph': 1.7,
+  'ph': -0.7,
   'eq': "[{\"reactifs\":[[\"Fe²⁺\",2,{\"Fe\":1}],[\"MnO₄⁻\",-1,{\"Mn\":1,\"O\":4}],[\"H₃O⁺\",1,{\"H\":3,\"O\":1}]],\"produits\":[[\"Fe³⁺\",3,{\"Fe\":1}],[\"Mn²⁺\",2,{\"Mn\":1}],[\"H₂O\",0,{\"H\":2,\"O\":1}]],\"nom_reactifs\":\"\",\"nom_produits\":\"\",\"equation_non_equilibree\":\"Fe²⁺ + MnO₄⁻ + H₃O⁺ → Fe³⁺ + Mn²⁺ + H₂O\",\"equationEquilibre\":\"5 Fe²⁺ + 1 MnO₄⁻ + 8 H₃O⁺ → 5 Fe³⁺ + 1 Mn²⁺ + 12 H₂O\",\"coeffs\":[5,1,8,5,1,12],\"massesmolaires\":[55.8,118.9,19,55.8,54.9,18],\"colors\":[\"vert_pale\",\"violet\",\"violet\"],\"pH\":5,\"potentiels\":[[0.77,1],[1.51,5]],\"spectateurs\":[[\"Cl⁻\",-1,{\"Cl\":1}],[\"K⁺\",1,{\"K\":1}],[\"Cl⁻\",-1,{\"Cl\":1}]]}]",
   'type':1
 })
@@ -87,7 +87,7 @@ datas.append({
 })
 
 
-data = datas[4]
+data = datas[0]
 
 
 if data['type'] == C.TYPE_SIMPLE:

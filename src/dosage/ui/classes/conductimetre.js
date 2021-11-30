@@ -1,5 +1,10 @@
 import {Appareil} from "./appareil.js"
 
+/**
+ * @typedef {import ('../../../../types/classes').Canvas} Canvas
+ * @typedef {import ('../../../../types/types').tAPPAREIL} tAPPAREIL
+ */
+
 /**  Création conductimètre
  *
  * @class Conductimetre

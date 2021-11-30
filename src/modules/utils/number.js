@@ -13,28 +13,30 @@ import * as e from "./errors.js"
  * 
  * Si la partie entière a au moins autant de chiffres que precision on arrondit à l'entier
  * Sinon on garde un nombre de décimal égal à nombre de digits - precision
- * @param {any} nombre : nombre à arrondir
- * @param {any} precision : nombre de chiffres significatifs
+ * @param {number} nombre : nombre à arrondir
+ * @param {number} precision : nombre de chiffres significatifs
  * @return {string}
+ * @file 'modules/utils/number.js'
  */
 var mathArrondir = function (nombre, precision) {
 
     if (isNaN(nombre) || isNaN(precision)) throw new TypeError(e.ERROR_NUM)
 
     // transforme le nombre en chaine
-    if (typeof nombre == "number")  nombre = nombre.toString()
-    let nInteger = parseInt(nombre).toString().length
+    const  _nombre = nombre.toString()
+    let nInteger = parseInt(_nombre).toString().length
     if (nInteger >= precision)
-        return parseFloat(nombre).toFixed(0)
+        return parseFloat(_nombre).toFixed(0)
     else
-        return parseFloat(nombre).toFixed(precision - nInteger)
+        return parseFloat(_nombre).toFixed(precision - nInteger)
 }
 
 /** Arrondit un nombre avec le nombre de décimale
-* 
-* @param {number} nombre 
-* @param {number} precision
-* @return {number} nombre
+ * 
+ * @param {number} nombre 
+ * @param {number} precision
+ * @return {number} nombre
+ * @file 'modules/utils/math.js'
 */
 function roundDecimal(nombre, precision = 2) {
 
@@ -45,10 +47,11 @@ function roundDecimal(nombre, precision = 2) {
 }
 
 /** Calcule le décalage nécessaire pour qu'un nombre soit supérieur à 1
-* 
-* elle permet de définir la précision d'affichage
-* @param {number} valeur
-* @return {number} décalage
+ * 
+ * elle permet de définir la précision d'affichage
+ * @param {number} valeur
+ * @return {number} décalage
+ * @file 'modules/utils/math.js'
 */
 function getDecimal(valeur) {
 
@@ -65,12 +68,13 @@ function getDecimal(valeur) {
 }
 
 /** Détecte si une valeur est comprise dans un intervalle
-* 
-* @param {number} value valeur à tester
-* @param {number} min valeur min
-* @param {number} max valeur max
-* @param {boolean} strict si true les extremes sont exclus
-* @returns {boolean}
+ * 
+ * @param {number} value valeur à tester
+ * @param {number} min valeur min
+ * @param {number} max valeur max
+ * @param {boolean} strict si true les extremes sont exclus
+ * @returns {boolean}
+ * @file 'modules/utils/math.js'
 */
 const isInInterval = function (value, min, max, strict = true) {
     if (!isNumeric(value) || !isNumeric(min) || !isNumeric(max)) throw new TypeError(e.ERROR_NUM)

@@ -57,8 +57,9 @@ import { MNU_DOSAGE, DOSAGE } from "./ui/html_cts.js";
 * @file dosage.ui.js
 */
 function setButtonClass(bt, state = 1) {
-  let bts = [ui.DOS_BT_TAN1, ui.DOS_BT_TAN2, ui.DOS_BT_COTH, ui.DOS_BT_PERP, ui.DOS_BT_DERIVEE]
   /*
+    let bts = [ui.DOS_BT_TAN1, ui.DOS_BT_TAN2, ui.DOS_BT_COTH, ui.DOS_BT_PERP, ui.DOS_BT_DERIVEE]
+  
   for (let e in bts) {
       if (bts[e] != bt)
           getEltID(bts[e]).removeClass("active-button");

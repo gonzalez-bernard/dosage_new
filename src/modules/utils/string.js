@@ -10,10 +10,15 @@ import {isBoolean, isString, isInteger, isFloat} from "./type.js"
 import * as e from "./errors.js"
 class uString extends String {
 
+  /** 
+   * 
+   * @param {string} str texte de la chaîne 
+   */
   constructor(str) {
     super()
     this.val = str
     this.html = ''
+    this.array = []
   }
 
   /** retourne la valeur */
@@ -21,10 +26,12 @@ class uString extends String {
     return this.val
   }
 
+  /** retourne chaîne HTML */
   getHtml(){
     return this.html
   }
 
+  /** retourne tableau */
   getArray(){
     return this.array
   }
@@ -37,6 +44,7 @@ class uString extends String {
    * @param {number} pos position de départ du motif
    * @param {boolean} exist indique si on doit ajouter la chaine si elle existe déjà (false = on insère que si absente)
    * @returns {uString} chaine modifée
+   * @file 'modules/utils/string.js'
    */
   insertMotif(motif, pos = 0, exist = false) {
     
@@ -57,6 +65,7 @@ class uString extends String {
   /** Met la première lettre en majuscule
  * 
  * @returns {uString} Chaine modifiée
+ * @file 'modules/utils/string.js'
  */
   capitalize() {
     this.val = this.val.charAt(0).toUpperCase() + this.val.slice(1);
@@ -69,7 +78,8 @@ class uString extends String {
    * 
    * @param {string} ajout chaine à ajouter
    * @param {boolean} debut vrai si insertion au début
-   * @return {uString}
+   * @return {uString} chaîne modifiée
+   * @file 'modules/utils/string.js'
    */
   insertRegChaine(ajout = '', debut = true) {
 
@@ -87,8 +97,9 @@ class uString extends String {
 
   /*************************************************************** */
 
-  /** Permet d'afficher l'apostrophe en html 
+  /** Permet d'afficher certains caractères en html 
   * @return {uString}
+  * @file 'modules/utils/string.js'
   */
   convertHtmlChar() {
     // @ts-ignore
@@ -123,9 +134,10 @@ class uString extends String {
 
   /** remplace caractères par flèches
  * 
- * @param {string} right suite de caractère pour flèche droite
- * @param {string} left idem gauche
+ * @param {string} right suite de caractère pour flèche droite ('->')
+ * @param {string} left idem gauche ('<-')
  * @return {uString}
+ * @file 'modules/utils/string.js'
  */
   convertArrow(right = "->", left = "<-") {
     if (!isString(right) || !isString(left)) throw new TypeError(e.ERROR_STR)
@@ -141,13 +153,14 @@ class uString extends String {
   /*************************************************************** */
 
   /** Transforme une chaîne comportant des indices ou des exposants délimités par un symbole
-* 
-* par ex: '2+' ou _2_ en balises html <sup> et <sub>
-* @param {boolean} html si false on ne traite pas les équivalents html de l'apostrophe
-* @param {Boolean} num_only true: on ne traite que les nombres, false on traite tous les caractères
-* @param {String} exp symbole exposant
-* @param {String}ind symbole indice
-* @return {uString}
+  * 
+  * par ex: '2+' ou _2_ en balises html <sup> et <sub>
+  * @param {boolean} html si false on ne traite pas les équivalents html de l'apostrophe
+  * @param {Boolean} num_only true: on ne traite que les nombres, false on traite tous les caractères
+  * @param {String} exp symbole exposant
+  * @param {String}ind symbole indice
+  * @return {uString}
+  * @file 'modules/utils/string.js'
 */
   convertExpoIndice(html = true, num_only = true, exp = "'", ind = "_") {
 
@@ -185,9 +198,10 @@ class uString extends String {
   /*************************************************************** */
 
   /** transforme une chaine de type "[a,b]" en tableau
- * 
- * @param {string} sep séparateur par défaut "," 
- * @return {uString}
+  * 
+  * @param {string} sep séparateur par défaut "," 
+  * @return {uString}
+  * @file 'modules/utils/string.js'
  */
   strListToArray(sep = ",", html = false) {
     
@@ -215,6 +229,7 @@ class uString extends String {
  * 
  * @param {String} html : contenu html à afficher
  * @param {String} target : id de la balise d'affichage
+ * @file 'modules/utils/string.js'
  */
 var dspHtmlLatex = function (html, target) {
 
@@ -230,10 +245,11 @@ var dspHtmlLatex = function (html, target) {
 
 /*************************************************************** */
 
-/**
+/** Insère symbole "#"
  * 
  * @param {string} str chaine où inserer un dièse si non présent
- * @returns 
+ * @returns {uString | string}
+ * @file 'modules/utils/string.js'
  */
 function insertDiese(str){
   if (str.indexOf("#") == 0)

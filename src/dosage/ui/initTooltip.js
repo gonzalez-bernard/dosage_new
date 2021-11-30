@@ -12,6 +12,11 @@ import { TOOLTIP } from "./interface.js"
 import { isObject } from "../../modules/utils/type.js";
 import {ERROR_OBJ} from "../../modules/utils/errors.js"
 
+/**
+ * @typedef {import ('../../../types/classes').Canvas} Canvas
+ * @typedef {import ('../../../types/classes').Tooltip} Tooltip 
+ */
+
 /** Initie Tooltip
  *
  * @param {Canvas} canvas

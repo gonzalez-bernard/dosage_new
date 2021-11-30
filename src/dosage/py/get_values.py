@@ -35,7 +35,7 @@ func = arg['func'] if 'func' in arg else None
 data = arg['datas']
 #console.log(json.dumps(data))
 
-if func == "data_dosage_ph":
+if func == "data_dosage_ac":
   dos =  Dosage_pH(data['type'], data['c1'], data['c2'], data['v1'], data['ve'], data['pK'])
   
   dos.set_especes([data['esp1'],data['esp2']])

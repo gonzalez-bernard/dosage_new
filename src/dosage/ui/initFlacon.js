@@ -9,13 +9,22 @@
 */
 
 import * as cFlacon from "./classes/flacon.js";
-import { FLACON, FLACON_COLORS, FLACON_IMAGES, FLACON_LABELS } from "./interface.js"
-import {G} from "../../environnement/globals.js";
+import { FLACON_COLORS, FLACON_IMAGES, FLACON_LABELS } from "./interface.js"
 import * as txt from "./lang_fr.js";
 import { getColor } from "../dosage.js";
 import { isObject } from "../../modules/utils/type.js";
 import * as cts from "../../environnement/constantes.js"
 import * as e from "../../modules/utils/errors.js"
+
+/**
+ * @typedef {import('../../../types/classes').Flacon} Flacon
+ * @typedef {import('../../../types/classes').Canvas} Canvas 
+ * @typedef {import('../../../types/classes').Tooltip} Tooltip 
+ * @typedef {import('../../../types/classes').Becher} Becher 
+ * @typedef {import('../../../types/types').tFLACON} tFLACON 
+ * @typedef {import ('../../../types/classes').Dosage} Dosage
+   
+ */
 
 /** Autorise ou interdit le déplacement des flacons
  * 
@@ -32,13 +41,14 @@ function set_drag(flacons, state) {
  * 
  * Définit les events
  * 
+ * @param {Dosage} G
  * @param {Canvas} canvas 
  * @param {Tooltip} tooltip 
  * @param {Becher} becher 
  * @param {tFLACON} sFlacon
  * @returns {Flacon[]} tableau des flacons
  */
-function initFlacon(canvas, tooltip, becher, sFlacon) {
+function initFlacon(G, canvas, tooltip, becher, sFlacon) {
 
     if (!isObject(canvas) || !isObject(tooltip) || !isObject(becher)) throw new TypeError(e.ERROR_OBJ)
 
@@ -67,16 +77,17 @@ function initFlacon(canvas, tooltip, becher, sFlacon) {
             });
 
             // quitte survol
-            flacons[i].fond.bind("mouseleave", function (e) {
+            flacons[i].fond.bind("mouseleave", function () {
                 flacons[i].chgText("default", 3, flacons[i].flacon_image.height / 5);
                 tooltip.dspText();
             });
 
             // vidage si flacon retourné, on teste qu'un indicateur n'a pas déjà été mis
-            flacons[i].fond.bind("mousedown", function (e) {
+            flacons[i].fond.bind("mousedown", function () {
                 // si indicateur déjà versé
                 if (G.etat & cts.ETAT_INDIC) return
-                if (flacons[i].vidage == 1 && e.detail == 1) {
+                //if (flacons[i].vidage == 1 && e.detail == 1) {
+                if (flacons[i].vidage == 1 ) {
                     flacons[i].vidange(becher);
                     // positionne indicateur
                     G.etat = G.etat | cts.ETAT_INDIC
@@ -107,14 +118,13 @@ function initFlacon(canvas, tooltip, becher, sFlacon) {
             // Déplacement du flacon
             flacons[i].fond.dragAndDrop({
 
-                start: function (e) {
-                },
+                
                 move: function () {
                     if ((G.type == cts.TYPE_ACIDEBASE && i < 5) || (G.type == cts.TYPE_OXYDO && i >= 5)) {
                         flacons[i].chgText("default", 3, flacons[i].flacon_image.height / 5);
                     }
                 },
-                end: function () { },
+                
             });
         }
 

@@ -23,7 +23,12 @@
     "outDir": "dist",
     "typeRoots": [
       "./node_modules/@types",
-      "./types/",
+      "./@types",
     ],
+    //"types": ["node"],
+    "baseUrl": "./",
+    "paths": {
+      "*": ["@types/*"]
+    }
   }
 }

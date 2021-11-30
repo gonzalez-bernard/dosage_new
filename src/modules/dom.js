@@ -3,57 +3,67 @@
  * @description Ensemble des classes permettant la gestion des pages html
  * ***
  * ***export  Element, Label, Input, P, Domus, Form, Button, Div, Img, Link, Alert, Message, List, dspMessage***
-*/
+ */
 
 import { uString } from "./utils/string.js"
-import {uArray} from "./utils/array.js"
-import {getEltID} from "./utils/html.js"
-import {isObject, isFunction} from "./utils/type.js"
+import { uArray } from "./utils/array.js"
+import { getEltID } from "./utils/html.js"
+import { isArray, isObject} from "./utils/type.js"
 
 /** classe Element */
 /**
  * @class Element
  * @classdesc Classe de base pour création structure DOM
- * @property {string} _elt identifiant de l'élément (ex : label)
- * @property {string} name nom 
- * @property {string} id ID
- * @property {object} style paramètres de style
- * @property {string} class nom des classes
- * @property {string} _text texte à afficher entre balises
- * @property {object} _childs objet enfant
- * @property {string[]} _attributes tableau des attributs
- * @property {string} _label texte label
- * @property {string} _div
- * @property {string} _role indique l'attribut role
- * @property {number} _tabIndex indice
- * @property {string} _action indique l'action à executer
- * 
-  */
+ * @file 'modules/dom.js'
+ */
 class Element {
 
+    /**
+     * 
+     * @param {string} elt type de l'élément
+     * @param {object?} o objet définissant les propriétés de l'élément
+     *  - text : 
+     *  - parent {string} : nom du parent
+     *  - tabindex {number} : indice de la tabulation
+     *  - name {string} : nom de l'élément
+     *  - id {string} : ID
+     *  - style {string} : style
+     *  - class {string} : classe
+     *  - ext :
+     *  - feedback: 
+     *  - title {string} : titre
+     *  - attrs:
+     *  - role {} : 
+     * 
+     */
     constructor(elt, o = null) {
+        const local = ['text', 'parent', 'tabindex', 'ext', 'feedback', 'role']
+        const valid = ['name', 'id', 'style', 'class'] 
         this._elt = elt
-        this.name = o == null ? null : o.name
-        this.id = o == null ? null : o.id
-        this.style = o == null ? null : o.style
-        this.class = o == null ? null : o.cls
-        this._text = '' // texte à afficher entre balises
-        this._childs = null
-        this._attributes = null
-        
-        this._label = null
-        this._div = null
-        this._role = null
-        this._tabindex = null
-        this._action = null
+        this._div = null    // ?
+        this._global = null // ?
+        if (o) {
+            for (let key in o) {
+                if (local.includes(key))
+                    this["_" + key] = o[key]
+                else {
+                    switch (key) {
+                        case "title":
+                            this.setTitle(key)
+                            break;
+                        case "attrs":
+                            this.setAttrs(o[key])
+                            break;
+                        default:
+                            if (valid.includes(key))
+                                this[key] = o[key]
+                    }
+                }
+            }
+        }
     }
 
     /** ****************** SETTERS ********************/
-
-    setElt(name, value){
-        this[name] = value
-        return this
-    }
 
     /** Définit les attributs (ex: disabled)
      * 
@@ -64,7 +74,7 @@ class Element {
         for (const att in attr) {
             try {
                 if (attr[att] == undefined)
-                    throw ("Attribut absent")
+                    throw new TypeError("Attribut absent")
                 if (this._attributes == null)
                     this._attributes = []
                 this._attributes.push(attr[att])
@@ -140,7 +150,7 @@ class Element {
      * @param {string} value indice
      * @returns {Element}
      */
-     setTabIndex(value) {
+    setTabIndex(value) {
         this._tabindex = value
         return this
     }
@@ -152,14 +162,14 @@ class Element {
      * @param {boolean} escape échappe les caractères si True défaut = False
      * @returns {Element}
      */
-    setAction(event, action, escape=false){
-        if (! escape)
-            this._action = event +'="' + action + '"'
+    setAction(event, action, escape = false) {
+        if (!escape)
+            this._action = event + '="' + action + '"'
         else
-            this._action = event +'="' + new uString(action).convertHtmlChar().html + '"'
+            this._action = event + '="' + new uString(action).convertHtmlChar().html + '"'
         return this
     }
-    
+
     /** Définit les données data
      * 
      * @param {string} type type de data
@@ -203,7 +213,7 @@ class Element {
         for (const elt in child) {
             try {
                 if (child[elt] == undefined)
-                    throw ("Enfant absent")
+                    throw new TypeError("Enfant absent")
                 if (this._childs == null)
                     this._childs = []
                 this._childs.push(child[elt])
@@ -226,17 +236,6 @@ class Element {
         return this
     }
 
-    /** Ajoute une div
-     * 
-     * @param {string} cls classe
-     * @param {boolean} global si True place les attibuts avant la div
-     * @returns {Element}
-     */
-    addDiv(cls = 'col', global = true) {
-        this._div = cls
-        this._global = global
-        return this
-    }
 
     /*********************  GETTERS ************************* */
 
@@ -261,29 +260,41 @@ class Element {
 
         // parcours élément de la classe
         for (const prop in this) {
-            if (this[prop] != null){
+            if (this[prop] != null) {
+
+                // propriétés natives
                 if (prop.indexOf('_') == -1) {
                     html += prop + "='" + this[prop] + "' "
-                } else {
-                    switch (prop){
+                } else { // sinon
+                    switch (prop) {
                         case "_action":
-                            html += " "+ this[prop]+" "
+                            html += " action = '" + this[prop] + "' "
                             break
                         case '_role':
-                            html += " role = "+ this[prop]+" "
+                            html += " role = '" + this[prop] + "' "
+                            break
+                        case '_attributes':
+                            this._attributes.forEach(att => {
+                                html += " " + att + " "
+                            })
                             break
                     }
                 }
             }
-            
         }
-        if (Array.isArray(this._attributes) && this._attributes.length > 0) {
-            for (const att in this._attributes)
-                html += this._attributes[att] + " "
-        }
+        /*
 
+                    if ( Array.isArray( this._attributes ) && this._attributes.length > 0 ) {
+                        for ( const att in this._attributes )
+                            html += this._attributes[ att ] + " "
+                    }
+
+          */
         html = html.slice(0, -1) + ">"
-        html += this._text + "</" + this._elt + ">"
+        if (this._text)
+            html += this._text + "</" + this._elt + ">"
+        else
+            html += "</" + this._elt + ">"
 
         // champs input ou bouton
         if (this._elt == 'input' || this._elt == 'button') {
@@ -300,12 +311,21 @@ class Element {
             }
         }
 
-        // fonction interne
+        /** Ajoute un élément feedback ou label au champ input
+         * 
+         * @param {object} o 
+         */
         function _setAttrs(o) {
-            if (o._feedback != null)
+            // on construit la chaîne feedback
+            if (o._feedback != null){
+                o.addFeedback(o._feedback)
                 html += o._feedback
-            if (o._label != null)
+            }
+            if (o._label != null){
+                o.addLabel(o._label.label, o._label.o)
                 html = o._label + html
+            }
+                
         }
 
         return html
@@ -323,11 +343,11 @@ class Element {
         // récupère les enfants
         let childs = this.getChilds()
         var pos = html.indexOf("</")
+        let elt, h
         while (childs.length > 0) {
-            let elt = childs[0]
-            if (elt['_elt']=='img')
-                var debug = 0
-            let h = elt.getHTML()
+            elt = childs[0]
+            //if (elt['_elt'] == 'img')
+            h = elt.getHTML()
 
             html = html.substring(0, pos) + h + html.substring(pos)
             pos += h.length
@@ -348,7 +368,6 @@ class Element {
         return this
     }
 
-
     /** Supprime un style
      * 
      * @returns {Element}
@@ -357,7 +376,6 @@ class Element {
         this.style = ""
         return this
     }
-
 }
 
 /************************************************** */
@@ -367,6 +385,11 @@ class Element {
  * @classdesc  Sert à insérer des enfants en ayant déclaré le parent avant
  */
 class Domus {
+    
+    /**
+     * 
+     * @param {Element} parent élément parent 
+     */
     constructor(parent) {
         this._parent = parent
     }
@@ -390,10 +413,12 @@ class Domus {
  * @property {object} action
  */
 class Form extends Element {
-    
+
     /**
      * 
-     * @param {object} o définit action
+     * @param {object} o définit les propriétés de l'élément
+     * - propriétés spécifiques :
+     *   -- action {string} définit l'action
      */
     constructor(o = null) {
         super('form', o)
@@ -414,13 +439,15 @@ class Button extends Element {
 
     /** Constructor
      * 
-     * @param {string} [label] On définit le texte
-     * @param {object} [o] on peut définit le lien (href) et le type (button)
+     * @param {string?} label On définit le texte
+     * @param {object?} o on peut définir :
+     * - href {string} le lien ("#") 
+     * - type {string} (button)
      */
     constructor(label, o = {}) {
         super('button', o)
         this._text = label ? label : ''
-        this.href = 'href' in o ? o.href : "#" 
+        this.href = 'href' in o ? o.href : "#"
         this.type = 'type' in o ? o.type : 'button'
     }
 }
@@ -441,7 +468,6 @@ class Label extends Element {
     constructor(label, o = null) {
         super('label', o)
         this._text = label // text
-        this.for = ''
     }
 
     /** Définit lien sur label
@@ -463,8 +489,14 @@ class Label extends Element {
  * @extends Element
  */
 class Div extends Element {
-    constructor(cls, id = null) {
-        super('div', { id, cls })
+
+    /**
+     * 
+     * @param {string?} classe 
+     * @param {string?} id 
+     */
+    constructor(classe = null, id = null) {
+        super('div', { class: classe, id: id })
     }
 }
 
@@ -473,9 +505,7 @@ class Div extends Element {
 /** 
  * @classdesc Gestion des champs input
  * @extends Element
- * @property {number} size taille
- * @property {string} _validFeedback texte feedback
- * @property {string} _errorFeedback texte feedback
+ * 
  */
 class Input extends Element {
     placeholder = ""
@@ -483,55 +513,79 @@ class Input extends Element {
     /**
      * 
      * @param {string} type type de champ (checkbox, radio)
-     * @param {object} o paramètres - on peut définir l'action et la valeur par défaut 
+     * @param {object} o paramètres on peut définir:
+     * - label {string?} : label
+     * - feedback {string?} : feedback
+     * - type {string} : type d'input
+     * - value {string} : valeur du champ
+     * - size {number} : taille du champ
+     * - min, max {number} : valeurs extrémales
+     * - pattern {string} : chaîne de validation
+     * - placeholder {string} : texte d'information 
      */
     constructor(type, o = null) {
         super('input', o)
+        this._label = null || o.label;
+        this._feedback = null || o.feedback
         this._validFeedback = null
         this._errorFeedback = null
         this.type = type
-        if (o !== null) {
-            this.action = 'action' in o ? '#' : o.action
-            this.value = 'value' in o ? null : o.value
+        const local = ["label", "feedback"]
+        const valid = ["value","size","max","min","pattern","placeholder"]
+        if (o) {
+            for (let key in o) {
+                if (local.includes(key))
+                    this["_" + key] = o[key]
+                else if (valid.includes(key))
+                    this[key] = o[key]
+            }
         }
-        var prop, oElt
-        Object.keys(o).forEach(key => {
-            if (isObject(o[key])) {
-                oElt = o[key]
-                // si type = 'elt'
-                if (key.substr(0,3) == 'elt') {
-                    let data = Object.entries(oElt)
-                    prop = data[0][0] + "-" + data[0][1].toLowerCase()
-                    this[prop] = data[1][1]
-                } else {
-                    // on vérifie si une fonction existe en préfixant par 'add' 
-                    let fct = new uString(key).capitalize().getVal()
-                    fct = 'add' + fct
-                    
-                    // Détecte si l'élément est dans la classe, sinon on ajoute un underscore
-                    prop = Input.prototype.hasOwnProperty(key) ? key : "_" + key
 
-                    // Appel de la méthode
-                    if (Input.prototype.hasOwnProperty(fct)) {
-                        let data = Object.values(o[key])
-                        let fct_ = Input.prototype[fct].bind(this)
-                        // si feedback
-                        if (key == "feedback"){
-                            this[prop] = fct_(data[0][0], data[0][1], data[1])[prop]
-                        } else 
-                            this[prop] = fct_(data[0], data[1])[prop]
-                    }
+            var prop, oElt
+        for (const key in this) {
+            if (isObject(this[key]) || isArray(this[key])) {
+                oElt = this[key]
+                let data, fct
+                switch (key) {
+                    // tableau d'objets
+                    case '_ext':
+                        
+                        // @ts-ignore
+                        oElt.forEach(element => {
+                            data = Object.entries(element)
+                            prop = data[0][0] + "-" + data[0][1].toLowerCase()
+                            this[prop] = data[1][1]    
+                        });
+                        
+                        break
+                    case 'default':
+                        // on vérifie si une fonction existe en préfixant par 'add' 
+                        fct = new uString(key).capitalize().getVal()
+                        fct = 'add' + fct
+
+                        // Détecte si l'élément est dans la classe, sinon on ajoute un underscore
+                        prop = Object.prototype.hasOwnProperty.call(Input, key) ? key : "_" + key
+
+                        // Appel de la méthode
+                        if (Object.prototype.hasOwnProperty.call(Input, fct)) {
+                            let data = Object.values(o[key])
+                            let fct_ = Input.prototype[fct].bind(this)
+                            // si feedback
+                            if (key == "feedback") {
+                                this[prop] = fct_(data[0][0], data[0][1], data[1])[prop]
+                            } else
+                                this[prop] = fct_(data[0], data[1])[prop]
+                        }
                 }
-            } else
-                this[key] = o[key]
-        })
+            }
+        }
     }
 
     /** Définit le nombre de caractères
      * 
      * @param {number} value taille en caractère du champ
      */
-    setSize(value){
+    setSize(value) {
         this.size = value
         return this
     }
@@ -568,32 +622,32 @@ class Input extends Element {
 
     /** Insère un élément pour affichage du feedback
      * 
-     * @param {string} error texte si erreur
-     * @param {string?} valid texte si OK
-     * @param {object} o {id? offset cls} 
+     * @param {object} oFeed {id? offset cls} 
      * @returns {Input}
      */
-    addFeedback(error, valid=undefined, {id, offset = 5, cls = ''}) {
-        let _id = id || this.id + "_feedback"
-        this._feedback = "<div class='row'><div class = 'col-" + offset + "'></div><div class = '" + cls +"'>"
-        this._feedback += "<p class = 'error_feedback' id='invalid_" + _id + "'>" + error + "</p>"
+    addFeedback(oFeed) {
+        const id = oFeed.o.id || this.id + "_feedback"
+        const offset = oFeed.o.offset || 5
+        const cls = oFeed.o.class || "feedback"
+        const msgs = oFeed.feedback
         
-        if (valid)
-            this._feedback += "<p class='valid_feedback' id='valid_" + _id + "' >" + valid + "</p>"
+        this._feedback = "<div class='row'><div class = 'col-" + offset + "'></div><div class = '" + cls + "'>"
+        this._feedback += "<p class = 'error_feedback' id='invalid_" + id + "'>" + msgs[0] + "</p>"
+
+        if (msgs.length > 1)
+            this._feedback += "<p class='valid_feedback' id='valid_" + id + "' >" + msgs[1] + "</p>"
         this._feedback += "</div></div>"
         return this
     }
-    
+
     /** Définit les messages de feedback
      * 
-     * @param {string} valid_feedback message
-     * @param {string} error_feedback message
+     * @param {string[]} msgs messages
+     * @param {object} prm parametres
      * @returns {Input}
      */
-    setFeedback(error_feedback = undefined, valid_feedback = undefined) {
-        this._errorFeedback = error_feedback || "" 
-        this._validFeedback = valid_feedback || ""
-
+    setFeedback(msgs, prm) {
+        this._feedback = {feedback: msgs, o: prm}
         return this
     }
 
@@ -616,8 +670,8 @@ class Input extends Element {
      */
     addLabel(label, o = null) {
         let classe = "col-form-label"
-        if (o !== null && 'cls' in o) {
-            classe += " " + o.cls
+        if (o !== null && 'class' in o) {
+            classe += " " + o.class
         }
 
         this._label = "<label for='" + this.id + "' class='" + classe + "'>" + label + "</label>"
@@ -652,7 +706,7 @@ class P extends Element {
  * @extends Element
  */
 class Link extends Element {
-    
+
     /**
      * 
      * @param {string} ref lien
@@ -676,33 +730,35 @@ class Img extends Element {
      * 
      * @param {string} src url image
      * @param {object} o 
+     * - alt {string?} texte alternatif
+     * - width 'number?} taille
      */
-    constructor(src, o = null){
+    constructor(src, o = null) {
         super('img', o)
         this.src = src
         if (o !== null) {
-            this.cls = 'cls' in o ? o.cls : ''
+            this.class = 'cls' in o ? o.class : ''
             this.alt = 'alt' in o ? o.alt : ''
             this.width = 'w' in o ? o.w : 100
         }
     }
 
-    setSrc (src){
+    setSrc(src) {
         this.src = src
         return this
     }
 
-    setAlt (alt){
+    setAlt(alt) {
         this.alt = alt
         return this
     }
 
-    setWidth(w){
+    setWidth(w) {
         this.width = w
         return this
     }
 
-    setHeight(h){
+    setHeight(h) {
         this.height = h
         return this
     }
@@ -713,29 +769,30 @@ class Img extends Element {
 /**
  * @class Alert
  * @classdesc Gestion alert
- * @property {string} id ID
- * @property {string} type type de l'alerte
- * @property {string} msg message
- * @property {Element} div div englobante
- * @property {Element} icon image
- * @property {Button} but bouton
  */
 class Alert {
-    constructor(id, type, message = ''){
+
+/**
+ * 
+ * @param {string} id ID
+ * @param {string} type type de l'alerte
+ * @param {string} message message
+*/ 
+    constructor(id, type, message) {
         this.id = id
         this.type = type
         this.msg = message
-        this.div = new Div('alert alert-' + type, this.id).setStyle('display:none').setRole('alert')
-        this.msg = new Element('span',{id:this.id+"_msg"}).setText(this.msg)
-        let but = new Button('', { cls: 'close' }).setAria('label', 'close')
-        let icon = new Element('span').setAria('hidden','true').setText('&times').setAction("onClick","$(this).parent().parent().hide()")
+        this._div = new Div('alert alert-' + type, this.id).setStyle('display:none').setRole('alert')
+        this.msg = new Element('span', { id: this.id + "_msg" }).setText(this.msg)
+        let but = new Button('', { class: 'close' }).setAria('label', 'close')
+        let icon = new Element('span').setAria('hidden', 'true').setText('&times').setAction("onClick", "$(this).parent().parent().hide()")
         but.addChild(icon)
-        this.div.addChild(this.msg, but)
+        this._div.addChild(this.msg, but)
     }
-    
-    apply(){
+
+    apply() {
         return this
-    } 
+    }
 }
 
 /************************************************** */
@@ -743,11 +800,16 @@ class Alert {
 /**
  * @class List
  * @classdesc Ajoute les items d'une liste
- * @param {array} list liste des items
  */
 class List extends Element {
-    constructor(list, cls='', o= null){
-        super('ul',{cls:cls})
+
+    /**
+     * 
+     * @param {Element[]} list liste des items 
+     * @param {string?} cls classe
+     */
+    constructor(list, cls = '') {
+        super('ul', { class: cls })
         var items = []
         for (var i in list) {
             items.push(new Element('li'))
@@ -764,7 +826,7 @@ class List extends Element {
  * @classdesc Crée la structure pour afficher un message temporaire
  * @param {object} o o.msg = message o.duration = durée
  */
-class Message{
+class Message {
 
     /** Constructur
      * 
@@ -774,15 +836,15 @@ class Message{
      *  msg {string} message à afficher
      *  d {numeric} durée d'affichage 
      */
-    constructor(id, type, o = null){
+    constructor(id, type, o = null) {
         this.id = id
         this.type = type
-        if (o != null){
+        if (o != null) {
             this.msg = 'msg' in o ? o.msg : ''
             this.duration = 'd' in o ? o.d : 2000
         }
-        this.div = new Div('alert alert-'+this.type, this.id).setStyle('display:none')
-        this.elt = new Element('strong',{id:this.id+'_msg'}).setText(this.msg)
+        this.div = new Div('alert alert-' + this.type, this.id).setStyle('display:none')
+        this.elt = new Element('strong', { id: this.id + '_msg' }).setText(this.msg)
         this.div.addChild(this.elt)
     }
 }
@@ -795,12 +857,27 @@ class Message{
  * @param {string} msg message
  * @param {number} duree durée
  */
-var dspMessage = function(id, msg, duree){
-    getEltID( id + "_msg" ).html( msg )
+var dspMessage = function (id, msg, duree) {
+    getEltID(id + "_msg").html(msg)
     let elt = getEltID(id)
     elt.fadeTo(duree, 100).slideUp(500, function () {
-      elt.hide()
+        elt.hide()
     })
 }
 
 export { Element, Label, Input, P, Domus, Form, Button, Div, Img, Link, Alert, Message, List, dspMessage }
+
+
+/** Ajoute une div
+     * 
+     * @param {string} cls classe
+     * @param {boolean} global si True place les attibuts avant la div
+     * @returns {Element}
+     */
+/*
+ addDiv(cls = 'col', global = true) {
+    this._div = cls
+    this._global = global
+    return this
+}
+*/

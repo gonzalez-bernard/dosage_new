@@ -2,6 +2,11 @@ import {G} from "../../../environnement/globals.js"
 import {isNumeric, isObject, isString} from "../../../modules/utils/type.js"
 import {ERROR_OBJ, ERROR_NUM, ERROR_STR} from "../../../modules/utils/errors.js"
 
+/**
+* @typedef {import('../../../../types/classes').Canvas} Canvas
+* @typedef {import('../../../../types/classes').Becher} Becher
+* @typedef {import('../../../../types/types').tAPPAREIL} tAPPAREIL
+*/
 
 /** appareil.js 
  * 
@@ -49,16 +54,14 @@ class Appareil{
     /** Positionne l'appareil
      * 
      * @param {Becher} becher 
-     * @param {number} x coordonnées
-     * @param {number} y 
      * 
      */
-    dispose(becher, x, y){
+    dispose(becher){
   
       if (G.etat & this.etat){
         // On active le conductimètre et on désactive le pHmètre
-        this.fond.x = becher.sbecher.x + becher.sbecher.w/2 + x
-        this.fond.y = becher.sbecher.y - becher.sbecher.h + y
+        this.fond.x = becher.sbecher.x + becher.sbecher.w/2 + this.offsetX
+        this.fond.y = becher.sbecher.y - becher.sbecher.h + this.offsetY
       } else {
         this.fond.x = this.app.x
         this.fond.y = this.app.y

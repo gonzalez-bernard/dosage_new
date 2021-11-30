@@ -1,14 +1,11 @@
 const express = require( 'express' )
 const app = express()
 const http = require( 'http' )
-require( './src/dispatcher' )
-    //import {dispatcher} from "./src/dispatcher.js"
+require( "./src/dispatcher.js" )
 
 const server = http.createServer( app )
     // @ts-ignore
 const io = require( 'socket.io' )( server )
-
-//require('./src/especes/especes.ui.js')
 
 // @ts-ignore
 // eslint-disable-next-line no-undef

@@ -11,11 +11,16 @@
 import * as cts from "../../environnement/constantes.js";
 import * as cBurette from "./classes/burette.js";
 import { BURETTE } from "./interface.js"
-import {G} from "../../environnement/globals.js";
 import {vidage} from "../dosage.js";
 import { isObject } from "../../modules/utils/type.js"
 import { ERROR_OBJ } from "../../modules/utils/errors.js"
 
+/**
+ * @typedef {import ('../../../types/classes').Canvas} Canvas
+ * @typedef {import ('../../../types/classes').Dosage} Dosage
+ * @typedef {import ('../../../types/classes').Burette} Burette
+ * @typedef {import ('../../../types/types').tLab} tLab 
+ */
 
 /** Crée une burette
  * 
@@ -28,7 +33,7 @@ import { ERROR_OBJ } from "../../modules/utils/errors.js"
  * @public
  * @file initBurette.js
  */
-function initBurette( canvas, lab, G ) {
+function initBurette( G, canvas, lab) {
 
     if ( !isObject(canvas) ) throw new TypeError(ERROR_OBJ)
 

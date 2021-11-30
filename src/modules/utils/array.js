@@ -15,15 +15,21 @@ import * as e from "./errors.js"
  *  @class uArray
  */
 class uArray extends Array {
+
+    /**
+     * 
+     * @param {any[]} arr tableau
+     */
     constructor(arr) {
         super()
         this.val = arr
     }
 
-    /** Calcule le pas entre deux valeurs du tableau pour avoir le nombre de valeurs indiqué
+    /** Calcule le pas entre deux valeurs du tableau pour avoir le nombre d'intervalles souhaités
      * 
      * @param {Number} numInterval (int): nombre d'intervalles
      * @return {Number} (float) pas
+     * @file 'modules/utils/array.js'
      */
     getInterval(numInterval) {
         if (! isNumeric(numInterval)) throw new TypeError(e.ERROR_NUM)
@@ -35,15 +41,15 @@ class uArray extends Array {
     /** Retourne la valeur extrémale d'un attribut numérique dans un tableau d'objets
     * 
     * ex : this.val = [{'attr1': val11, 'attr2':val12},{'attr1': val21, 'attr2':val22}]
-    * x = get_arrayObject_extremum_value(this.val, 'attr1', 'max')
+    * x = get_arrayObject_extremum_value('attr1', 'max') 
     * @param {string} attr  : nom de l'attribut
-    * @param {string} mode  max | min
-    * @return {number}
+    * @param {'max' | 'min'} mode  max | min
+    * @return {number} valeur de 'attr1' maximale parmi les objects du tableau
+    * @file 'modules/utils/array.js'
     */
     getArrayObjectExtremumValues(attr, mode) {
 
         if (!isString(attr) || attr == "" || !isString(mode)) throw new TypeError(e.ERROR_STR)
-        mode = mode.toLowerCase()
         if (mode !== "min" && mode != "max") throw new RangeError(e.ERROR_RANGE)
         if (mode == 'max')
             return Math.max(...this.val.map(o => o[attr]), 0);
@@ -56,6 +62,7 @@ class uArray extends Array {
     * @param {string} attr  attribut de l'objet
     * @param {number} value valeur à chercher
     * @return {number} index
+    * @file 'modules/utils/array.js'
     */
     getArrayObjectNearIndex(attr, value) {
 
@@ -80,6 +87,7 @@ class uArray extends Array {
     * @param {number} value valeur à chercher
     * @param {number} sorted indique si le tableau est trié 1=trié, -1: trié inverse 2=trié après inversion 0: non trié  
     * @return {number} index
+    * @file 'modules/utils/array.js'
     */
     getArrayNearIndex(value, sorted = 0) {
 
@@ -146,11 +154,12 @@ class uArray extends Array {
         }
     }
 
-    /** Supprime un élément d'un this.tableau
+    /** Supprime un élément d'un tableau
     * 
     * @param {any} elt élément que l'on veut supprimer
     * @param {boolean} copy - true on crée un nouveau tableau sinon on travaille sur le tableau initial
     * @return {array} tableau modifié
+    * @file 'modules/utils/array.js'
     */
     delArrayElement(elt, copy = false) {
 
@@ -171,11 +180,12 @@ class uArray extends Array {
 
     /** Extrapole pour trouver la valeur dans tab_y correpondante à x de tab_x 
      * 
-     * @param {Number} x valeur à chercher du tableau X
-     * @param {Number} indice de X ayant la valeur la plus proche
-     * @param {Number[]} tab_x  tableau des valeurs X    
-     * @param {Number[]} tab_y  tableau des valeurs Y    
-     * @returns {Number} la valeur de tab_y extrapolée 
+     * @param {number} x valeur à chercher du tableau X
+     * @param {number} indice de X ayant la valeur la plus proche
+     * @param {number[]} tab_x  tableau des valeurs X    
+     * @param {number[]} tab_y  tableau des valeurs Y    
+     * @returns {number} la valeur de tab_y extrapolée 
+     * @file 'modules/utils/array.js'
      */
 
     static extrapolate(x, indice, tab_x, tab_y ) {

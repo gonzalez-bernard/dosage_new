@@ -3,6 +3,11 @@ import * as cts from "../environnement/constantes.js"
 import { uString } from "../modules/utils/string.js"
 import { setDosageAcValues } from "./especes.data.js"
 
+/**
+ * @typedef {import ('../../types/classes').Dosage} Dosage
+ * @typedef {import ('../../types/types').tInfo} tInfo 
+ */
+
 /** Construit le message d'information à partir des données
  * 
  * @param {Dosage} data données

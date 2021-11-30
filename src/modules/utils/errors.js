@@ -16,6 +16,7 @@ const ERROR_BOOL = "Un booléen est attendu"
 const ERROR_ARRAY = "Un tableau est attendu"
 const ERROR_OBJ = "Un objet est attendu"
 const ERROR_EVT = "Un événement est attendu"
+const ERROR_FCT = "Une fonction est attendue"
 const ERROR_STRNUM = "Un nombre ou une chaine est attendue"
 const ERROR_ELT = "Le paramètre n'est pas un élément de l'objet"
 const ERROR_COLOR = "Le paramètre n'est pas une chaine transposable en couleur"
@@ -28,10 +29,10 @@ const ERROR_RETURN = "Erreur au retour de fonction"
  * @property {string} name
  */
 class NotElementException extends Error {
-  constructor(msg = "Un paramètre fourni n'est pas présent dans une structure"){
-    super(msg)
+  constructor(msg){
+    super(msg ||  "Un paramètre fourni n'est pas présent dans une structure")
     this.name = "NotElementException"
   } 
 }
 
-export {ERRORTYPE, ERROR_STR, ERROR_ABS, ERROR_BOOL, ERROR_NUM, ERROR_RANGE, ERROR_OBJ, ERROR_ARRAY, ERROR_EVT, ERROR_STRNUM, NotElementException, ERROR_ELT, ERROR_COLOR, ERROR_PRM, ERROR_RETURN}
+export {ERRORTYPE, ERROR_STR, ERROR_ABS, ERROR_BOOL, ERROR_NUM, ERROR_RANGE, ERROR_OBJ, ERROR_ARRAY, ERROR_EVT, ERROR_STRNUM, NotElementException, ERROR_ELT, ERROR_COLOR, ERROR_PRM, ERROR_RETURN, ERROR_FCT}

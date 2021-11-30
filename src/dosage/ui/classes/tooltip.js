@@ -1,6 +1,11 @@
 import { isObject } from "../../../modules/utils/type.js";
 import * as e from "../../../modules/utils/errors.js"
 
+/**
+ * @typedef {import ('../../../../types/types').tTOOLTIP} tTOOLTIP
+ * @typedef {import ('../../../../types/classes').Canvas} Canvas
+ */
+
 /**  Création tooltip
  *
  * @class Tooltip
@@ -56,10 +61,10 @@ class Tooltip {
                 0.9,
                 "long",
                 "ease-in-out-cubic",
-                function () {}
+                function () {return}
             );
         } else {
-            this.tooltip.fadeOut("long", "ease-in-out-cubic", function () {});
+            this.tooltip.fadeOut("long", "ease-in-out-cubic", function () {return});
         }
         this.canvas.redraw();
     }

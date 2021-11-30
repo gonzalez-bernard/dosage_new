@@ -11,11 +11,16 @@ import * as cPotentiometre from "./classes/potentiometre.js";
 import { POTENTIOMETRE } from "./interface.js";
 import * as cts from "../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
-import {G} from "../../environnement/globals.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
 import { displayGraph, updateGraph } from "../dosage.graph.js"
 
+/**
+ * @typedef {import('../../../types/types').tLab} tLab
+ * @typedef {import('../../../types/classes').Dosage} Dosage
+ * @typedef {import('../../../types/classes').Potentiometre} Potentiometre
+ * 
+ */
 
 /** Crée le potentiomètre
  *
@@ -37,7 +42,7 @@ function initPotentiometre( lab, G ) {
     lab.canvas.addChild( potentiometre.fond );
 
     // survol potentiometre
-    potentiometre.fond.bind( "mouseenter", function( e ) {
+    potentiometre.fond.bind( "mouseenter", function( ) {
         if (G.type == cts.TYPE_OXYDO && G.test('mesure',4)){
             lab.canvas.mouse.cursor( "pointer" );
             lab.tooltip.dspText( txt.DO_POTENTIOMETRE );
@@ -46,7 +51,7 @@ function initPotentiometre( lab, G ) {
     } );
 
     // Quitte survol potentiometre
-    potentiometre.fond.bind( "mouseleave", function( e ) {
+    potentiometre.fond.bind( "mouseleave", function( ) {
         lab.canvas.mouse.cursor( "default" );
         lab.tooltip.dspText();
     } );
@@ -63,14 +68,14 @@ function initPotentiometre( lab, G ) {
             G.setState(cts.ETAT_POT,-1)
     
             // Positionne le potentiomètre
-            potentiometre.dispose( lab.becher, potentiometre.offsetX, potentiometre.offsetY );
+            potentiometre.dispose( lab.becher);
             potentiometre.setText( G.spot);
 
             // met à jour le graphe
             updateGraph(lab.canvas)
                     
             // Affiche
-            displayGraph()
+            displayGraph(lab.canvas)
         }
         
     } );

@@ -209,11 +209,22 @@ function initProblem() {
     getEltID(ui.PB_IMG).hover(zoomImgOn, zoomImgOut)
 
     // affiche aide
-    getEltID(ui.PB_BT_HELP).on('click', { infos:{type:2, msg: new uString(data.help).convertExpoIndice().convertArrow().html}, idModal: '#' + ui.PB_HELP, title:'Problème', idBtClose: ""},
+    getEltID(ui.PB_BT_HELP).on('click', { infos:
+      {type:2, 
+        msg: new uString(data.help).convertExpoIndice().convertArrow().html,
+        idmodal: '#' + ui.PB_HELP,
+        title:'Problème',
+        idbtclose: ""}},
       dspInfo)
 
     // affiche solution
-    getEltID(ui.PB_BT_SOLUTION).on('click', { infos:{ type:2, msg: data.solution + data.inconnu.label + " " + data.inconnu.value + " "+ data.inconnu.unit}, idModal: '#' + ui.PB_SOLUTION, title:'Problème', idBtClose: ""}, dspInfo)
+    getEltID(ui.PB_BT_SOLUTION).on('click', { infos:
+      { 
+      type:2, 
+      msg: data.solution + data.inconnu.label + " " + data.inconnu.value + " "+ data.inconnu.unit, idmodal: '#' + ui.PB_SOLUTION, 
+      title:'Problème', 
+      idbtclose: ""}}, 
+      dspInfo)
   
     // contrôle réponse
     var frm = new Form(ui.PB_PROBLEM_REPONSE)

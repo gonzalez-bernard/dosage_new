@@ -1,27 +1,23 @@
 {
   "version": "0.2.0",
   "configurations": [
+    
     {
-              "name": "Chrome", // ajouter un nom a la conf
-              "type": "chrome", // On le lance avec chrome, donc le type est chrome
-              "request": "launch",
-              "url": "http://localhost:3000", // URL d'acces
-              "webRoot": "${workspaceRoot}/src" // Où se situe le point d'entrée
-  },
-    {
-      "name": "Python: Attacher",
+      "name": "Python : Fichier actuel",
       "type": "python",
-      "request": "attach",
-      "connect": {
-        "host": "localhost",
-        "port": 3000  
-      },
-      "pathMappings": [
-        {
-          "localRoot": "${workspaceFolder}/src/dosage/py",
-          "remoteRoot": "."
-        }
-      ]
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "env": {
+        "PYTHONPATH": "${workspaceRoot}"
+     }
+    },
+    {
+      "name": "Chrome", // ajouter un nom a la conf
+      "type": "chrome", // On le lance avec chrome, donc le type est chrome
+      "request": "launch",
+      "url": "http://localhost:3000", // URL d'acces
+      "webRoot": "${workspaceRoot}/src" // Où se situe le point d'entrée
     },
     {
       "type": "node",
@@ -31,14 +27,6 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-    },
-    
-    {
-      "name": "Python : Fichier actuel",
-      "type": "python",
-      "request": "launch",
-      "program": "${file}",
-      "console": "integratedTerminal"
-    },
+    }
   ]
 }

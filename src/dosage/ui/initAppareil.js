@@ -8,7 +8,7 @@
  * ***export display***
  */
 
-import {ERROR_STR, ERROR_RANGE} from "../../modules/utils/errors.js"
+import {ERROR_STR} from "../../modules/utils/errors.js"
 import {isString} from "../../modules/utils/type.js"
 import {getEltID} from "../../modules/utils/html.js"
 import { DOS_GRAPHE, DOS_GRAPH_CD, DOS_GRAPH_PH, DOS_GRAPH_PT, DOS_DIV_GRAPH } from "./html_cts.js";
@@ -38,6 +38,7 @@ function display(app){
       getEltID(DOS_GRAPH_PH ).hide();
       getEltID(DOS_GRAPH_CD ).hide();
       getEltID(DOS_GRAPH_PT ).show();
+      break
     default:
       getEltID(DOS_DIV_GRAPH ).hide();  
       return  

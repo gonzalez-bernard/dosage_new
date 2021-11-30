@@ -18,6 +18,7 @@ import * as e from "./errors.js"
  * @param {Number} val1 pourcentage de couleur 2 (entre 0 et 1)
  * 
  * @return {String} couleur mixée
+ * @file 'modules/utils/color.js'
  */
 function mixColors(col1, col2, val1, val2) {
 
@@ -44,9 +45,10 @@ function mixColors(col1, col2, val1, val2) {
 }
 
 /** Convertit une couleur hexadécimale en rgb
-* 
-* @param {String} str couleur en hexadécimal de type RRGGBB ou RRGGBBAA   
-* @returns {Object} avec les valeurs pour r,g,b et a
+ * 
+ * @param {String} str couleur en hexadécimal de type RRGGBB ou RRGGBBAA   
+ * @returns {Object} avec les valeurs pour r,g,b et a
+ * @file 'modules/utils/color.js'
 */
 function StringColorToValues(str) {
 
@@ -86,10 +88,11 @@ function StringColorToValues(str) {
 }
 
 /** Transforme 3 valeurs numériques en couleur hexadécimale 
-* @param {Number} r rouge (entre 0 et 255)
-* @param {Number} g vert
-* @param {Number} b bleu
-* @returns {String} couleur en hexa
+ * @param {Number} r rouge (entre 0 et 255)
+ * @param {Number} g vert
+ * @param {Number} b bleu
+ * @returns {String} couleur en hexa
+ * @file 'modules/utils/color.js'
 */
 function rgbToHex(r, g, b) {
 
@@ -104,11 +107,12 @@ function rgbToHex(r, g, b) {
 
 /** Transforme 4 valeurs numériques en couleur rgba 
 * 
-* @param {Number} r rouge (entre 0 et 255)
-* @param {Number} g vert
-* @param {Number} b bleu
-* @patam {Number} a transparence
-* @returns {String} couleur en hexa
+ * @param {Number} r rouge (entre 0 et 255)
+ * @param {Number} g vert
+ * @param {Number} b bleu
+ * @patam {Number} a transparence
+ * @returns {String} couleur en hexa
+ * @file 'modules/utils/color.js'
 */
 function valuesToRgba(r, g, b, a) {
 

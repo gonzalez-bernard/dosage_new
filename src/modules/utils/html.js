@@ -15,6 +15,7 @@ import * as e from "./errors.js"
  * @param {String} id id du champ
  * @param {object} sym {string} : symbole à ajouter ex '#', type {string} : int, float ou str 
  * @returns {any}
+ * @file 'modules/utils/html.js'
  */
 function getValue(id, { sym = "", type = null } = {}) {
 
@@ -38,6 +39,7 @@ function getValue(id, { sym = "", type = null } = {}) {
  * @param {string} id ID du champ
  * @param {string} type 'int|float|string' 
  * @returns {any}
+ * @file 'modules/utils/html.js'
  */
 function getValueID(id, type = null) {
     if (!isString(id)) throw new TypeError(e.ERROR_STR)
@@ -49,6 +51,7 @@ function getValueID(id, type = null) {
  * @param {string} id ID
  * @param {string|number} val valeur  
  * @returns {any}
+ * @file 'modules/utils/html.js'
  */
 function setValueID(id, val) {
     return setValue(id, "#", val)
@@ -60,6 +63,7 @@ function setValueID(id, val) {
  * @param {string} sym symbole "#|."
  * @param {string|number} val valeur  
  * @returns {any}
+ * @file 'modules/utils/html.js'
  */
 function setValue(id, sym, val) {
     if (!isString(id) || !isString(sym)) throw new TypeError(e.ERROR_STR)
@@ -70,10 +74,11 @@ function setValue(id, sym, val) {
 }
 
 /** Retourne l'élément JQuery
-* 
-* @param {String} id id ou expression
-* @param {object} sym {string} : symbole à ajouter ex '#', type {string} : int ou float 
-* @returns {JQuery}
+ * 
+ * @param {String} id id ou expression
+ * @param {object} sym {string} : symbole à ajouter ex '#', type {string} : int ou float 
+ * @returns {JQuery}
+ *@file 'modules/utils/html.js'
 */
 function getElt(id, { sym = "", opt = null } = {}) {
     if (!isString(id)) throw new TypeError(e.ERROR_STR)
@@ -88,6 +93,7 @@ function getElt(id, { sym = "", opt = null } = {}) {
  * @param {string} id 
  * @param {string} opt options de recherche
  * @return {JQuery}
+ * @file 'modules/utils/html.js'
  */
 function getEltID(id, opt = null) {
     let symbol = id.indexOf("#") == 0 ? "" : "#"

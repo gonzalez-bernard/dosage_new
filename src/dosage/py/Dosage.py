@@ -3,8 +3,6 @@ import os
 import csv
 from math import log10, pow
 
-
-
 #from scipy.misc import derivative
 #from scipy import interpolate
 sys.path.append(os.getcwd())

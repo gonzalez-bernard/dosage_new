@@ -9,23 +9,29 @@
 */
 
 import * as cBecher from "./classes/becher.js";
-import { BECHER } from "./interface.js"
-import {G} from "../../environnement/globals.js";
 import { isObject } from "../../modules/utils/type.js";
 import { ERROR_OBJ } from "../../modules/utils/errors.js"; 
 import { getColor } from "../dosage.js";
+
+/**
+ * @typedef {import ('../../../types/classes').Canvas} Canvas
+ * @typedef {import ('../../../types/classes').Becher} Becher
+ * @typedef {import ('../../../types/classes').Dosage} Dosage
+ * @typedef {import ('../../../types/types').tBECHER} tBECHER
+ */
 
 /** Initialise bécher
  * 
  * Crée le bécher, le remplit et l'ajoute au canvas
  * Définit les évents
+ * @param {Dosage} G
  * @param {Canvas} canvas 
  * @param {tBECHER} sBECHER
  * @returns {Becher} Becher
  * @public
  * @file initBecher.js
  */
-function initBecher( canvas, sBECHER ) {
+function initBecher( G, canvas, sBECHER ) {
 
     if ( !isObject(canvas) ) throw ERROR_OBJ
 

@@ -14,9 +14,8 @@
     <script type="text/javascript" src="node/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="node/jquery-validation/dist/jquery.validate.js"></script>
     <script type="text/javascript" src="node/chart.js/dist/chart.js"></script>
-    <script id="MathJax-script" async src="node/mathjax//es5/tex-mml-chtml.js"></script>
     <script type="text/javascript" src='static/bootstrap/dist/js/bootstrap.bundle.min.js'></script>
-    <!-- <script type="text/javascript" id="MathJax-script" async src="./static/mathjax/es5/tex-mml-chtml.js"></script> -->
+    <script type="text/javascript" id="MathJax-script" async src="./static/mathjax/es5/tex-mml-chtml.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 
     </meta>
@@ -55,10 +54,11 @@
         </div>
         <!-- Chargement des pages -->
         <script type="module" src='../src/environnement/globals.js'></script>
+        <script type="module" src='../src/introduction/intro.ui.js'></script>
         <script type="module" src='../src/aide/aide_ui.js'></script>
-        <script type="module" src='../src/introduction/intro_ui.js'></script>
+
         <script type="module" src='../src/especes/especes.ui.js'></script>
-        
+
         <script type="module" src='../src/dosage/dosage.js'></script>
         <script type="module" src='../src/problem/problem_ui.js'></script>
         <!-- <script type="module" src='../src/modules/utils.js'></script> -->
@@ -69,9 +69,9 @@
             window.onload = function() {
 
                 var $ = window.jQuery
-                $('[data-toggle="tooltip"]').tooltip()   
-                
-                
+                $('[data-toggle="tooltip"]').tooltip()
+
+
             }
         </script>
     </div>

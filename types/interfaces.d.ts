@@ -1,4 +1,5 @@
-
+import {tOCANVAS, tBURETTE, tBECHER, tFLACON, tColor} from "./types"
+import {Canvas, Becher} from "./classes"
 
 interface iCanvasImage extends tOCANVAS {
   image: string | HTMLImageElement
@@ -19,8 +20,8 @@ interface iCanvasText extends tOCANVAS{
 
 interface iCanvasRect extends tOCANVAS{
   stop: () => void
-  fadeTo: (duree: number, type_in: string, type_out:string, callback: ()=>void) => iCanvasRect
-  fadeOut: (type_in: string, type_out:string, callback: ()=>void) => iCanvasRect
+  fadeTo: (duree: number, type_in: string, type_out:string, callback?: ()=>void) => iCanvasRect
+  fadeOut: (type_in: string, type_out:string, callback?: ()=>void) => iCanvasRect
 }
 
 
@@ -95,6 +96,16 @@ interface iFlacon extends tFLACON{
   text_flacon: iCanvasText
   liquide: tOCANVAS
   length?: number
+}
+
+// interface pour données formulaire
+interface iFrmData{
+  mark: boolean;
+  pass: boolean
+  display: boolean
+  buttons: string[]
+  callback: ()=>unknown
+  validator: object;
 }
 
 

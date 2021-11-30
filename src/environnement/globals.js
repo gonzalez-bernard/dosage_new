@@ -5,34 +5,33 @@ import { ETAT_INITIAL } from "./constantes.js";
 /**
  * @class Dosage
  * @property {tReactif} titre
-*/
+ */
 // Variable pour enregistrer toutes les informations du programme
-class Dosage{
+class Dosage {
 
-    
-    constructor(){
+    constructor() {
         this.type = null // type de dosage
         this.equation = { // indice de l'équation si type = TYPE_OXYDO
             id: undefined,
             params: []
-        } 
+        }
         this.titre = { // structure précisant l'espèce titrée
             vol: 0,
             conc: 0
-        } 
+        }
         this.titrant = { // structure précisant l'espèce titrante
             vol: 0,
             conc: 0
-        } 
+        }
         this.solution = { // solution
             vol: 0,
             conc: 0
-        } 
-        this.colProduit = {    // contient currentColor et endColor couleurs en cours et finale
+        }
+        this.colProduit = { // contient currentColor et endColor couleurs en cours et finale
             currentColor: undefined,
             endColor: undefined,
             finale: undefined
-        } 
+        }
         this.etat = ETAT_INITIAL
         this.event = 0
         this.ph = undefined // pH courant
@@ -56,17 +55,17 @@ class Dosage{
         this.concs = [] // valeur des concentrations
         this.reactif = { // espèce supplémentaire pour dosage retour
             conc: 0,
-            vol:0
-        } 
-        this.exc = {    // espèce excipient (H+)
+            vol: 0
+        }
+        this.exc = { // espèce excipient (H+)
             vol: 0,
             conc: 0
-        } 
+        }
         this.eau = {
             vol: 0,
             conc: 0
         }
-        this.mesure = 0   // indique le type de mesure possible 1 : pH, 2 : conductimètre, 4 : potentiomètre 
+        this.mesure = 0 // indique le type de mesure possible 1 : pH, 2 : conductimètre, 4 : potentiomètre 
         this.inconnu = {} // contient les informations concernant les problèmes
         this.charts = {
             chartPH: undefined, // enregistre une instrance de graph_ph ou graph_cd
@@ -78,7 +77,7 @@ class Dosage{
         this.typeDetail = undefined
         this.indics = [] // indicateurs
         this.hasReactif = false // indique s'il y a un réactif
-        this.hasExc = null     // indique la présence d'un excipient
+        this.hasExc = null // indique la présence d'un excipient
         this.label = ""
         this.inconnu = undefined
     }
@@ -89,11 +88,11 @@ class Dosage{
      * @param {string} name nom de la propriété
      * @param {any} value valeur
      */
-    set(name, value) {
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
-        if (! (name in this)) throw new TypeError(e.ERROR_ELT)
-        
-        this[name] = value
+    set( name, value ) {
+        if ( !isString( name ) ) throw new TypeError( e.ERROR_STR )
+        if ( !( name in this ) ) throw new TypeError( e.ERROR_ELT )
+
+        this[ name ] = value
     }
 
     /** Retourne valeur de la propriété
@@ -101,10 +100,10 @@ class Dosage{
      * @param {string} name nom propriété
      * @returns {any} valeur
      */
-    get(name) {
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
-        if (!( name in this)) throw new TypeError(e.ERROR_ELT)
-        return this[name]
+    get( name ) {
+        if ( !isString( name ) ) throw new TypeError( e.ERROR_STR )
+        if ( !( name in this ) ) throw new TypeError( e.ERROR_ELT )
+        return this[ name ]
     }
 
     /** Test si valeur est inclus dans etat ou event
@@ -113,10 +112,10 @@ class Dosage{
      * @param {number} value valeur
      * @returns {boolean} vrai si value est contenu dans la valeur de la propriété
      */
-    test(name,value){
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
-        if (!isNumeric(value)) throw new TypeError(e.ERROR_NUM)
-        return ((this[name] & value) == value)
+    test( name, value ) {
+        if ( !isString( name ) ) throw new TypeError( e.ERROR_STR )
+        if ( !isNumeric( value ) ) throw new TypeError( e.ERROR_NUM )
+        return ( ( this[ name ] & value ) == value )
     }
 
     /** Modifie la variable "etat"
@@ -124,11 +123,11 @@ class Dosage{
      * @param {number} name valeur de l'état défini dans constantes.js
      * @param {number} action précise l'action 1=active, 0=désactive, -1=inverse
      */
-    setState(name, action){
-        if (!isNumeric(name) || !isNumeric(action)) throw new TypeError(e.ERROR_STR)
-        if (action != 0 && action != 1 && action != -1) throw new TypeError(e.ERROR_RANGE)
+    setState( name, action ) {
+        if ( !isNumeric( name ) || !isNumeric( action ) ) throw new TypeError( e.ERROR_STR )
+        if ( action != 0 && action != 1 && action != -1 ) throw new TypeError( e.ERROR_RANGE )
 
-        switch (action){
+        switch ( action ) {
             case 1: // activation
                 this.etat |= name
                 break
@@ -138,7 +137,7 @@ class Dosage{
             case -1:
                 this.etat ^= name
                 break
-    }
+        }
     }
 
     /** Enregistre les listes dans la variable globale G
@@ -146,7 +145,7 @@ class Dosage{
      * @param {*} data données
      * @file global.js
      */
-    initLists(data){
+    initLists( data ) {
         this.lst_acide = data.list_acidebase
         this.listAcideBase = data.acidebases
         this.listOxydo = data.autredos
@@ -161,8 +160,8 @@ var G = new Dosage()
  * 
  * @returns {Dosage} G
  */
-function getGlobal(){
+function getGlobal() {
     return G
 }
 
-export {Dosage, G, getGlobal}
+export { Dosage, G, getGlobal }

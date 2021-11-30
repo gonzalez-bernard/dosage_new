@@ -12,10 +12,16 @@ import * as cConductimetre from "./classes/conductimetre.js";
 import * as cts from "../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
-import { G } from "../../environnement/globals.js";
+//import { G } from "../../environnement/globals.js";
 import { isObject } from "../../modules/utils/type.js";
 import { CONDUCTIMETRE } from "./interface.js";
 import { displayGraph, updateGraph } from "../dosage.graph.js"
+
+/**
+ * @typedef { import ("../../../types/types").tLab} tLab
+ * @typedef { import ( '../../../types/classes' ).Dosage } Dosage  
+ * @typedef { import ( '../../../types/classes' ).Conductimetre } Conductimetre  
+ */
 
 /** Crée le conductimètre
  *
@@ -35,7 +41,7 @@ function initConductimetre(lab, G) {
     lab.canvas.addChild(conductimetre.fond);
 
     // survol conductimetre
-    conductimetre.fond.bind("mouseenter", function (e) {
+    conductimetre.fond.bind("mouseenter", function () {
         if (G.test('mesure', 2)) {
             lab.canvas.mouse.cursor("pointer");
             lab.tooltip.dspText(txt.DO_CONDUCTIMETRE);
@@ -45,7 +51,7 @@ function initConductimetre(lab, G) {
     });
 
     // Quitte survol conductimetre
-    conductimetre.fond.bind("mouseleave", function (e) {
+    conductimetre.fond.bind("mouseleave", function () {
         lab.canvas.mouse.cursor("default");
         lab.tooltip.dspText();
     });
@@ -62,10 +68,10 @@ function initConductimetre(lab, G) {
             G.setState(cts.ETAT_COND, -1)
         
             // Positionne le conductimètre
-            conductimetre.dispose(lab.becher, conductimetre.offsetX, conductimetre.offsetY);
+            conductimetre.dispose(lab.becher);
             conductimetre.setText(G.scond);
             updateGraph(lab.canvas)
-            displayGraph()
+            displayGraph(lab.canvas)
         }
     });
 

@@ -1,3 +1,6 @@
+import {iCanvasImage, iCanvasRect, iCanvasText} from "./interfaces"
+import {Becher, Phmetre, Conductimetre, Potentiometre, Burette, Flacon, Canvas, Graphx, Dosage, Tooltip} from "./classes"
+
 type tColor = {
   color: string
 }
@@ -14,11 +17,11 @@ type tOCANVAS = {
   abs_x: number
   abs_y: number
   height: number
-  addChild: () => void
+  addChild: (arg: iCanvasImage | iCanvasText | iCanvasRect) => void
   clone: (tPoint) => iCanvasImage
   dragAndDrop: (boolean) => void
   rotateTo: (number) => void
-  bind: (name:string, callback:() => undefined) => void
+  bind: (name:string, callback:() => void) => void
   animate: (iPoint, object) => void
 }
 
@@ -103,8 +106,9 @@ type tTOOLTIP = {
   w: number
   h: number
   border: number
-  color: tColor
+  color: string
   txt: string
+  //dspText: (string) => void
 }
 
 type tReactif = {
@@ -153,7 +157,7 @@ type tLab = {
   burette: Burette
   flacons: Flacon[]
   canvas: Canvas
-  tooltip: unknown
+  tooltip: Tooltip
 }
 
 type tKeyboard = {
@@ -199,7 +203,6 @@ type tDataInfo = {
   msg?: string
   latex?: boolean
   callbacks?: {id: string, fct: () => void}
-  math?: boolean
   setmsg?: () => void
   actionBtClose?: ()=> void
   data: ()=> Dosage
@@ -259,4 +262,5 @@ type tInfos = {
   prm?: object                 // paramètres à fournir à setMsg
   latex?: boolean           // vrai si affichage mathématique (défaut = false)
   callbacks?:  ()=> unknown
+  data?: object;
 }

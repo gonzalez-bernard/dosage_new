@@ -23,6 +23,7 @@ import * as e from "./errors.js"
  *      - titre : titre de la fenêtre
  *      - info  : contenu à afficher
  *      - btclose : texte du bouton
+ * @file 'modules/utils/window.js'
  */
 var dspModalInfo = function (event) {
 
@@ -41,7 +42,7 @@ var dspModalInfo = function (event) {
         "<div class='modal-footer'><button type='button' class='btn btn-secondary' data-dismiss='modal'> " +
         txt_bt_close + "</button></div></div></div></div>"
 
-    if (event.data.math == true) {
+    if (event.data.latex == true) {
 
         // @ts-ignore
         MathJax.typesetPromise().then(() => {
@@ -59,7 +60,3 @@ var dspModalInfo = function (event) {
 }
 
 export { dspModalInfo }
-
-export function modal() {
-    throw new Error("Function not implemented.")
-}

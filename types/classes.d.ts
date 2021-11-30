@@ -1,7 +1,6 @@
-//import { ChartTypeRegistry } from "chart.js";
-
 import { ChartType } from "../node_modules/chart.js/dist/chart.js";
-
+import { tBECHER, tBURETTE, tColor, tColorProduit, tDataDPH, tDataPH, tEquation, tGlobalCharts, tKeyboard, tLab, tOCANVAS, tPoint, tReactif, tReaction } from "./types.js";
+import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil} from "./interfaces"
 
 declare class Dosage {
     type: number;
@@ -43,6 +42,7 @@ declare class Dosage {
     hasReactif: boolean;
     hasExc: number;
     label: string;
+    lab: tLab
     setState(name: number, action: number): void;
     test(name: string, action: number): boolean;
     get(name: string): unknown;
@@ -63,7 +63,7 @@ declare class Becher implements iBecher {
     image: string;
     value?: unknown;
     fond: iCanvasImage;
-    setColor(col: tColor | string): void;
+    setColor(col: tColor | string): tColor;
     remplir(debit: number, volume: number, mode: number): void;
     showDetail(mode: number): void;
     reset(mode: number): void;
@@ -83,7 +83,7 @@ declare class Appareil implements iAppareil {
     image: iCanvasImage | string;
     value: string;
     fond: iCanvasImage;
-    dispose: (becher: Becher, x: number, y: number) => void;
+    dispose: (becher: Becher) => void;
     setText: (string) => void;
 }
 
@@ -115,7 +115,7 @@ declare class Burette {
     liquide: iCanvasImage;
     graduation: Record<string, unknown>;
     menisque: Record<string, unknown>;
-    txtgrad: Record<string, unknown>;
+    txtgrad: iCanvasText[];
     vidange: (number, Becher) => void;
     reset: () => void;
     leave: (label: string) => void;
@@ -200,4 +200,42 @@ declare class Graphx extends Graph {
     _getPerpendiculaire: (p0: tPoint, p1: tPoint, pente: number, factor: number) => void;
     _calcPente: (indice_1: number, indice_2: number, points: unknown[]) => number;
     setEvent: (event: string, callback: (evt: Event, elt? : unknown[]) => boolean) => void   
+    changeData: (data: object[]) => void
+    removeData: (number)=> void
+    getChartByProp: (id:string, prop:string) => number
+    clearData: (number) => void
 }
+
+declare class EventForm{
+}
+
+declare class Element{
+    _elt: string  // identifiant du type de l'élément (ex : label)
+    name: string  // nom 
+    id: string  // ID
+    style: string  // paramètres de style
+    class: string  // nom des classes
+    _text: string  // texte à afficher entre balises
+    _childs: Element[]  // objet enfant
+    _attributes: string[]  // tableau des attributs (ex disabled ou required)
+    _role: string  // indique l'attribut role
+    _tabIndex: number // indice tabulation
+    _ext: object[] // complète les balises du style data-
+    _div: string
+ 
+}
+
+declare class Form extends Element{
+    _action: string  // indique l'action à executer
+}
+
+declare class Label extends Element{
+    _label: object  // texte label pour input
+}
+
+declare class Input extends Element{
+    _label: object  // texte label pour input
+    _feedback: object
+}
+
+export {Becher, Dosage, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, EventForm, Element, Input, Label, Form, Graph, Tooltip}

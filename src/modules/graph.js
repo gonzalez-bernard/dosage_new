@@ -27,16 +27,11 @@
 import { hasKey } from "./utils/object.js"
 import * as e from "./utils/errors.js"
 import { isObject, isString, isEvent, isNumeric, isStrNum, isInteger, isDefined } from "./utils/type.js"
-//import {Chart} from "chart.js";
+//import { Chart } from "../../node_modules/chart.js";
 
 /**
- * @typedef chartElement
- * @type {object}
- * @typedef Point
- * @type {object}
- * @typedef Event
- * @property offsetX
- * @property offsetY
+ * @typedef {import("../../node_modules/chart.js").ChartItem} chartItem
+ * @typedef {import("../../types/types").tPoint} tPoint
  */
 
 /** Classe Graph */
@@ -74,6 +69,7 @@ class Graph {
         //this.chart.data.datasets.push( this.dataset );
 
         
+        // @ts-ignore
         this.chart = new Chart(this.canvas, {
             type: type,
             data: { datasets: [this.dataset] },
@@ -303,7 +299,7 @@ class Graph {
 
     /** Retourne l'indice de la courbe sur laquelle on a cliqué.
      *
-     * @param {chartElement} elt événement
+     * @param {chartItem[]} elt événement
      * @return {number} indice de la courbe
      */
     getEventIndexChart(elt) {
@@ -316,7 +312,7 @@ class Graph {
 
     /** Retourne l'indice du point
      *
-     * @param {chartElement} elt
+     * @param {chartItem} elt
      * @return {number} indice du point
      */
     getEventIndicePoint(elt) {
@@ -329,8 +325,8 @@ class Graph {
 
     /** Retourne les coordonnées en pixels du point sur lequel on a agit
      *
-     * @param {chartElement} elt
-     * @return {Point}
+     * @param {chartItem} elt
+     * @return {number[]}
      */
     getEventCoordPixel(elt) {
         if (!isObject(elt)) throw new TypeError(e.ERROR_OBJ);
@@ -429,7 +425,7 @@ class Graph {
 
     /** Retourne le tableau des points
      *
-     * @param {number|chartElement} prm N° de la courbe
+     * @param {number|chartItem} prm N° de la courbe
      * @returns {array} tableau coordonnées des points
      */
     getData(prm) {

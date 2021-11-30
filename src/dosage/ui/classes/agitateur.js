@@ -1,5 +1,10 @@
 
 /**
+ * @typedef {import ('../../../../types/classes').Canvas} Canvas
+ * @typedef {import ('../../../../types/types').tAGITATEUR} tAGITATEUR
+ */
+
+/**
  * @class Agitateur
  * @classdesc construit l'objet agitateur
   */

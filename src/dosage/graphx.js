@@ -17,6 +17,10 @@ import { isArray, isNumeric, isObject} from "../modules/utils/type.js"
 import { setEventsClick } from "../dosage/dosage.js"
 import { dspContextInfo } from "../infos/infos.js"
 
+/**
+ * @typedef {import ('../../types/classes').Dosage} Dosage
+ * @typedef {import ('../../types/types').tPoint} tPoint 
+ */
 
 class Graphx extends Graph {
     

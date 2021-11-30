@@ -19,6 +19,14 @@ import {updateGraph, displayGraph} from "../dosage.graph.js"
 import {getEltID} from "../../modules/utils/html.js"
 import { DOS_BT_COTH } from "./html_cts.js";
 
+/**
+ * @typedef {import('../../../types/types').tLab} tLab
+ * @typedef {import('../../../types/classes').Dosage} Dosage
+ * @typedef {import('../../../types/classes').Phmetre} Phmetre
+ * @typedef {import('../../../types/classes').Becher} Becher
+ * 
+ */
+
 /** Crée le Phmètre
  * 
  * Définit les events
@@ -38,7 +46,7 @@ function initPhmetre( lab, G ) {
     lab.canvas.addChild( phmetre.fond );
 
     // survol pHmetre
-    phmetre.fond.bind( "mouseenter", function( e ) {
+    phmetre.fond.bind( "mouseenter", function( ) {
         if (G.type & cts.TYPE_ACIDEBASE){
             lab.canvas.mouse.cursor( "pointer" );
             lab.tooltip.dspText( txt.DO_PHMETRE );
@@ -48,7 +56,7 @@ function initPhmetre( lab, G ) {
     });
 
     // Quitte survol pHmetre
-    phmetre.fond.bind( "mouseleave", function( e ) {
+    phmetre.fond.bind( "mouseleave", function( ) {
         lab.canvas.mouse.cursor( "default" );
         if (G.type & cts.TYPE_ACIDEBASE){
             lab.tooltip.dspText();
@@ -68,7 +76,7 @@ function initPhmetre( lab, G ) {
                 updateGraph(lab.canvas)
                 
                 // Affiche
-                displayGraph()
+                displayGraph(lab.canvas)
                 
                 // Désactive Boutons
                 getEltID(DOS_BT_COTH ).attr( "disabled", "" );
@@ -77,7 +85,7 @@ function initPhmetre( lab, G ) {
                 // Active Boutons
                 getEltID(DOS_BT_COTH ).removeAttr( "disabled" );
             }           
-        };
+        }
 
     return phmetre;
     })
@@ -102,7 +110,7 @@ function setPHmetre(phmetre, becher ) {
     G.setState(cts.ETAT_PHMETRE,-1)
 
     // Affiche phmetre
-    phmetre.dispose( becher, phmetre.offsetX, phmetre.offsetY );
+    phmetre.dispose( becher );
     phmetre.setText( G.sph);
 }
 

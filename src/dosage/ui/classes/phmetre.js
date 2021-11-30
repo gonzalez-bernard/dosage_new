@@ -1,6 +1,9 @@
-import * as cts from "../../../environnement/constantes.js"
-import {G} from "../../../environnement/globals.js"
 import {Appareil} from "./appareil.js"
+
+/**
+ * @typedef {import ('../../../../types/types').tAPPAREIL} tAPPAREIL
+ * @typedef {import ('../../../../types/classes').Canvas} Canvas
+ */
 
 /**  Création phmetre
  *

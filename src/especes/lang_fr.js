@@ -48,7 +48,7 @@ const ES_LABEL_REACTION = "Réaction"
 
 const ES_MSG_TITRE_SELECT = "Indiquez l'espèce à titrer !"
 const ES_MSG_TITRANT_SELECT = "Indiquez l'espèce titrante !"
-const ES_MSG_INTERVAL = "Valeur dans l'intervalle "
+const ES_MSG_INTERVAL = "Valeur hors intervalle ! "
 const ES_MSG_VOLUME = "Valeur comprise entre 10 mL et 20 mL"
 const ES_MSG_VOLUME_SUPP = "Valeur comprise entre 1 et 10 mL"
 const ES_MSG_REACTION_SELECT = "Indiquez une réaction !"
