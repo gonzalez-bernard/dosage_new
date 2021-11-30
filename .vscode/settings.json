@@ -3,5 +3,6 @@
   "editor.fontFamily": "'Courier'",
   "editor.fontSize": 13,
   "print.colourScheme": "Atom One",
-  "debug.javascript.unmapMissingSources": true
+  "debug.javascript.unmapMissingSources": true,
+  "githubPullRequests.remotes": []
 }
