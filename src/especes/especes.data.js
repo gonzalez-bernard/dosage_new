@@ -13,15 +13,10 @@ import { initDosage} from "../dosage/dosage.js"
  * @typedef { import ( '../../types/classes' ).Dosage } Dosage 
  */
 
-
-
 /** Validation des espèces
  *
  * @param {Dosage} G
  * @returns void
- * @public
- * @see especes.data~setDosageAcValues
- * @see especes.data~setDosageOxValues
  * @file especes.data
  * @external especes.events
  */
@@ -32,13 +27,12 @@ function eventValidation( G ) {
     // initialise espèces et calcule les différents points (volume, pH,...)
     if ( G.type == cts.TYPE_ACIDEBASE ) {
         setDosageAcValues( G );
-        initDosage( G );
         G.title = "Dosage " + G.titre.nomc + " par " + G.titrant.nomc;
     } else {
         setDosageOxValues( G );
-        initDosage( G );
         G.title = new uString( G.label ).convertExpoIndice().html;
     }
+    initDosage( G )
 
     // indique que les espèces ont été enregistrées
     G.setState( cts.ETAT_ESPECES, 1 );
@@ -132,7 +126,7 @@ function setDosageAcValues( G ) {
  */
 function getCharge( str, exp = "'" ) {
     const reg = new RegExp( exp + "([\\d\\+\\-]*)" + exp );
-    let v = str.match( reg );
+    const v = str.match( reg );
     if ( v == null || v.length === 0 ) return 0;
     let c = v[ 1 ];
     if ( c == "+" ) return 1;

@@ -121,7 +121,7 @@ type tReactif = {
   id?: number
   conc: number
   pka?: number
-  indics?: number[]
+  indics?: string
   formule?: string
   color?: tColor
 }

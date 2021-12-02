@@ -26,9 +26,6 @@ import { setEvents } from "./especes.events.js"
 import { html } from "./html.js"
 import { DOS_DIV_INFO } from "../dosage/ui/html_cts.js"
 
-// initialise les espèces
-//_initEspeces(html, G)
-
 getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).trigger( 'focus' )
 
 /** Met à jour les listes déroulantes
@@ -75,16 +72,14 @@ function updSaisieSelect( G ) {
  */
 function initDataInfo( G ) {
 
-    let initDataInfo = {
+    const initDataInfo = {
         idmodal: "id_es_modal",
         idcontainer: ui.ES_DIV_INFO,
         title: "Especes",
         labelbtclose: txt.ES_BTCLOSE_LABEL,
         idbtclose: "dos_info_close",
-        //actionBtClose: text,
         data: getGlobal,
         latex: true,
-        //callbacks: {'#labo': text}
     }
 
     if (G.etat & cts.ETAT_DOS){
@@ -95,10 +90,11 @@ function initDataInfo( G ) {
 
     let infos
     if ( G.type == cts.TYPE_ACIDEBASE ) {
-        let _G = initDataInfo.data()
+        const _G = initDataInfo.data()
         infos = getInfoPH( _G )
     } else
         infos = getInfoOX( initDataInfo.data() )
+
     initDataInfo.msg = infos.msg
     initDataInfo.title = infos.title
     return initDataInfo
@@ -112,11 +108,16 @@ function initDataInfo( G ) {
  * @external especes.events
  */
 function dspPH() {
-    getElt( ui.ES_EXC_PH, "#" ).text( txt.ES_EXC_PH + getPH() )
+    getEltID( ui.ES_EXC_PH).text( txt.ES_EXC_PH + getPH() )
 }
 
+/** Rafraîchit le formulaire
+ * 
+ * @returns void
+ */
 function resetForm(){
 
+    // active les listes et le choix du type
     getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).prop( 'disabled', false )
     getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).prop( 'disabled', false )
     getEltID( ui.ES_AUTREDOS_SELECT ).prop( 'disabled', false )
@@ -178,7 +179,6 @@ function changeOxSelect( G ) {
  * G.inconnu est un tableau d'objet ou un objet
  * @param {Dosage} G
  * @returns void
- * @public
  * @see _updEspece
  * @file especes.ui.js 
  * @external problem.ui
@@ -194,6 +194,8 @@ function updEspeces( G ) {
         getEltID( ui.ES_AUTREDOS ).show()
         getEltID( "type_ox" ).prop( "checked", true )
     }
+
+    // reset formulaire
     resetForm()
     getElt( "input[name='choice_type']:radio" ).prop( 'disabled', true )
 
@@ -210,27 +212,22 @@ function updEspeces( G ) {
 /** Initialise la liste de l'espèce titrante en fonction du choix de l'espèce titrée
  * 
  * @returns void
- * @public
  * @file especes.ui.js
  * @external especes.events
  */
 function getListEspeceTitrante() {
 
-    let id = this.selectedIndex
-    let titre_value = parseInt( this.value )
+    const id = this.selectedIndex
+    const titre_value = parseInt( this.value )
 
     // si pas de titrant défini
-    let titrant_value = getValueID( ui.ES_ACIDEBASE_TITRANT_SELECT, 'int' )
+    const titrant_value = getValueID( ui.ES_ACIDEBASE_TITRANT_SELECT, 'int' )
     if ( ( titre_value < 10 && titrant_value >= 10 ) || ( titre_value >= 10 && titrant_value < 10 ) )
         return
 
+    const type =  id >= 16 ? "acide" : "base"  
+    let html = _setListAcidebase( G.lst_acide, type )
 
-    let html
-    if ( id >= 16 ) { // bases
-        html = _setListAcidebase( G.lst_acide, "acide" )
-    } else {
-        html = _setListAcidebase( G.lst_acide, "base" )
-    }
     // insère dans le DOM
     getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).html( html ).trigger( "focus" );
 }
@@ -239,7 +236,6 @@ function getListEspeceTitrante() {
  * 
  * @param {object} obj  ayant généré l'événement
  * @return {boolean} vrai si saisie valide
- * @public
  * @file especes.ui.js
  * @external especes.events
  */
@@ -249,7 +245,7 @@ function inputValidSaisie( obj ) {
 
     // On teste si le champ courant valide les contraintes particulières
     // test les champs concentrations et volumes
-    let min, max
+    const min, max
     if ( obj.id.search( 'con' ) != -1 ) {
         if ( obj.id == ui.ES_SUPP_CONC ) {
             min = cts.CONC_RMIN;
@@ -281,9 +277,10 @@ function inputValidSaisie( obj ) {
   Récupère les listes d'espèces à partir du fichier
   @param {HTMLElement|String} html
   @param {Dosage} G variable global
-  @use _setListAcidebase
-  @private
+  @use _setListAcidebase, _setListOxydo, initLists
   @file especes.ui.js
+  @external intro.ui.js
+  @returns void
 */
 function initEspeces( G ) {
 
@@ -315,7 +312,7 @@ function initEspeces( G ) {
                 _html = _setListOxydo( data.list_autredos, 'all' );
                 getEltID( ui.ES_AUTREDOS_SELECT ).html( _html );
 
-            } ) //socket.emit( "getEspeces", "" );
+            } )
 
         // Events
         setEvents( G )
@@ -323,7 +320,6 @@ function initEspeces( G ) {
     } catch ( e ) {
         console.error( e )
     }
-
     
     // initialise en mode acide-base
     G.setState( cts.TYPE_ACIDEBASE, 1 )
@@ -352,18 +348,19 @@ function _updEspece( f ) {
                 getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).prop( 'disabled', true )
             } else {
                 getEltID( ui.ES_AUTREDOS_SELECT ).val( f.value )
-                getEltID( ui.ES_AUTREDOS_SELECT ).attr( 'disabled', 'true' )
+                getEltID( ui.ES_AUTREDOS_SELECT ).prop( 'disabled', true )
+
+                // actualise le formulaire
                 changeOxSelect(G)
             }
             break
         case 'stitrant': // sélection titrant
             if ( G.type == 1 ) {
                 getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).val( f.value )
-                //$("#"+ui.ES_ACIDEBASE_TITRANT_SELECT+"  option[value="+f.value+"]").prop( 'selected', true)
                 getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).prop( 'disabled', true )
             } else {
                 getEltID( ui.ES_AUTREDOS_SELECT ).val( f.value )
-                getEltID( ui.ES_AUTREDOS_SELECT ).attr( 'disabled', 'true' )
+                getEltID( ui.ES_AUTREDOS_SELECT ).prop( 'disabled', true )
             }
             break
     }
@@ -416,22 +413,5 @@ var _setListOxydo = function( lst_dosages, type ) {
 }
 
 /************************************************ */
-
-
-
-
-
-/*
-
-// détecte event changement class des tab
-getElt( 'a[data-toggle="tab"]' ).on( 'add_class', function( e ) {
-    if ( $( e.target ).attr( "href" ) == "#especes" )
-        $( '.title' ).text( 'Espèces' );
-    else if ( isDefined( G.title ) )
-        $( '.title' ).text( G.title );
-    else
-        $( '.title' ).text( new uString( $( e.target ).attr( "href" ).substring( 1 ) ).capitalize().val );
-} ); 
-*/
 
 export { updEspeces, inputValidSaisie, updSaisieSelect, getListEspeceTitrante, changeOxSelect, dspPH, initDataInfo, initEspeces }
