@@ -116,7 +116,7 @@ class uString extends String {
       '"' : '&quot;', 
       '&' : '&amp;',
       '\'' : '&apos;',
-      '\n' : '&#10;&#13;'
+      '\n' : '&#10;'
   };
   this.html =  this.val.replace(/[\u00A0-\u9999<>\n\&''""]/gm, (i)=>code[i]);
   //this.html = this.html.replace('&new;','<br>')

@@ -1,15 +1,14 @@
 /**
- * @module problem/problem_ui
+ * @module problem/problem.ui
  * @description
  * - Affiche page problem
  */
 import * as txt from "./lang_fr.js"
 import * as ui from "./html_cts.js"
-import * as cts from "../environnement/constantes.js"
 import {G} from "../environnement/globals.js"
 import { getHtml } from "./html.js";
 import { getEltID, getValueID, setValueID } from "../modules/utils/html.js";
-import {Form} from "../modules/utils/form.js" 
+
 import { mathArrondir } from "../modules/utils/number.js";
 import { uString, dspHtmlLatex } from "../modules/utils/string.js";
 import { FILE_ZOOM_IN, FILE_ZOOM_OUT } from "../environnement/constantes.js";
@@ -17,16 +16,20 @@ import {dspMessage as displayMessage} from "../modules/dom.js"
 import { updEspeces } from "../especes/especes.ui.js";
 import { MNU_ESPECES, ESPECES, ES_TITRE_CONC, ES_ACIDEBASE_TITRE_SELECT, ES_AUTREDOS_SELECT } from "../especes/html_cts.js";
 import { PROBLEM } from "./html_cts.js";
-import { ES_FORM } from "../especes/html_cts.js";
-import { ES_BT_VALID } from "../especes/html_cts.js";
+import { getProblem, initProblem } from "./problem.data.js";
 
-// @ts-ignore
-var socket = io();
 
 var valeur
 var numEssais = 0 // nombre d'essais
 var nbEssais = 3 
 var precision
+
+function initPage(data){
+  let context = new uString(data.context).convertExpoIndice().html
+  let question = new uString(data.question).convertExpoIndice().html
+  var html = getHtml(data.id, data.objectif, context, question, data.inconnu, data.img)
+  $("#problem").html(html)
+}
 
 /** Active le zoom
  * 
@@ -63,7 +66,7 @@ function zoomImgOut() {
 /** Affiche la solution ou l'aide
  * 
  * @param {object} event 
- * @file problem_ui.js
+ * @file problem.ui.js
  */
 function dspInfo(event) {
 
@@ -75,7 +78,7 @@ function dspInfo(event) {
   }
 
   let html = event.data.infos.msg + "<hr/>"
-  dspHtmlLatex(html, event.data['idModal'])
+  dspHtmlLatex(html, event.data.infos.idmodal)
 }
 
 /** Affiche les messages en cas de succés ou d'erreur
@@ -124,7 +127,7 @@ function dspMessage( result, mode = 0 ) {
  * @param {event} e event
  * @private
  * @use dspTabProblem
- * @file problem_ui.js
+ * @file problem.ui.js
  */
 function cancelProblem(e) {
   //dspTabProblem()
@@ -142,10 +145,10 @@ function cancelProblem(e) {
  * @param {event} e event
  * @use updEspeces, dspTabProblem
  * @private
- * @file problem_ui.js
+ * @file problem.ui.js
  */
 function experiment(e){
-  updEspeces()
+  updEspeces(G)
   dspTabProblem()
   /*
   if (formValid(ES_FORM))
@@ -158,7 +161,7 @@ function experiment(e){
 /** Active la fenêtre espèces
  * 
  * @private
- * @file problem_ui.js
+ * @file problem.ui.js
  */
 function dspTabProblem(){
   getEltID(MNU_ESPECES).addClass('active').trigger('add_class')
@@ -167,93 +170,9 @@ function dspTabProblem(){
   getEltID(ESPECES).addClass('active show')
 }
 
-/** 
- * 
- * @param {event} [event] 
- */
-function getProblem(event){
 
-   /**
-   * @typedef event
-   * @property data
-   */
-  // Chargement des problèmes
-  var datas =  (event !== undefined) ? {'indice': event.data.indice} : {'indice': 0}
-  
-  var data = {
-    func: "get_problems",
-    datas: datas 
-  }
-  socket.emit("getProblems", data)
-}
-
-function initProblem() {
-
-  // si requete réussie
-  socket.on("getProblems_ok", function (data) {
-
-    let context = new uString(data.context).convertExpoIndice().html
-    let question = new uString(data.question).convertExpoIndice().html
-    data.inconnu.label = new uString(data.inconnu.label).convertExpoIndice().html
-    G.type = data.type
-    
-    // Crée la page HTML
-    var html = getHtml(data.id, data.objectif, context, question, data.inconnu, data.img)
-    $("#problem").html(html)
-
-    G.setState(cts.ETAT_PROBLEM,1)
-    G.inconnu = data.inconnu
-    
-    // zoom et image
-    getEltID(ui.PB_ZOOM).on('click', zoomIn)
-    getEltID(ui.PB_IMG).hover(zoomImgOn, zoomImgOut)
-
-    // affiche aide
-    getEltID(ui.PB_BT_HELP).on('click', { infos:
-      {type:2, 
-        msg: new uString(data.help).convertExpoIndice().convertArrow().html,
-        idmodal: '#' + ui.PB_HELP,
-        title:'Problème',
-        idbtclose: ""}},
-      dspInfo)
-
-    // affiche solution
-    getEltID(ui.PB_BT_SOLUTION).on('click', { infos:
-      { 
-      type:2, 
-      msg: data.solution + data.inconnu.label + " " + data.inconnu.value + " "+ data.inconnu.unit, idmodal: '#' + ui.PB_SOLUTION, 
-      title:'Problème', 
-      idbtclose: ""}}, 
-      dspInfo)
-  
-    // contrôle réponse
-    var frm = new Form(ui.PB_PROBLEM_REPONSE)
-    getEltID( ui.PB_PROBLEM_REPONSE ).on( 'input', {
-      feedback: '#' + ui.PB_FEEDBACK,
-      buttons: '#' + ui.PB_BT_VALID,
-      pass: false
-    }, frm.validButtons );
-
-    // bouton expérimenter
-    getEltID(ui.PB_EXPERIMENT).on('click', experiment ) 
-
-    // bouton validation
-    getEltID( ui.PB_BT_VALID ).on( 'click',  validProblem )
-
-    // bouton abandon
-    getEltID( ui.PB_BT_CANCEL ).on( 'click', cancelProblem )
-
-    // Clics sur boutons problèmes
-    for (var i = 0; i<12; i++){
-      getEltID(ui.PB_QU[i]).on('click', {'indice':i}, getProblem)
-    }
-  })
-  
-
-  socket.on("pyerror", function (err) {
-    console.log(err)
-  })
-}
 
 getProblem()
-initProblem()
+initProblem(G)
+
+export {zoomImgOn, zoomImgOut, zoomIn, initPage, experiment, validProblem, cancelProblem }

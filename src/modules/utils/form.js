@@ -122,7 +122,7 @@ class Form {
      */
     validButtons( event ) {
 
-        if ( !isEvent( event ) ) throw new TypeError( e.ERROR_EVT )
+        if ( !isEvent( event ) && !(event instanceof jQuery.Event)) throw new TypeError( e.ERROR_EVT )
 
         this.idField = event.currentTarget.id
         this.field = getEltID( this.idField )
@@ -134,8 +134,8 @@ class Form {
             if ( isArray( event.data.buttons ) ) this.buttons = event.data.buttons
             else this.buttons = [ event.data.buttons ]
         }
-        this.callback = isUndefined( event.data.callback ) ? undefined : event.data.callback
-        this.oValidator = isUndefined( event.data.validator ) ? undefined : event.data.validator
+        this.callback = isUndefined( event.data.callback ) ? {} : event.data.callback
+        this.oValidator = isUndefined( event.data.validator ) ? {} : event.data.validator
 
         // test validité du champ courant (retourne un objet ou error)
         this._isValidCurrentFile = this._validField( this.field, true )
@@ -170,7 +170,7 @@ class Form {
      */
     _callBack() {
         // Gestion du callback
-        if ( !isUndefined( this.callback ) ) {
+        if ( !isUndefined( this.callback ) && 'fct' in this.callback && 'data' in this.callback) {
             this.callback[ 'fct' ]( this.callback[ 'data' ] )
         }
     }
@@ -314,7 +314,7 @@ class Form {
 
     /** Vérifie validité du champ
      * 
-     * @param {jQuery} field 
+     * @param {JQuery} field 
      * @returns {boolean} Vrai si champ valide
      */
     _validField( field, isValidator = false ) {
@@ -331,8 +331,7 @@ class Form {
 
     /** Déclence une action si les champs identifiés sont valides
      * 
-     * @param {string[]} fields tableau des champs à valider
-     * @param {function} action action à réaliser si champs valides
+     * @param {object} event évenement avec propriété 'data'
      */
     actionFields(event){
         if (!isEvent(event)) throw new Error(e.ERROR_EVT)

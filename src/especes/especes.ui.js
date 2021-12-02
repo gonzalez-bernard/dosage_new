@@ -24,6 +24,7 @@ import { getInfoPH, getInfoOX } from "./especes.infos.js";
 import { getCharge, getPH, getEspeces } from "./especes.data.js"
 import { setEvents } from "./especes.events.js"
 import { html } from "./html.js"
+import { DOS_DIV_INFO } from "../dosage/ui/html_cts.js"
 
 // initialise les espèces
 //_initEspeces(html, G)
@@ -86,6 +87,12 @@ function initDataInfo( G ) {
         //callbacks: {'#labo': text}
     }
 
+    if (G.etat & cts.ETAT_DOS){
+        initDataInfo.idcontainer = DOS_DIV_INFO
+        initDataInfo.idmodal = "id_dos_modal"
+    }
+        
+
     let infos
     if ( G.type == cts.TYPE_ACIDEBASE ) {
         let _G = initDataInfo.data()
@@ -108,6 +115,23 @@ function dspPH() {
     getElt( ui.ES_EXC_PH, "#" ).text( txt.ES_EXC_PH + getPH() )
 }
 
+function resetForm(){
+
+    getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).prop( 'disabled', false )
+    getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).prop( 'disabled', false )
+    getEltID( ui.ES_AUTREDOS_SELECT ).prop( 'disabled', false )
+    getElt( "input[name='choice_type']:radio" ).prop( 'disabled', false )
+
+    // Désactive le bouton de validation
+    getEltID( ui.ES_BT_VALID ).prop( 'disabled', true )
+
+    // cache formulaire supplémentaire
+    getEltID( ui.ES_SUPP ).hide()
+
+    // cache formulaire excipient
+    getEltID( ui.ES_EXC ).hide()
+}
+
 /** action lors du changement de sélection des réactions oxydo
  * 
  * @param {Dosage} G
@@ -121,16 +145,8 @@ function changeOxSelect( G ) {
     const r = G.listOxydo[ getValueID( ui.ES_AUTREDOS_SELECT, "int" ) - 1 ]
     let reac = r.reaction
 
-    // Désactive le bouton de validation
-    getEltID( ui.ES_BT_VALID ).prop( 'disabled', true )
-
-    // cache formulaire supplémentaire
     G.hasReactif = false
-    getEltID( ui.ES_SUPP ).hide()
-
-    // cache formulaire excipient
     G.hasExc = 0
-    getEltID( ui.ES_EXC ).hide()
 
     // test si réaction retour dans ce cas on positionne le flag hasRéactif
     if ( r.n_reaction == "2" ) {
@@ -150,8 +166,6 @@ function changeOxSelect( G ) {
     // test si excipient, positionne le flag hasExc et affiche ou efface le champ
     const reacs = reac.reactifs.split( "," )
 
-    G.hasExc = undefined
-    getEltID( ui.ES_EXC ).hide()
     if ( reacs.length > 2 ) {
         G.hasExc = getCharge( reacs[ 2 ] ) // égale à la charge électrique
         if ( G.hasExc != 0 )
@@ -170,6 +184,7 @@ function changeOxSelect( G ) {
  * @external problem.ui
  */
 function updEspeces( G ) {
+    // si type acide-base on sélectionne le bon formulaire
     if ( G.type == 1 ) {
         getEltID( ui.ES_ACIDEBASE ).show()
         getEltID( ui.ES_AUTREDOS ).hide()
@@ -179,6 +194,10 @@ function updEspeces( G ) {
         getEltID( ui.ES_AUTREDOS ).show()
         getEltID( "type_ox" ).prop( "checked", true )
     }
+    resetForm()
+    getElt( "input[name='choice_type']:radio" ).prop( 'disabled', true )
+
+    // on initialise les champs du formulaires
     if ( isArray( G.inconnu[ 'field' ] ) ) {
         for ( let o in G.inconnu[ 'field' ] ) {
             _updEspece( G.inconnu[ 'field' ][ o ] )
@@ -305,30 +324,7 @@ function initEspeces( G ) {
         console.error( e )
     }
 
-    // si requete réussie
-    /*
-    socket.on( "getEspeces_ok", function( data ) {
-
-        // enregistre les listes
-        G.initLists( data )
-
-        // construit la liste d'options
-        _html = _setListAcidebase( data.list_acidebase, "all" )
-        getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).html( _html );
-
-        // @todo A supprimer
-        getEltID( ui.ES_ACIDEBASE_TITRE_SELECT, 'option[value=1]' ).attr( 'selected', 'selected' ).change()
-        getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT, 'option[value=1]' ).attr( 'selected', 'selected' )
-
-        _html = _setListOxydo( data.list_autredos, 'all' )
-        getEltID( ui.ES_AUTREDOS_SELECT ).html( _html );
-    } )
-
-    socket.on( "pyerror", function( err ) {
-        console.log( err )
-    } )
-    */
-
+    
     // initialise en mode acide-base
     G.setState( cts.TYPE_ACIDEBASE, 1 )
 
@@ -344,6 +340,7 @@ function initEspeces( G ) {
  * @file especes.ui.js
  */
 function _updEspece( f ) {
+
     switch ( f.name ) {
         case 'ci': // concentration titré
             setValueID( ui.ES_TITRE_CONC, f.value )
@@ -351,17 +348,19 @@ function _updEspece( f ) {
             break
         case 'stitre': // sélection titré
             if ( G.type == 1 ) {
-                getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).val( f.value )
-                getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).attr( 'disabled', 'true' )
+                getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).val( f.value )
+                getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).prop( 'disabled', true )
             } else {
                 getEltID( ui.ES_AUTREDOS_SELECT ).val( f.value )
                 getEltID( ui.ES_AUTREDOS_SELECT ).attr( 'disabled', 'true' )
+                changeOxSelect(G)
             }
             break
         case 'stitrant': // sélection titrant
             if ( G.type == 1 ) {
                 getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).val( f.value )
-                getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).attr( 'disabled', 'true' )
+                //$("#"+ui.ES_ACIDEBASE_TITRANT_SELECT+"  option[value="+f.value+"]").prop( 'selected', true)
+                getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).prop( 'disabled', true )
             } else {
                 getEltID( ui.ES_AUTREDOS_SELECT ).val( f.value )
                 getEltID( ui.ES_AUTREDOS_SELECT ).attr( 'disabled', 'true' )

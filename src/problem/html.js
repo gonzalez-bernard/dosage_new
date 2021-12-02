@@ -82,12 +82,15 @@ function getHtml( id, objectif, context, question, inconnu, img = null ) {
     forms.reponse = new Form( { id: ui.PB_PROBLEM, class: 'form-inline' } )
     labels.reponse = new Label( inconnu.label ).setFor( 'response_problem' )
     labels.unit = new Label( inconnu.unit )
-    inputs.reponse = new Input( 'text', { id: ui.PB_PROBLEM_REPONSE, class: 'form-control col-sm-4' } ).setAttrs( "length='7' required pattern = '^\\s*(\\d*\\.[0-9]{0,9})\\s*$|^\\s*(\\d*)\\s*$'" )
+
+    // champ réponse
+    inputs.reponse = new Input( 'text', { id: ui.PB_PROBLEM_REPONSE, class: 'form-control' , feedback: {feedback:[ txt.PB_FEEDBACK], o:{ type: 'inline', offset: 6, class: "col-md-6 form-input" }}, size: 4} )
+    .setAttrs("required pattern = '^\\s*(\\d*\\.[0-9]{0,9})\\s*$|^\\s*(\\d*)\\s*$'" )
     divs.form = new Div( 'form-group' ).addChild( labels.reponse, inputs.reponse, labels.unit )
     elts.holder = new Element( 'small', { class: 'form-text text-muted' } ).setText( txt.PB_PLACEHOLDER )
     divs.holder = new Div().addChild( elts.holder )
-    divs.feedback = new Div( 'invalid-feedback', ui.PB_FEEDBACK ).setText( txt.PB_FEEDBACK )
-    forms.reponse.addChild( divs.form, divs.holder, divs.feedback )
+    //divs.feedback = new Div( 'invalid-feedback', ui.PB_FEEDBACK ).setText( txt.PB_FEEDBACK )
+    forms.reponse.addChild( divs.form, divs.holder)
     divs.reponse = new Div( '', ui.PB_REPONSE ).addChild( forms.reponse )
     divs.content.addChild( elts.hr, divs.reponse, elts.hr )
     divs.container.addChild( divs.content )

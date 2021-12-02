@@ -218,6 +218,7 @@ const VOL_RMAX = 10
 const CONC_EMIN = 0.1 // concentration exipient H+
 const CONC_EMAX = 5
 
+
 // Paramètres pour acquisition des données
 const DATA_GET_ESPECES = "getEspeces"
 const DATA_GET_ESPECES_OK = "getEspeces_ok"

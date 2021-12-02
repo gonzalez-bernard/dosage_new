@@ -49,7 +49,7 @@ class Element {
                 else {
                     switch (key) {
                         case "title":
-                            this.setTitle(key)
+                            this.setTitle(o[key])
                             break;
                         case "attrs":
                             this.setAttrs(o[key])
@@ -111,7 +111,8 @@ class Element {
      * @returns {Element}
      */
     setTitle(title) {
-        this.title = new uString(title).convertHtmlChar().html
+        //this.title = new uString(title).convertHtmlChar().html
+        this.title = title
         return this
     }
 
@@ -258,20 +259,22 @@ class Element {
         let html = ""
         html += "<" + this._elt + " "
 
+        let x = Object.entries(this)
+
         // parcours élément de la classe
-        for (const prop in this) {
-            if (this[prop] != null) {
+        for (const [prop, value] of Object.entries(this)) {
+            if (value != null) {
 
                 // propriétés natives
                 if (prop.indexOf('_') == -1) {
-                    html += prop + "='" + this[prop] + "' "
+                    html += prop + "='" + value + "' "
                 } else { // sinon
                     switch (prop) {
                         case "_action":
-                            html += " action = '" + this[prop] + "' "
+                            html += " action = '" + value + "' "
                             break
                         case '_role':
-                            html += " role = '" + this[prop] + "' "
+                            html += " role = '" + value + "' "
                             break
                         case '_attributes':
                             this._attributes.forEach(att => {
@@ -282,14 +285,7 @@ class Element {
                 }
             }
         }
-        /*
-
-                    if ( Array.isArray( this._attributes ) && this._attributes.length > 0 ) {
-                        for ( const att in this._attributes )
-                            html += this._attributes[ att ] + " "
-                    }
-
-          */
+       
         html = html.slice(0, -1) + ">"
         if (this._text)
             html += this._text + "</" + this._elt + ">"
@@ -515,20 +511,18 @@ class Input extends Element {
      * @param {string} type type de champ (checkbox, radio)
      * @param {object} o paramètres on peut définir:
      * - label {string?} : label
-     * - feedback {string?} : feedback
+     * - feedback {object?} : {feedback: [invalid, valid], o: { offset: 8, class: "col-md-4" } 
      * - type {string} : type d'input
      * - value {string} : valeur du champ
      * - size {number} : taille du champ
      * - min, max {number} : valeurs extrémales
      * - pattern {string} : chaîne de validation
-     * - placeholder {string} : texte d'information 
+     * - placeholder {string} : texte d'information affiché dans le champ
      */
     constructor(type, o = null) {
         super('input', o)
         this._label = null || o.label;
         this._feedback = null || o.feedback
-        this._validFeedback = null
-        this._errorFeedback = null
         this.type = type
         const local = ["label", "feedback"]
         const valid = ["value","size","max","min","pattern","placeholder"]
@@ -541,7 +535,7 @@ class Input extends Element {
             }
         }
 
-            var prop, oElt
+        var prop, oElt
         for (const key in this) {
             if (isObject(this[key]) || isArray(this[key])) {
                 oElt = this[key]
@@ -631,9 +625,14 @@ class Input extends Element {
         const cls = oFeed.o.class || "feedback"
         const msgs = oFeed.feedback
         
-        this._feedback = "<div class='row'><div class = 'col-" + offset + "'></div><div class = '" + cls + "'>"
-        this._feedback += "<p class = 'error_feedback' id='invalid_" + id + "'>" + msgs[0] + "</p>"
-
+        // si type inline
+        if (oFeed.o.type && oFeed.o.type == 'inline'){
+            this._feedback = "<p class = 'error_feedback' id='invalid_" + id + "'>" + msgs[0] + "</p>"    
+        } else {
+            this._feedback = "<div class='row'><div class = 'col-" + offset + "'></div><div class = '" + cls + "'>"
+            this._feedback += "<p class = 'error_feedback' id='invalid_" + id + "'>" + msgs[0] + "</p>" 
+        }
+        
         if (msgs.length > 1)
             this._feedback += "<p class='valid_feedback' id='valid_" + id + "' >" + msgs[1] + "</p>"
         this._feedback += "</div></div>"
@@ -650,17 +649,6 @@ class Input extends Element {
         this._feedback = {feedback: msgs, o: prm}
         return this
     }
-
-    /** Définit le titre
-     * 
-     * @param {string}  title titre  
-     * @returns {Input}
-     */
-    setTitle(title) {
-        this.title = title
-        return this
-    }
-
 
     /** Ajoute un label
      * 

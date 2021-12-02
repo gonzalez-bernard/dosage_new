@@ -11,6 +11,7 @@ import { resetMesures } from "./dosage.datas.js"
 import { setButtonState, setButtonClass, setClassMenu } from "./dosage.ui.js"
 import { vidage } from "./dosage.js"
 import { dspInfo, dspContextInfo } from "../infos/infos.js";
+import { initDataInfo } from "../especes/especes.ui.js";
 
 /**
 * @typedef {import('../../types/classes').Dosage} Dosage 
@@ -234,19 +235,9 @@ function setEvents( G ) {
         G.setState( cts.ETAT_THEORIQUE, -1 )
     } );
 
-    // affiche informations
-    getEltID( ui.DOS_BT_DSPINFO ).on( "click",
-        null, {
-            idmodal: "id_dos_modal",
-            title: "Info",
-            setmsg: G.type == cts.TYPE_ACIDEBASE ? getInfoPH : getInfoOX,
-            prm: getGlobal,
-            idcontainer: ui.DOS_DIV_INFO,
-            labelbtclose: "",
-            idbtclose: "dos_info_close",
-        },
-        dspInfo
-    );
+    // affiche information
+    getEltID( ui.DOS_BT_DSPINFO ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
+
 }
 
 /** action lors du clic sur boutons tangente

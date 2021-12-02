@@ -71,7 +71,7 @@ function setEvents( G ) {
     }
     
     getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).on( 'change', data_info, frm.validButtons.bind( frm ) );
-    const data_action = {
+    let data_action = {
         fields: ['#' + ui.ES_ACIDEBASE_TITRANT_SELECT, '#' + ui.ES_ACIDEBASE_TITRE_SELECT ],
         action: (()=>{$("#"+ui.ES_BT_DSPINFO_AC).prop('disabled',false)})
     }
@@ -84,8 +84,14 @@ function setEvents( G ) {
         frm.validButtons.bind( frm )( e )
     } )
 
+    data_action = {
+        fields: ['#' + ui.ES_AUTREDOS_SELECT],
+        action: (()=>{$("#"+ui.ES_BT_DSPINFO_AC).prop('disabled',false)})
+    }
+    getEltID( ui.ES_AUTREDOS_SELECT ).on( 'change', data_action, frm.actionFields.bind( frm ) );
+
     // Choix pH excipient
-    getEltID( ui.ES_FORM ).on( 'change', dspPH )
+    //getEltID( ui.ES_FORM ).on( 'change', dspPH )
 
     /**  Validation        */
     getEltID( ui.ES_BT_VALID ).on( 'click', function() {
@@ -94,7 +100,7 @@ function setEvents( G ) {
 
     /** Affichage de l'aide */
     getEltID( ui.ES_BT_DSPINFO_AC ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
-    getEltID( ui.ES_BT_DSPINFO_OX ).on( "click", null, initDataInfo, dspInfo );
+    getEltID( ui.ES_BT_DSPINFO_OX ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
 
     /*
         getElt( 'a[data-toggle="tab"]' ).on( 'shown.bs.tab', function( e ) {

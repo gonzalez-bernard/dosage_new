@@ -19,6 +19,10 @@
         <name>stitre</name>
         <value>1</value>
       </field>
+       <field>
+        <name>stitrant</name>
+        <value>12</value>
+      </field>
     </inconnu>
     <calcul>#X#=round(-math.log10(#ci#),2)</calcul>
     <solution></solution>
