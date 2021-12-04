@@ -59,7 +59,7 @@ function setEvents( G ) {
     } )
 
     /*** Selection d'une espèce titrée, on initialise la liste des espèces titrantes */
-    getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).on( 'change', getListEspeceTitrante )
+    $(document.body).on( 'change', "#"+ui.ES_ACIDEBASE_TITRE_SELECT , getListEspeceTitrante )
 
     /*** Quand on a sélectionné les deux espèces on active le bouton info */
     let data_info = {

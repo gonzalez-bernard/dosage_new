@@ -118,9 +118,9 @@ function dspPH() {
 function resetForm(){
 
     // active les listes et le choix du type
-    getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).prop( 'disabled', false )
+    getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).prop( 'disabled', false ).val(1)
     getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).prop( 'disabled', false )
-    getEltID( ui.ES_AUTREDOS_SELECT ).prop( 'disabled', false )
+    getEltID( ui.ES_AUTREDOS_SELECT ).prop( 'disabled', false ).val(1)
     getElt( "input[name='choice_type']:radio" ).prop( 'disabled', false )
 
     // Désactive le bouton de validation
@@ -131,6 +131,8 @@ function resetForm(){
 
     // cache formulaire excipient
     getEltID( ui.ES_EXC ).hide()
+
+    setValueID(ui.ES_TITRE_CONC, 0.01)
 }
 
 /** action lors du changement de sélection des réactions oxydo
@@ -245,7 +247,7 @@ function inputValidSaisie( obj ) {
 
     // On teste si le champ courant valide les contraintes particulières
     // test les champs concentrations et volumes
-    const min, max
+    let min, max
     if ( obj.id.search( 'con' ) != -1 ) {
         if ( obj.id == ui.ES_SUPP_CONC ) {
             min = cts.CONC_RMIN;
@@ -326,6 +328,20 @@ function initEspeces( G ) {
 
 }
 
+/** Active ou désactive l'onglet
+ * 
+ * @param {boolean} display indique si on active ou non 
+ */
+ function dspTabEspeces(display){
+    if (display){
+        getEltID( ui.MNU_ESPECES ).addClass( 'active' )
+        getEltID( ui.ESPECES ).addClass( 'active show' )
+    } else {
+        getEltID( ui.MNU_ESPECES ).removeClass( 'active' )
+        getEltID( ui.ESPECES ).removeClass( 'active show' )
+    }
+}
+
 /** FONCTIONS LOCALES */
 
 /** Actualise et désactive les champs pour les problèmes
@@ -346,6 +362,7 @@ function _updEspece( f ) {
             if ( G.type == 1 ) {
                 getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).val( f.value )
                 getEltID( ui.ES_ACIDEBASE_TITRE_SELECT ).prop( 'disabled', true )
+                
             } else {
                 getEltID( ui.ES_AUTREDOS_SELECT ).val( f.value )
                 getEltID( ui.ES_AUTREDOS_SELECT ).prop( 'disabled', true )
@@ -358,6 +375,7 @@ function _updEspece( f ) {
             if ( G.type == 1 ) {
                 getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).val( f.value )
                 getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).prop( 'disabled', true )
+                
             } else {
                 getEltID( ui.ES_AUTREDOS_SELECT ).val( f.value )
                 getEltID( ui.ES_AUTREDOS_SELECT ).prop( 'disabled', true )
@@ -414,4 +432,4 @@ var _setListOxydo = function( lst_dosages, type ) {
 
 /************************************************ */
 
-export { updEspeces, inputValidSaisie, updSaisieSelect, getListEspeceTitrante, changeOxSelect, dspPH, initDataInfo, initEspeces }
+export { updEspeces, inputValidSaisie, updSaisieSelect, getListEspeceTitrante, changeOxSelect, dspPH, initDataInfo, initEspeces, resetForm, dspTabEspeces }

@@ -10,7 +10,7 @@ import { getData } from "../data.js"
  * @returns Promise
  */
 async function getDosage(type) {
-    var datas = {
+    const datas = {
         type: G.typeDetail,
         c1: G.titre.conc,
         c2: G.titrant.conc,
@@ -48,10 +48,9 @@ async function getDosage(type) {
  * @typedef {import('../../types/classes').Burette} Burette
  * @param {Burette} burette
  * @use roundDecimal, getArrayObjectExtremumValues, _getPH, _getConductance, _getPotentiel
- * @see {@link module:dosage/graph_utils~isLimit}
+ * @see {@link module:dosage/dosage.graph~defGraphPH}
  * @see {@link module:dosage/graph_utils~addData}
  * @returns {boolean}
- * @public
  * @file dosage.datas.js
  * */
 function updValues( burette ) {

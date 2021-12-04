@@ -2,58 +2,29 @@
  *  @desc Module problem.data
  *  
  */
-
- import { uString} from "../modules/utils/string.js";
- import {initPage} from "./problem.ui.js"
- import { ETAT_PROBLEM } from "../environnement/constantes.js";
- import {setEvents} from "./problem.events.js"
+import * as cts from "../environnement/constantes.js";
+import { uString } from "../modules/utils/string.js";
+import { initPage } from "./problem.ui.js"
+import { ETAT_PROBLEM } from "../environnement/constantes.js";
+import { getData } from "../data.js";
 
 // @ts-ignore
 var socket = io();
 
 
-/** Récupère un problème à partir du fichier problems.xml
+/** Retourne une promesse avec le problème choisi
  * 
- * @param {event} [event] 
+ * @param {object} data indique l'indice du problème {indice: ...}
+ * @returns {Promise}
  */
- function getProblem(event){
-
-  /**
-  * @typedef event
-  * @property data
-  */
- // Chargement des problèmes
- var datas =  (event !== undefined) ? {'indice': event.data.indice} : {'indice': 0}
- 
- var data = {
-   func: "get_problems",
-   datas: datas 
- }
- socket.emit("getProblems", data)
+async function getProblem(data) {
+  
+  const _data = {
+    func: "get_problems",
+    data: data
+  }
+  
+  return getData(cts.DATA_GET_PROBLEM, cts.DATA_GET_PROBLEM_OK, _data)
 }
 
-function initProblem(G) {
-
-  // si requete réussie
-  socket.on("getProblems_ok", function (data) {
-
-    data.inconnu.label = new uString(data.inconnu.label).convertExpoIndice().html
-    data.inconnu.value = data.inconnu.field[0].value
-    G.type = data.type
-    
-    // Crée la page HTML
-    initPage(data)
-
-    G.setState(ETAT_PROBLEM,1)
-    G.inconnu = data.inconnu
-    
-    // Définition des événements
-    setEvents(G, data)
-  })
-
-  socket.on("pyerror", function (err) {
-    console.log(err)
-  })
-}
-
-export {initProblem, getProblem}
+export { getProblem }

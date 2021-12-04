@@ -8,10 +8,10 @@ import { getInfoOX, getInfoPH } from "../especes/especes.infos.js";
 import { set_drag } from "./ui/initFlacon.js"
 import { setPHmetre } from "./ui/initPhmetre.js"
 import { resetMesures } from "./dosage.datas.js"
-import { setButtonState, setButtonClass, setClassMenu } from "./dosage.ui.js"
+import { setButtonState, setButtonClass, setClassMenu, dspTabDosage } from "./dosage.ui.js"
 import { vidage } from "./dosage.js"
 import { dspInfo, dspContextInfo } from "../infos/infos.js";
-import { initDataInfo } from "../especes/especes.ui.js";
+import { dspTabEspeces, initDataInfo } from "../especes/especes.ui.js";
 
 /**
 * @typedef {import('../../types/classes').Dosage} Dosage 
@@ -141,7 +141,8 @@ function setEvents( G ) {
         setButtonClass( "" )
 
         // On bascule sur le premier onglet
-        setClassMenu();
+        dspTabEspeces(true)
+        dspTabDosage(false)
     } );
 
     /* ------------------------------------------- */

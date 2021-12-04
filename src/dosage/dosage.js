@@ -8,12 +8,13 @@
 
 import * as cts from "../environnement/constantes.js";
 import * as ui from "./ui/html_cts.js";
-import * as e from "../modules/utils/errors.js";
+
 import * as labo from "./ui/interface.js";
 import { G } from "../environnement/globals.js";
 import { ES_BT_DSPINFO_OX,MNU_ESPECES, ESPECES, ES_DIV_INFO, ES_BT_DSPINFO_AC } from "./../especes/html_cts.js"
 
 // utils
+import * as e from "../modules/utils/errors.js";
 import { uArray } from "../modules/utils/array.js";
 import { mixColors } from "../modules/utils/color.js";
 import { hasKey } from "../modules/utils/object.js";
@@ -34,7 +35,8 @@ import { ERR_DOSAGE } from "./ui/lang_fr.js";
 import { ES_BTCLOSE_LABEL, ES_MSG_INFO_ERR } from "../especes/lang_fr.js";
 
 import { setEvents, setEventsClick } from "./dosage.events.js";
-import { setClassMenu } from "./dosage.ui.js";
+import { setClassMenu, dspTabDosage } from "./dosage.ui.js";
+import { dspTabEspeces } from "../especes/especes.ui.js";
 import { resetMesures, setDosageValues, updValues, getDosage } from "./dosage.datas.js";
 import { defGraphCD, defGraphPH, defGraphPT } from "./dosage.graph.js";
 import { html } from "./ui/html.js";
@@ -77,11 +79,11 @@ import { html } from "./ui/html.js";
             getElt( ".title" ).html( G.title )
 
             // On bascule sur dosage
-            getEltID( ui.MNU_DOSAGE ).addClass( 'active' )
+            dspTabEspeces(false)
+            dspTabDosage(true)
             getEltID( MNU_ESPECES ).removeClass( 'active' )
             getEltID( ESPECES ).removeClass( 'active show' )
-            getEltID( ui.DOSAGE ).addClass( 'active show' )
-
+        
             /** Initialisation du dosage (dosage.js)  */
             //if (isObject(G.lab)) {
             //    updateLab(G)

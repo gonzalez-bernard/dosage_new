@@ -7,28 +7,52 @@ import * as txt from "./lang_fr.js"
 import * as ui from "./html_cts.js"
 import {G} from "../environnement/globals.js"
 import { getHtml } from "./html.js";
-import { getEltID, getValueID, setValueID } from "../modules/utils/html.js";
+import { getEltID, getValueID} from "../modules/utils/html.js";
 
 import { mathArrondir } from "../modules/utils/number.js";
 import { uString, dspHtmlLatex } from "../modules/utils/string.js";
-import { FILE_ZOOM_IN, FILE_ZOOM_OUT } from "../environnement/constantes.js";
+import { FILE_ZOOM_IN, FILE_ZOOM_OUT, ETAT_PROBLEM, DATA_GET_PROBLEM, DATA_GET_PROBLEM_OK } from "../environnement/constantes.js";
 import {dspMessage as displayMessage} from "../modules/dom.js"
-import { updEspeces } from "../especes/especes.ui.js";
-import { MNU_ESPECES, ESPECES, ES_TITRE_CONC, ES_ACIDEBASE_TITRE_SELECT, ES_AUTREDOS_SELECT } from "../especes/html_cts.js";
-import { PROBLEM } from "./html_cts.js";
-import { getProblem, initProblem } from "./problem.data.js";
+import { updEspeces, resetForm, dspTabEspeces } from "../especes/especes.ui.js";
+import { getProblem} from "./problem.data.js";
+import {setEvents} from "./problem.events.js"
+import { isEvent } from "../modules/utils/type.js";
 
 
-var valeur
 var numEssais = 0 // nombre d'essais
 var nbEssais = 3 
-var precision
 
 function initPage(data){
   let context = new uString(data.context).convertExpoIndice().html
   let question = new uString(data.question).convertExpoIndice().html
   var html = getHtml(data.id, data.objectif, context, question, data.inconnu, data.img)
   $("#problem").html(html)
+}
+
+/** Récupére un problème et crée la page 
+ * 
+ * Appel python 
+ * arg est soit un event soit un objet du type {G:G, data:{indice:...}}
+ * @param {event|object} arg 
+ * @return {void}
+ */
+function initProblem(arg){
+    const data = isEvent(arg) ? arg.data : arg
+
+    getProblem(data.data).then(function(data){
+    data.inconnu.label = new uString(data.inconnu.label).convertExpoIndice().html
+    data.inconnu.value = data.inconnu.field[0].value
+    G.type = data.type
+    
+    // Crée la page HTML
+    initPage(data)
+
+    G.setState(ETAT_PROBLEM,1)
+    G.inconnu = data.inconnu
+    
+    // Définition des événements
+    setEvents(G, data)
+  })
 }
 
 /** Active le zoom
@@ -122,22 +146,30 @@ function dspMessage( result, mode = 0 ) {
   }
 }
 
+/** Active ou désactive l'onglet
+ * 
+ * @param {boolean} display indique si on active ou non 
+ */
+ function dspTabProblem(display){
+  if (display){
+      getEltID( ui.MNU_PROBLEM ).addClass( 'active' )
+      getEltID( ui.PROBLEM ).addClass( 'active show' )
+  } else {
+      getEltID( ui.MNU_PROBLEM ).removeClass( 'active' )
+      getEltID( ui.PROBLEM ).removeClass( 'active show' )
+  }
+}
+
 /** Annule les actions sur les champs
  * 
  * @param {event} e event
  * @private
- * @use dspTabProblem
  * @file problem.ui.js
  */
 function cancelProblem(e) {
-  //dspTabProblem()
-
-  setValueID(ES_TITRE_CONC, 0.01)
-  getEltID(ES_TITRE_CONC).removeAttr('disabled').prop('type','text')
-  getEltID(ES_ACIDEBASE_TITRE_SELECT).val(1)
-  getEltID(ES_ACIDEBASE_TITRE_SELECT).removeAttr('disabled')
-  getEltID(ES_AUTREDOS_SELECT).val(1)
-  getEltID(ES_AUTREDOS_SELECT).removeAttr('disabled')
+  resetForm()
+  dspTabEspeces(true)
+  dspTabProblem(false) 
 }
 
 /** Initialise les champs du formulaire espèce
@@ -149,30 +181,12 @@ function cancelProblem(e) {
  */
 function experiment(e){
   updEspeces(G)
-  dspTabProblem()
-  /*
-  if (formValid(ES_FORM))
-    getEltID(ES_BT_VALID).removeAttr('disabled')
-  else
-    getEltID(ES_BT_VALID).prop('disabled', false)}
-  */
+  dspTabProblem(false)
+  dspTabEspeces(true)
 }
 
-/** Active la fenêtre espèces
- * 
- * @private
- * @file problem.ui.js
- */
-function dspTabProblem(){
-  getEltID(MNU_ESPECES).addClass('active').trigger('add_class')
-  getEltID(ui.MNU_PROBLEM).removeClass('active')
-  getEltID(PROBLEM).removeClass('active show')
-  getEltID(ESPECES).addClass('active show')
-}
+const data = {G: G, data: { 'indice': 1 }}
 
+initProblem(data)
 
-
-getProblem()
-initProblem(G)
-
-export {zoomImgOn, zoomImgOut, zoomIn, initPage, experiment, validProblem, cancelProblem }
+export {zoomImgOn, zoomImgOut, zoomIn, initPage, experiment, validProblem, cancelProblem, initProblem }

@@ -1,15 +1,6 @@
 const express = require( 'express' )
 const app = express()
 const http = require( 'http' )
-require( "./src/dispatcher.js" )
-
-const server = http.createServer( app )
-    // @ts-ignore
-const io = require( 'socket.io' )( server )
-
-// @ts-ignore
-// eslint-disable-next-line no-undef
-dispatcher( io )
 
 app.use( express.static( __dirname + '/views' ) );
 app.use( '/static', express.static( __dirname + '/static' ) )
@@ -18,6 +9,17 @@ app.use( '/tests', express.static( __dirname + '/tests' ) )
 app.use( '/node', express.static( __dirname + '/node_modules' ) )
 app.use( '/img', express.static( __dirname + '/static/resources/img' ) )
 app.use( '/datas', express.static( __dirname + '/static/resources/datas' ) )
+
+const server = http.createServer( app )
+    // @ts-ignore
+const io = require( 'socket.io' )( server )
+
+require("./src/dispatcher.js")
+
+// @ts-ignore
+dispatcher( io )
+
+
 
 // @ts-ignore
 app.get( '/', ( req, res ) => {

@@ -7,7 +7,7 @@
  import {Form} from "../modules/utils/form.js" 
  import { getEltID } from "../modules/utils/html.js";
  import { zoomIn, zoomImgOn, zoomImgOut, experiment, validProblem, cancelProblem } from "./problem.ui.js";
- import {getProblem} from "./problem.data.js"
+ import {initProblem} from "./problem.ui.js"
  import { uString} from "../modules/utils/string.js";
  import {dspInfo} from "../infos/infos.js"
 
@@ -61,7 +61,7 @@ function setEvents(G, data) {
 
   // Clics sur boutons problèmes
   for (var i = 0; i < 12; i++) {
-    getEltID(ui.PB_QU[i]).on('click', { 'indice': i }, getProblem)
+    getEltID(ui.PB_QU[i]).on('click', {G: G, data: { 'indice': i }}, initProblem)
   }
 }
 

@@ -3,6 +3,7 @@ import {G} from "../environnement/globals.js";
 import { getEltID } from "../modules/utils/html.js";
 import { MNU_ESPECES, ESPECES } from "./../especes/html_cts.js"
 import { MNU_DOSAGE, DOSAGE } from "./ui/html_cts.js";
+import { dspTabEspeces } from "../especes/especes.ui.js";
 
 /** Action à faire en cas de fermeture du dialogue "dspMessage"
  *
@@ -12,10 +13,8 @@ import { MNU_DOSAGE, DOSAGE } from "./ui/html_cts.js";
  */
  function setClassMenu() {
   // On bascule sur espèces
-  getEltID(MNU_ESPECES).addClass("active");
-  getEltID(MNU_DOSAGE).removeClass("active");
-  getEltID(DOSAGE).removeClass("active show");
-  getEltID(ESPECES).addClass("active show");
+  dspTabEspeces(true)
+  dspTabDosage(false)
 }
 
 /********************************************************** */
@@ -75,6 +74,20 @@ function setButtonClass(bt, state = 1) {
       getEltID(bt).toggleClass("active-button")
 }
 
+/** Active ou désactive l'onglet
+ * 
+ * @param {boolean} display indique si on active ou non 
+ */
+ function dspTabDosage(display){
+    if (display){
+        getEltID( ui.MNU_DOSAGE ).addClass( 'active' )
+        getEltID( ui.DOSAGE ).addClass( 'active show' )
+    } else {
+        getEltID( ui.MNU_DOSAGE ).removeClass( 'active' )
+        getEltID( ui.DOSAGE ).removeClass( 'active show' )
+    }
+}
+
 /********************************************************** */
 
-export {setButtonState, setButtonClass, setClassMenu}
+export {setButtonState, setButtonClass, dspTabDosage, setClassMenu}
