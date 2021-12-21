@@ -40,8 +40,10 @@ class Element {
         const local = ['text', 'parent', 'tabindex', 'ext', 'feedback', 'role']
         const valid = ['name', 'id', 'style', 'class'] 
         this._elt = elt
-        this._div = null    // ?
-        this._global = null // ?
+        this._div = null    // div englobante utilisée par exemeple pour alert
+        this._global = null // pas utilisée
+        this._attributes = []
+        this.class = []
         if (o) {
             for (let key in o) {
                 if (local.includes(key))
@@ -435,14 +437,14 @@ class Button extends Element {
 
     /** Constructor
      * 
-     * @param {string?} label On définit le texte
+     * @param {string | undefined} label On définit le texte
      * @param {object?} o on peut définir :
      * - href {string} le lien ("#") 
      * - type {string} (button)
      */
     constructor(label, o = {}) {
         super('button', o)
-        this._text = label ? label : ''
+        this._text = label
         this.href = 'href' in o ? o.href : "#"
         this.type = 'type' in o ? o.type : 'button'
     }
@@ -724,10 +726,18 @@ class Img extends Element {
     constructor(src, o = null) {
         super('img', o)
         this.src = src
-        if (o !== null) {
-            this.class = 'cls' in o ? o.class : ''
-            this.alt = 'alt' in o ? o.alt : ''
-            this.width = 'w' in o ? o.w : 100
+        const local = ["label", "feedback"]
+        const valid = ["alt","crossorigin","decoding", "height", "ismap", "max","min","pattern","placeholder"]
+        if (o) {
+            for (let key in o) {
+                if (local.includes(key))
+                    this["_" + key] = o[key]
+                else if (valid.includes(key))
+                    this[key] = o[key]
+            }
+        }
+        for (const key in o){
+            this[key] = o[key]
         }
     }
 

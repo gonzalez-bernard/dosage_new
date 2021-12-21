@@ -6,8 +6,7 @@ import * as txt from "./lang_fr.js";
 
 import { Element, Label, Input, P, Form, Button, Div } from "../modules/dom.js";
 import { uString } from "../modules/utils/string.js";
-import { FOOTER, VOL_EMAX, VOL_EMIN } from "../environnement/constantes.js"
-import { CONC_MAX, CONC_MIN, VOL_MAX, VOL_MIN, CONC_RMAX, CONC_RMIN } from "./../environnement/constantes.js"
+import { cts } from "../environnement/constantes.js"
 
 var fieldsets = {},
     legends = {},
@@ -21,9 +20,9 @@ var fieldsets = {},
 
 // style
 const ST_INPUT = "col-md-1 form-input";
-const INT_VOL = new uString("Volume dans l'intervalle \n[" + VOL_MIN + " , " + VOL_MAX + "] mL").convertHtmlChar().getHtml()
-const INT_C1 = new uString("Concentration dans l'intervalle \n[" + CONC_MIN + "  , " + CONC_MAX + "] mol/L").convertHtmlChar().getHtml();
-const INT_VOLEAU = new uString("Volume dans l'intervalle \n[" + VOL_EMIN + " , " + VOL_EMAX + "] mL").convertHtmlChar().getHtml();
+const INT_VOL = new uString("Volume dans l'intervalle \n[" + cts.VOL_MIN + " , " + cts.VOL_MAX + "] mL").convertHtmlChar().getHtml()
+const INT_C1 = new uString("Concentration dans l'intervalle \n[" + cts.CONC_MIN + "  , " + cts.CONC_MAX + "] mol/L").convertHtmlChar().getHtml();
+const INT_VOLEAU = new uString("Volume dans l'intervalle \n[" + cts.VOL_EMIN + " , " + cts.VOL_EMAX + "] mL").convertHtmlChar().getHtml();
 //const INT_CR = new uString( "Concentration dans l'intervalle <br>[" + CONC_RMIN + "  , " + CONC_RMAX + "] mol/L" ).convertHtmlChar().getHtml();
 
 // container principal
@@ -50,7 +49,7 @@ fieldsets.type = new Element("fieldset", { class: "type-border col-10 col-md-10"
     .addChild(legends.type, labels.ac, labels.ox);
 
 // Aide
-buttons.info = new Button('INFO', { id: ui.ES_BT_DSPINFO_AC, class: 'btn btn-info' })
+buttons.info = new Button('INFO', { id: ui.ES_BT_dspINFO_AC, class: 'btn btn-info' })
     .setTitle(txt.ES_BT_INFO)
     .setStyle("height: 3em")
     .setAttrs('disabled')
@@ -93,8 +92,8 @@ let oInput = {
     size: 4,
     attrs: "required",
     style: "min-width:fit-content",
-    max: CONC_MAX,
-    min: CONC_MIN,
+    max: cts.CONC_MAX,
+    min: cts.CONC_MIN,
     pattern: "[0-9.]{1,7}",
     title: new uString(INT_C1).convertHtmlChar().getVal(),
     label: { label: txt.ES_CONC_TITRE, o: { class: "label col-md-9" } },
@@ -113,13 +112,13 @@ divs.col_conc_titrant = new Div("col-6 col-md-6").addChild(inputs.titrant_conc)
 divs.concentration = new Div("row").addChild(divs.col_conc_titre, divs.col_conc_titrant)
 
 // champs pour volume
-obj.replace(oInput, { id: ui.ES_TITRE_VOL, value: 10, max: VOL_MAX, min: VOL_MIN, title: INT_VOL, pattern: "[0-9.]{1,4}", label: { label: txt.ES_VOL_TITRE, o: { class: "label col-md-9" } }, feedback: { feedback: [INT_VOL], o: { offset: 8, class: "col-md-4" } } })
+obj.replace(oInput, { id: ui.ES_TITRE_VOL, value: 10, max: cts.VOL_MAX, min: cts.VOL_MIN, title: INT_VOL, pattern: "[0-9.]{1,4}", label: { label: txt.ES_VOL_TITRE, o: { class: "label col-md-9" } }, feedback: { feedback: [INT_VOL], o: { offset: 8, class: "col-md-4" } } })
 
 inputs.titre_vol = new Input("text", oInput)
 
 divs.volume = new Div("row").addChild(new Div("col-6 col-md-6").addChild(inputs.titre_vol))
 
-obj.replace(oInput, { id: ui.ES_EAU_VOL, value: 40, max: VOL_EMAX, min: VOL_EMIN, title: INT_VOLEAU, pattern: "[0-9.]{1,2}", label: { label: txt.ES_EAU_VOL, o: { class: "label col-md-9" } }, feedback: { feedback: [INT_VOLEAU], o: { offset: 8, class: "col-md-4" } } })
+obj.replace(oInput, { id: ui.ES_EAU_VOL, value: 40, max: cts.VOL_EMAX, min: cts.VOL_EMIN, title: INT_VOLEAU, pattern: "[0-9.]{1,2}", label: { label: txt.ES_EAU_VOL, o: { class: "label col-md-9" } }, feedback: { feedback: [INT_VOLEAU], o: { offset: 8, class: "col-md-4" } } })
 
 // champ pour ajout d'eau
 inputs.eau_vol = new Input("text", oInput)
@@ -138,14 +137,14 @@ divs.supp = new Div("form-group row", 'div_supp').setID('supp');
 
 
 // espèce supplémentaire concentration
-let msgInterval = txt.ES_MSG_INTERVAL + CONC_MIN + " et " + CONC_MAX + " mol/L"
-obj.replace(oInput, { id: ui.ES_SUPP_CONC, value: null, max: CONC_MAX, min: CONC_MIN, title: msgInterval, pattern: "[0-1]{1}[0-9.]{0,3}", label: { label: txt.ES_SUPP_CONC, o: { class: "label col-md-9" } }, feedback: { feedback: [txt.ES_SUPP_CONC + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }, minlength: 1 })
+let msgInterval = txt.ES_MSG_INTERVAL + cts.CONC_MIN + " et " + cts.CONC_MAX + " mol/L"
+obj.replace(oInput, { id: ui.ES_SUPP_CONC, value: null, max: cts.CONC_MAX, min: cts.CONC_MIN, title: msgInterval, pattern: "[0-1]{1}[0-9.]{0,3}", label: { label: txt.ES_SUPP_CONC, o: { class: "label col-md-9" } }, feedback: { feedback: [txt.ES_SUPP_CONC + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }, minlength: 1 })
 
 inputs.supp_conc = new Input("text", oInput)
 
 // espèce supplémentaire volume
-msgInterval = txt.ES_MSG_INTERVAL + VOL_MIN + " et " + VOL_MAX + " mL"
-obj.replace(oInput, { id: ui.ES_SUPP_VOL, value: "", max: VOL_MAX, min: VOL_MIN, title: txt.ES_MSG_INTERVAL + txt.ES_SUPP_VOL, pattern: "[1-9].?[0-9]{0,1}", label: { label: txt.ES_SUPP_VOL, o: { class: "label col-md-9" } }, feedback: { feedback: [txt.ES_SUPP_VOL + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } } })
+msgInterval = txt.ES_MSG_INTERVAL + cts.VOL_MIN + " et " + cts.VOL_MAX + " mL"
+obj.replace(oInput, { id: ui.ES_SUPP_VOL, value: "", max: cts.VOL_MAX, min: cts.VOL_MIN, title: txt.ES_MSG_INTERVAL + txt.ES_SUPP_VOL, pattern: "[1-9].?[0-9]{0,1}", label: { label: txt.ES_SUPP_VOL, o: { class: "label col-md-9" } }, feedback: { feedback: [txt.ES_SUPP_VOL + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } } })
 
 inputs.supp_vol = new Input("text", oInput)
 
@@ -164,15 +163,15 @@ elts.exc = new P(txt.ES_EXC_INFO);
 divs.exc = new Div("form-group row", 'div_exc').setID('exc');
 
 // concentration
-msgInterval = txt.ES_MSG_INTERVAL + CONC_RMIN + " et " + CONC_RMAX + " mol/L"
-obj.replace(oInput, { id: ui.ES_EXC_CONC, value: "", max: CONC_RMAX, min: CONC_RMIN, title: msgInterval, pattern: "[0-5]{1}.?[0-9]{0,3}", label: { label: new uString(txt.ES_EXC_CONC).convertExpoIndice().html, o: { class: "col-9 col-md-9" } }, feedback: { feedback: [txt.ES_EXC_CONC + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }, minlength: 1 })
+msgInterval = txt.ES_MSG_INTERVAL + cts.CONC_RMIN + " et " + cts.CONC_RMAX + " mol/L"
+obj.replace(oInput, { id: ui.ES_EXC_CONC, value: "", max: cts.CONC_RMAX, min: cts.CONC_RMIN, title: msgInterval, pattern: "[0-5]{1}.?[0-9]{0,3}", label: { label: new uString(txt.ES_EXC_CONC).convertExpoIndice().html, o: { class: "col-9 col-md-9" } }, feedback: { feedback: [txt.ES_EXC_CONC + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }, minlength: 1 })
 
 inputs.exc_conc = new Input("text", oInput)
 
 // Volume
-msgInterval = txt.ES_MSG_INTERVAL + VOL_MIN + " et " + VOL_MAX + " mL"
+msgInterval = txt.ES_MSG_INTERVAL + cts.VOL_MIN + " et " + cts.VOL_MAX + " mL"
 obj.replace(oInput, {
-    id: ui.ES_EXC_VOL, value: "", max: VOL_MAX, min: VOL_MIN, title: msgInterval,
+    id: ui.ES_EXC_VOL, value: "", max: cts.VOL_MAX, min: cts.VOL_MIN, title: msgInterval,
     pattern: "[1-5]{1,2}", label: { label: txt.ES_EXC_VOL, o: { class: "col-9 col-md-9" } },
     feedback: { feedback: [txt.ES_EXC_VOL + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }
 })
@@ -196,5 +195,5 @@ buttons.valid = new Button(txt.ES_BT_VALID, { id: ui.ES_BT_VALID, class: "btn bt
 divs.info = new Div("container").setID(ui.ES_DIV_INFO)
 div_container.addChild(forms.getEspeces, buttons.valid, divs.info)
 
-var html = div_titre.getHTML() + div_container.getHTML() + FOOTER;
+var html = div_titre.getHTML() + div_container.getHTML() + cts.FOOTER;
 export { html };

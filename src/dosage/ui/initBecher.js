@@ -27,7 +27,7 @@ import { getColor } from "../dosage.js";
  * @param {Dosage} G
  * @param {Canvas} canvas 
  * @param {tBECHER} sBECHER
- * @returns {Becher} Becher
+ * @returns {Becher}
  * @public
  * @file initBecher.js
  */

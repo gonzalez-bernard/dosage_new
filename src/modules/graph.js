@@ -27,27 +27,32 @@
 import { hasKey } from "./utils/object.js"
 import * as e from "./utils/errors.js"
 import { isObject, isString, isEvent, isNumeric, isStrNum, isInteger, isDefined } from "./utils/type.js"
-//import { Chart } from "../../node_modules/chart.js";
 
 /**
  * @typedef {import("../../node_modules/chart.js").ChartItem} chartItem
  * @typedef {import("../../types/types").tPoint} tPoint
  */
 
-/** Classe Graph */
 class Graph {
     /** Constructeur
      *
      * @param {string}  canvas nom du canvas destinataire "#canvas"
+     * 
      */
     constructor(canvas) {
+        
         if (!isString(canvas)) throw new TypeError(e.ERROR_STR);
-
+        /** @type {string} */
         this.canvas = canvas; // enregistre l'id du canvas
+        /** @type {object} */
         this.chart = {}; // mémorise le graphe donc de type Chart
-        this.selectedIndicePoint = undefined;
-        this.old_selectedIndicePoint = undefined;
+        /** @type {number} */
+        this.selectedIndicePoint = -1;
+         /** @type {number} */
+        this.old_selectedIndicePoint = -1;
+        /** @type {tPoint[]} */
         this.activePoints = [];
+        /** @type {string} */
         this.info = "";
     }
 
@@ -181,8 +186,15 @@ class Graph {
             const yAxis = this.chart.data.datasets[index].yAxisID;
             
             this.chart.data.datasets.splice(index, 1)
+            this.chart.data.labels.splice(index,1)
+            this.chart.update();
 
             // suppression axes
+            this.chart.boxes.forEach((item, index) => {
+                if (item.id && item.id == yAxis)
+                    this.chart.boxes.splice(index,1)
+            })
+            
             if (xAxis){
                 delete this.chart.options.scales[yAxis]
                 delete this.chart.scales.xAxis
@@ -192,30 +204,6 @@ class Graph {
                 delete this.chart.options.scales[yAxis]
                 delete this.chart.scales[yAxis]
             }
-            
-            // et boxes
-            
-            this.chart.boxes.forEach((item, index) => {
-                if (item.id == yAxis)
-                    this.chart.boxes.splice(index,1)
-             })
-            
-
-        
-            
-                /*
-            let l = this.chart.options.scales.x.length;
-            if (l > 0) {
-                this.chart.options.scales.x.splice(indice, 1);
-            }
-            l = this.chart.options.scales.y.length;
-            if (l > 0) {
-                this.chart.options.scales.y.splice(indice, 1);
-            }
-            */
-            let l = this.chart.data.labels.length;
-            if (l > 0) this.chart.data.labels.splice(index, 1);
-
         }
         this.chart.update();
     }
@@ -227,16 +215,15 @@ class Graph {
      * @param {number} index : indice de la courbe
      * @param {number} indice : N° du point à supprimer
      */
-     clearData(index = 0, indice = undefined) {
+     clearData(index = 0, indice = -1) {
         if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
         if (isDefined(indice) && !isInteger(indice)) throw new TypeError(e.ERROR_NUM)
         if (this.chart.data.datasets.length <= index) throw new RangeError(e.ERROR_RANGE);
         if (index == -1) return
         
         // si on supprime toute la courbe
-        if (indice == undefined) {
+        if (indice == -1) {
             if (this.chart.data.datasets[index].data.length > 0) {
-
                 this.chart.data.datasets[index].data = []
             }
         } else {
@@ -258,7 +245,7 @@ class Graph {
      */
     removeOption(option) {
         if (!isString(option)) throw new TypeError(e.ERROR_STR)
-        this.setOption(option, null)
+        this.setOption(option, "")
     }
 
     /********************************************************** */
@@ -447,7 +434,8 @@ class Graph {
     /** Mise à jour des options
      *
      * @param {string} option : sous la forme "parent/enfant1/enfant2/../option" à partir de 'options'
-     * @param {any} value : valeur
+     * @param {object} value : valeur
+     * @returns {object}
      */
     setOption(option, value) {
         if (!isString(option)) throw new TypeError(e.ERROR_STR)
@@ -496,8 +484,6 @@ class Graph {
         _setOption(this.chart.options, props, value);
         return this.chart.options;
     }
-
-
 }
 
 export { Graph };

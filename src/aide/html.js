@@ -1,6 +1,6 @@
 import { Element, List, Div, Link } from "../modules/dom.js";
 import * as txt from "./lang_fr.js";
-import { FOOTER } from "../environnement/constantes.js"
+import { cts } from "../environnement/constantes.js"
 import * as ui from "./html_cts.js"
 
 var divs = {},
@@ -32,5 +32,5 @@ divs.detail = new Div( " ", 'detail' ).addChild( divs.ui, divs.ac, divs.ox, divs
 
 divs.container.addChild( menu, divs.detail )
 
-var html = divs.titre.getHTML() + divs.container.getHTML() + FOOTER;
+var html = divs.titre.getHTML() + divs.container.getHTML() + cts.FOOTER;
 export { html };

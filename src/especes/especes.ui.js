@@ -9,10 +9,9 @@
  */
 
 import * as txt from "./lang_fr.js"
-import * as cts from "../environnement/constantes.js"
+import {cts} from"../environnement/constantes.js"
 import * as ui from "./html_cts.js"
-
-import { G, getGlobal } from "../environnement/globals.js"
+import {gEspeces, getGlobal} from "../environnement/globals.js"
 
 import { getElt, getValue, getEltID, getValueID, setValueID } from "../modules/utils/html.js"
 import { formSetOptions } from "../modules/utils/form.js"
@@ -46,7 +45,7 @@ function updSaisieSelect( G ) {
             getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).trigger( "focus" )
         }
         G.set( 'type', cts.TYPE_ACIDEBASE )
-        getEltID( ui.ES_BT_DSPINFO_AC ).removeAttr( 'disabled' )
+        getEltID( ui.ES_BT_dspINFO_AC ).removeAttr( 'disabled' )
 
         // dosage oxydo
     } else {
@@ -56,7 +55,7 @@ function updSaisieSelect( G ) {
         }
 
         G.set( 'type', cts.TYPE_OXYDO )
-        getEltID( ui.ES_BT_DSPINFO_OX ).removeAttr( 'disabled' )
+        getEltID( ui.ES_BT_dspINFO_OX ).removeAttr( 'disabled' )
     }
 }
 
@@ -91,9 +90,9 @@ function initDataInfo( G ) {
     let infos
     if ( G.type == cts.TYPE_ACIDEBASE ) {
         const _G = initDataInfo.data()
-        infos = getInfoPH( _G )
+        infos = getInfoPH( _G, E )
     } else
-        infos = getInfoOX( initDataInfo.data() )
+        infos = getInfoOX( initDataInfo.data(), E )
 
     initDataInfo.msg = infos.msg
     initDataInfo.title = infos.title
@@ -228,7 +227,7 @@ function getListEspeceTitrante() {
         return
 
     const type =  id >= 16 ? "acide" : "base"  
-    let html = _setListAcidebase( G.lst_acide, type )
+    let html = _setListAcidebase( gEspeces.lstAcide, type )
 
     // insère dans le DOM
     getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).html( html ).trigger( "focus" );
@@ -294,14 +293,19 @@ function initEspeces( G ) {
         getEltID( ui.ESPECES ).html( html );
 
         // Appel au serveur si nécessaire pour récupérer liste des especes
-        if ( G.lst_acide.length > 0 ) {
+        if ( gEspeces.lstAcide.length > 0 ) {
             // construit la liste d'options
-            _html = _setListAcidebase( G.lst_acide, "all" )
+            _html = _setListAcidebase( E.lstAcide, "all" )
             getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).html( _html )
         } else
             getEspeces().then( function( data ) {
+
+                // récupération impossible
+                if (data == "Error"){
+                    dspMessage(ES_)
+                }
                 // enregistre les listes
-                G.initLists( data )
+                gEspeces.initLists( data )
 
                 // construit la liste d'options
                 _html = _setListAcidebase( data.list_acidebase, "all" )

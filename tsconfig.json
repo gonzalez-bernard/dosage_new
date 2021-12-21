@@ -9,9 +9,10 @@
     // normally they are ignored as source files
     "allowJs": true,
     "checkJs": true,
-    "strict": false,
+    "strict": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "noImplicitAny": false,
     // Generate d.ts files
     "declaration": true,
     // This compiler run should
@@ -23,7 +24,7 @@
     "outDir": "dist",
     "typeRoots": [
       "./node_modules/@types",
-      "./@types",
+      "./types",
     ],
     //"types": ["node"],
     "baseUrl": "./",

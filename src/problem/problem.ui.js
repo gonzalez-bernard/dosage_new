@@ -11,7 +11,7 @@ import { getEltID, getValueID} from "../modules/utils/html.js";
 
 import { mathArrondir } from "../modules/utils/number.js";
 import { uString, dspHtmlLatex } from "../modules/utils/string.js";
-import { FILE_ZOOM_IN, FILE_ZOOM_OUT, ETAT_PROBLEM, DATA_GET_PROBLEM, DATA_GET_PROBLEM_OK } from "../environnement/constantes.js";
+import { cts } from "../environnement/constantes.js";
 import {dspMessage as displayMessage} from "../modules/dom.js"
 import { updEspeces, resetForm, dspTabEspeces } from "../especes/especes.ui.js";
 import { getProblem} from "./problem.data.js";
@@ -47,7 +47,7 @@ function initProblem(arg){
     // Crée la page HTML
     initPage(data)
 
-    G.setState(ETAT_PROBLEM,1)
+    G.setState(cts.ETAT_PROBLEM,1)
     G.inconnu = data.inconnu
     
     // Définition des événements
@@ -60,14 +60,16 @@ function initProblem(arg){
  * @param {event} event
  */
 function zoomIn(event) {
-  let img = $(event.currentTarget).children[0]
+  // @ts-ignore
+
+  let img = $(event.currentTarget)[0].children[0]
   if (img.src.indexOf('zoom-in') == -1) {
     // @ts-ignore
-    img.src = FILE_ZOOM_IN
+    img.src = cts.FILE_ZOOM_IN
     getEltID(ui.PB_IMG).css("transform", "scale(1)")
     getEltID(ui.PB_ENONCE).animate({ 'zoom': 1 }, 400)
   } else {
-    img.src = FILE_ZOOM_OUT
+    img.src = cts.FILE_ZOOM_OUT
     getEltID(ui.PB_IMG).css("transform", "scale(0.5)")
     getEltID(ui.PB_ENONCE).animate({ 'zoom': 2 }, 100)
   }

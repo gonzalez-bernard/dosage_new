@@ -196,5 +196,41 @@ const assert = function( condition, message ) {
       throw Error( 'Assert failed: ' + ( message || '' ) );
 };
 
+/**
+ * 
+ * @param {any} arg variable à transformer
+ * @param {string} type type à obtenir ex. "string", "int", "float"
+ */
+const parseType = function(arg, type){
+  switch ( type ){
+    case 'string':
+      if (!isString(arg) && isNumeric(arg)) 
+        return arg.toString();
+      break;
+    case 'int':
+      if (isInteger(arg)) 
+        return parseInt(arg);
+      break;
+    case 'float':
+        if (isFloat(arg)) 
+          return parseFloat(arg);
+    default:
+      return arg
+  }
+}
 
-export {isNumeric, isFloat, isInteger, isColor, isDefined, isUndefined, isString, isArray,isBoolean, isEvent, assert, isValidArgs, isStrNum, isObject, isPoint, isFunction}
+/**
+ * 
+ * @param {object} obj  objet contenant les propriétés à modifier 
+ * @param {string[]} list liste des propriétés à traiter 
+ * @param {string} type 
+ */
+const parseObjectType = function(obj, list, type){
+  for (const prop in obj){
+    if (list.includes(prop)){
+      obj[prop] = parseType(obj[prop], type)
+    }
+  }
+}
+
+export {isNumeric, isFloat, isInteger, isColor, isDefined, isUndefined, isString, isArray,isBoolean, isEvent, assert, isValidArgs, isStrNum, isObject, isPoint, isFunction, parseType, parseObjectType}

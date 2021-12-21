@@ -4,7 +4,7 @@
  * @description Définit les constantes des objets de l'interface dosage
 */
 
-import {COLORS} from '../../environnement/constantes.js'
+import {cts} from '../../environnement/constantes.js'
 
 const CANVAS = {width:500, height:600}
 
@@ -144,23 +144,23 @@ const POTENTIOMETRE = {
 
 const INDICATEURS = [
   {
-    nom: "phenolphtaleine",values: ["9.1", COLORS.phi_acide, COLORS.phi_acide, COLORS.phi_base],
+    nom: "phenolphtaleine",values: ["9.1", cts.COLORS.phi_acide, cts.COLORS.phi_acide, cts.COLORS.phi_base],
   },
-  { nom: "BBT", values: ["6.8", COLORS.bbt_acide, COLORS.bbt_virage, COLORS.bbt_base] },
+  { nom: "BBT", values: ["6.8", cts.COLORS.bbt_acide, cts.COLORS.bbt_virage, cts.COLORS.bbt_base] },
   {
-    nom: "Rouge de Phénol",values: ["8.0", COLORS.rp_acide, COLORS.rp_virage, COLORS.rp_base],
+    nom: "Rouge de Phénol",values: ["8.0", cts.COLORS.rp_acide, cts.COLORS.rp_virage, cts.COLORS.rp_base],
   },
-  { nom: "Hélianthine", values: ["3.7", COLORS.h_acide, COLORS.h_virage, COLORS.h_base] },
+  { nom: "Hélianthine", values: ["3.7", cts.COLORS.h_acide, cts.COLORS.h_virage, cts.COLORS.h_base] },
   {
-    nom: "Vert de Bromocrésol",values: ["4.6", COLORS.vb_acide, COLORS.vb_virage, COLORS.vb_base],
+    nom: "Vert de Bromocrésol",values: ["4.6", cts.COLORS.vb_acide, cts.COLORS.vb_virage, cts.COLORS.vb_base],
   },
   {
     nom: "NET",
-    values: ["0", COLORS.net_acide, COLORS.net_virage, COLORS.net_base]
+    values: ["0", cts.COLORS.net_acide, cts.COLORS.net_virage, cts.COLORS.net_base]
   },
   {
     nom: "Empois",
-    values: ["0", COLORS.emp_acide, COLORS.emp_virage, COLORS.emp_base]
+    values: ["0", cts.COLORS.emp_acide, cts.COLORS.emp_virage, cts.COLORS.emp_base]
   }
 ];
 

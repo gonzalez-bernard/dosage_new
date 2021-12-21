@@ -22,6 +22,9 @@ import { propLower } from "../modules/utils/object.js";
 import { DO_INFO_COND, DO_INFO_ERRPENTE, DO_INFO_INIT, DO_INFO_MOVE, DO_INFO_P1, DO_INFO_P2, DO_INFO_PERP1, DO_INFO_PERP2, DO_INFO_PERPDEL, DO_INFO_TAN } from "./lang_fr.js"
 import { DOS_INFO } from "../dosage/ui/html_cts.js"
 import { getEltID } from "../modules/utils/html.js"
+import { ES_DIV_INFO } from "./../especes/html_cts.js"
+import { ES_BTCLOSE_LABEL } from "../especes/lang_fr.js";
+import { setClassMenu } from "../dosage/dosage.ui.js";
 
 
 
@@ -37,6 +40,7 @@ import { getEltID } from "../modules/utils/html.js"
  *  - labelbtclose {string?} : label du bouton (défaut = 'quitter')
  *  - actionbtclose {function?} : fonction sur clic fermeture (défaut = undefined)
  *  - msg {string?} : message à afficher (défaut = undefined, cf. fonction de callback)
+ *  - img {string?} : url d'une image à afficher à côté du texte
  *  - setmsg {function?} fonction chargée du calcul du message
  *  - prm {object?} paramètres à fournir à setMsg
  *  - latex {boolean?} vrai si affichage mathématique (défaut = false)
@@ -124,15 +128,14 @@ var dspHtmlLatex = function( html, target, idModal ) {
 }
 
 
-
 /** Affiche les informations dans la div DIV_INFO
  *
  * @param {string} type type d'infos à afficher
- * @param {any[]?} arg
+ * @param {any[]} arg
  * @returns void
  * @file info.js
  */
-function dspContextInfo( type, arg = undefined ) {
+function dspContextInfo( type, arg = [undefined, undefined] ) {
 
     if ( !isString( type ) ) throw new TypeError( e.ERROR_STR )
 
@@ -174,5 +177,42 @@ function dspContextInfo( type, arg = undefined ) {
 
 }
 
+/** Construit l'objet nécessaire à l'affichage et appel fonction dspInfo
+ * 
+ * @param {string} title titre
+ * @param {string} msg message
+ * @param {string} idButton ID bouton
+ * @param {Object} options options diverses
+ *  - idbtclose {string} : id du bouton close
+ *  - idcontainer {string} : id du container
+ *  - idmodal {string?} : id de la fenêtre modale (défaut = idModal)
+ *  - labelbtclose {string?} : label du bouton (défaut = 'quitter')
+ *  - actionbtclose {function?} : fonction sur clic fermeture (défaut = undefined)
+ *  - img {string?} : url d'une image à afficher à côté du texte
+ *  - setmsg {function?} fonction chargée du calcul du message
+ *  - prm {object?} paramètres à fournir à setMsg
+ *  - latex {boolean?} vrai si affichage mathématique (défaut = false)
+ *  - callbacks {object?} {id:function}
+ */
+function dspMessage(title, msg, idButton, options={}){
+    const data = {
+        idmodal: "idModal",
+        idcontainer: ES_DIV_INFO,
+        labelbtclose: ES_BTCLOSE_LABEL,
+        title: title,
+        actionbtclose: setClassMenu,
+        idbtclose: idButton,
+        msg: msg,
+    };
 
-export { dspInfo, dspContextInfo };
+    if (options){
+        for (const key in options){
+            data[key] = options[key]
+        }
+    }
+    
+    dspInfo(data);
+}
+
+
+export { dspInfo, dspContextInfo, dspMessage };

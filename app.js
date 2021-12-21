@@ -1,6 +1,7 @@
 const express = require( 'express' )
 const app = express()
 const http = require( 'http' )
+const util = require('util')
 
 app.use( express.static( __dirname + '/views' ) );
 app.use( '/static', express.static( __dirname + '/static' ) )
@@ -11,7 +12,7 @@ app.use( '/img', express.static( __dirname + '/static/resources/img' ) )
 app.use( '/datas', express.static( __dirname + '/static/resources/datas' ) )
 
 const server = http.createServer( app )
-    // @ts-ignore
+// @ts-ignore
 const io = require( 'socket.io' )( server )
 
 require("./src/dispatcher.js")
@@ -19,12 +20,8 @@ require("./src/dispatcher.js")
 // @ts-ignore
 dispatcher( io )
 
-
-
-// @ts-ignore
 app.get( '/', ( req, res ) => {
-    //res.send( 'graph' );
-    res.render( '/views/index.html' );
+    res.render( 'index.html' );
 } );
 
 let port = process.env.PORT;

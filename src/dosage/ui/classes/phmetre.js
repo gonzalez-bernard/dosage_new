@@ -3,6 +3,7 @@ import {Appareil} from "./appareil.js"
 /**
  * @typedef {import ('../../../../types/types').tAPPAREIL} tAPPAREIL
  * @typedef {import ('../../../../types/classes').Canvas} Canvas
+ * @typedef {import('../../../../types/interfaces').iCanvasText} iCanvasText
  */
 
 /**  Création phmetre
@@ -20,7 +21,9 @@ class Phmetre extends Appareil{
   constructor(app, canvas, etat, unite){
 
     super(app, canvas, etat, unite)
-    this.valeur = canvas.display.text({
+
+    /** @type {iCanvasText} */
+    this.value = canvas.display.text({
       x: 5*app.w/6 -20 ,
       y: app.h/2+6,
       size: app.w/10,
@@ -29,7 +32,7 @@ class Phmetre extends Appareil{
       origin: {x:"center",y:"center"},
     })
 
-    this.fond.addChild(this.valeur)
+    this.fond.addChild(this.value)
   }
 }
 

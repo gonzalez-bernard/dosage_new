@@ -1,5 +1,5 @@
 import * as e from "../modules/utils/errors.js"
-import { Element, Div, Button } from "../modules/dom.js";
+import { Element, Div, Button, Img } from "../modules/dom.js";
 import { insertDiese } from "../modules/utils/string.js";
 
 /**
@@ -45,12 +45,14 @@ import { insertDiese } from "../modules/utils/string.js";
         this.callbacks = params.callbacks || undefined
         this.data = params.data || undefined
         this.setMsg = params.setmsg || undefined
+        this.img = params.img || undefined
+
 
 
         // si action sur clic bouton fermeture
         if ( this.actionBtClose != undefined && typeof this.actionBtClose == "function" ) {
             $( document ).on( "hide.bs.modal", "#" + this.idModal, function() {
-                params[ 'actionBtClose' ]();
+                params.actionbtclose();
             } );
         }
 
@@ -84,7 +86,21 @@ import { insertDiese } from "../modules/utils/string.js";
             .addChild( elts.span );
         divs.header = new Div( "modal-header" ).addChild( elts.h5, buttons.close );
 
+        // si image
+        if (this.img){
+            this.img = encodeURI(this.img)
+            divs.msg = new Div('row')
+            divs.txt = new Div("col-9").setText(this.msg)
+            const x = this.img
+            const t = `height:100%; background :url("${x}") center/100%`
+            
+            divs.bloc_img = new Div("img-rounded").setStyle(t)
+            divs.img = new Div("col-3").addChild(divs.bloc_img)
+            divs.msg.addChild(divs.txt, divs.img)
+            divs.body = new Div("modal-body").addChild(divs.msg)
+        } else 
         divs.body = new Div( "modal-body" ).setText( this.msg );
+        
 
         buttons.exit = new Button( this.labelBtClose )
             .addClass( "btn btn-secondary" )

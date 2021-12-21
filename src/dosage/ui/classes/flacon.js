@@ -9,6 +9,9 @@ import {getColor} from "../../dosage.js"
  * @typedef {import('../../../../types/classes').Canvas} Canvas
  * @typedef {import('../../../../types/classes').Becher} Becher
  * @typedef {import('../../../../types/types').tFLACON} tFLACON
+ * @typedef {import('../../../../types/interfaces').iCanvasRect} iCanvasRect
+ * @typedef {import('../../../../types/interfaces').iCanvasImage} iCanvasImage
+ * @typedef {import('../../../../types/interfaces').iCanvasText} iCanvasText
  */
 
  class Flacon {
@@ -19,23 +22,44 @@ import {getColor} from "../../dosage.js"
    * @param {Canvas} canvas 
    */
   constructor(sFlacon, canvas) {
-    this.x = sFlacon.x
-    this.y = sFlacon.y
-    this.w = sFlacon.w
-    this.h = sFlacon.h
-    this.color = sFlacon.color
-    this.contenu = sFlacon.contenu
-    this.image = sFlacon.image
-    this.label = sFlacon.label
+
     this.canvas = canvas
+    
+    /** @type {number} */
+    this.x = sFlacon.x
+    /** @type {number} */
+    this.y = sFlacon.y
+    /** @type {number} */
+    this.w = sFlacon.w
+    /** @type {number} */
+    this.h = sFlacon.h
+
+    /** @type {string} */
+    this.color = sFlacon.color
+
+    /** @type {iCanvasImage} */
+    // @ts-ignore
+    this.contenu = null
+    
+    /** @type {string} */
+    this.image = sFlacon.image
+    /** @type {string} */
+    this.label = sFlacon.label
+
+    /** @type {number} */
     this.ox = sFlacon.x
+    /** @type {number} */
     this.oy = sFlacon.y
+    /** @type {number} */
     this.verse = 0
+    /** @type {number} */
     this.vidage = 0
+    /** @type {number} */
     this.angle = 0
-    this.id = sFlacon.id
-   
+    
+
     // construit flacon
+    /** @type {iCanvasImage} */
     this.fond = canvas.display.image({
       x: sFlacon.x,
       y: sFlacon.y,
@@ -46,20 +70,23 @@ import {getColor} from "../../dosage.js"
       id: 'flacon1'
     })
 
+    /** @type {iCanvasImage} */
     this.flacon_image = this.fond.clone({x:0, y:0})
 
     // construit contenu
+    /** @type {iCanvasImage} */
     this.contenu_flacon = canvas.display.image({
       x: 0,
       y: sFlacon.h/5 -2,
       origin: {x:"center",y:"center"},
       width: sFlacon.w-2,
       height: 2*sFlacon.h/3 -6 ,
-      image: sFlacon.image_contenu,
+      image: sFlacon.image,
       fill: sFlacon.color
     })
 
     // texte 
+    /** @type {iCanvasText} */
     this.text_flacon = canvas.display.text({
     x: 0,
     y: sFlacon.h/5,
@@ -71,6 +98,7 @@ import {getColor} from "../../dosage.js"
     })
 
     // liquide qui coule
+    /** @type {iCanvasRect} */
     this.liquide = canvas.display.rectangle({
       x: 0,
       y: 0,
@@ -93,7 +121,7 @@ import {getColor} from "../../dosage.js"
   vidange(becher){
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     var instance = this
-
+  
     let angle = this.angle*Math.PI/180
     if (Math.abs(this.fond.x + this.fond.height*Math.cos(angle) - becher.sbecher.x) > becher.sbecher.w/2 - 10) 
       return false
@@ -157,20 +185,36 @@ import {getColor} from "../../dosage.js"
    * @file flacon.js
    */
   dispose(becher){
-    //var dosage = JSON.parse(sessionStorage.getItem("dosage"))
     var o = this.fond
-    if(this.vidage == 0){
-      if(o.x > becher.sbecher.x){
-        this.angle = 225
-        o.rotateTo(this.angle)
-        this.vidage = 1   // en attente de vidage
+    const _xmin = becher.sbecher.x - 20
+    const _xmax =  becher.sbecher.x + becher.sbecher.w
+    const _ymin = becher.sbecher.y - 100
+    const _ymax = becher.sbecher.y
+    
+    // vidage non actif on penche le flacon
+    if(this.vidage == 1){
+      // détecte position flacon par rapport au bécher
+      // si dans zone on incline
+        if(o.x > _xmin && o.x < _xmax && o.y > _ymin && o.y < _ymax){
+          // passage en mode vidage
+          this.angle = 225
+          o.rotateTo(this.angle)
+        } else {
+          o.rotateTo(0)
+          this.y = this.oy
+          this.x = this.ox
+          this.fond.y = this.y
+          this.fond.x = this.x
+        } 
+
+        // on remet le flacon en place
+      } else if (this.vidage == 2){
+          o.rotateTo(0)
+          this.y = 520
+          this.x = 250
+          this.fond.y = this.y
+          this.fond.x = this.x
       }
-    } else {
-      this.vidage = 0     // flacon vertical
-      o.rotateTo(0)
-      o.x = this.ox
-      o.y = this.oy
-    }
   }
 }
 

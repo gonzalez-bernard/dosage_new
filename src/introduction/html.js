@@ -1,4 +1,4 @@
-import { FOOTER } from "../environnement/constantes.js"
+import { cts } from "../environnement/constantes.js"
 import { IN_BT_RUN } from "./html_cts.js";
 import * as txt from "./lang_fr.js"
 import { Element, Img, Button, Div } from "../modules/dom.js";
@@ -28,11 +28,11 @@ buttons.run = new Button( txt.IN_BT_RUN, { class: 'btn btn-primary', id: IN_BT_R
 divs.col1.addChild( elts.intro, elts.intro1, elts.list1, elts.hr, elts.intro2, buttons.run, elts.hr )
 
 divs.col2 = new Div( 'col' )
-imgs.one = new Img( './static/resources/img/titrator.jpg', { class: 'image-fluid rounded', w: '100%' } ).setStyle( 'max-height:300px' )
+imgs.one = new Img( './static/resources/img/titrator.jpg', { class: 'image-fluid rounded', width: '100%' } ).setStyle( 'max-height:300px' )
 divs.col2.addChild( ( imgs.one ) )
 divs.row.addChild( divs.col1, divs.col2 )
 divs.container.addChild( divs.row )
 
-const HTML = divs.titre.getHTML() + "</br>" + divs.container.getHTML() + FOOTER;
+const HTML = divs.titre.getHTML() + "</br>" + divs.container.getHTML() + cts.FOOTER;
 
 export { HTML }

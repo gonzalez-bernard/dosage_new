@@ -1,6 +1,17 @@
-import { ChartType } from "../node_modules/chart.js/dist/chart.js";
-import { tBECHER, tBURETTE, tColor, tColorProduit, tDataDPH, tDataPH, tEquation, tGlobalCharts, tKeyboard, tLab, tOCANVAS, tPoint, tReactif, tReaction } from "./types.js";
-import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil} from "./interfaces"
+import { ChartType, ChartTypeRegistry } from "../node_modules/chart.js";
+import { tBECHER, tBURETTE, tCanvasImage, tColorProduit, tDataDPH, tDataPH, tEquation, tGlobalCharts, tKeyboard, tInconnu, tLab, tOCANVAS, tPoint, tReactif, tReaction, tCanvasRect, tCanvasText, tFLACON, tGraphChart } from "./types.js";
+import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil, iCanvasTimeline, iCanvasLoop, iCanvasMouse, iGraph} from "./interfaces"
+
+declare class Graphs{
+    charts: tGlobalCharts[]
+}
+
+declare class Dosages {
+    saveGraphs: boolean;
+    currentDosage: number;
+    items: Dosage[];
+    getCurrentDosage: () => Dosage
+}
 
 declare class Dosage {
     type: number;
@@ -18,12 +29,7 @@ declare class Dosage {
     pot: number;
     spot: string;
     indic: number;
-    lst_acide: Record<string, unknown>[];
-    lst_oxydo: Record<string, unknown>[];
-    lst_equation: Record<string, unknown>[];
-    listAcideBase: tReactif[];
-    listOxydo: tReaction[];
-    eqs: string[];
+    
     pHs: string[];
     vols: number[];
     dpHs: number[];
@@ -34,19 +40,30 @@ declare class Dosage {
     exc: tReactif;
     eau: tReactif;
     mesure: number;
-    inconnu: unknown;
-    charts: tGlobalCharts;
+    inconnu: tInconnu;
+    //charts: tGlobalCharts;
     title: string;
     typeDetail: number;
     indics: number[];
     hasReactif: boolean;
     hasExc: number;
     label: string;
-    lab: tLab
+    lab: tLab;
+    name: string
     setState(name: number, action: number): void;
     test(name: string, action: number): boolean;
     get(name: string): unknown;
     set(name: string, value: unknown): void;
+   
+}
+
+declare class Especes {
+    lstAcide: object[];
+    lstOxydo: Record<string, unknown>[];
+    lstEquation: Record<string, unknown>[];
+    listAcideBase: tReactif[];
+    listOxydo: tReaction[];
+    eqs: string[];
     initLists(data:Record<string, unknown>): void;
 }
 
@@ -54,7 +71,7 @@ declare class Becher implements iBecher {
     canvas: Canvas;
     sbecher: tBECHER;
     volume: number;
-    contenu: iCanvasImage;
+    contenu: iCanvasRect;
     fVolumeContenu: number;
     x: number;
     y: number;
@@ -62,8 +79,10 @@ declare class Becher implements iBecher {
     h: number;
     image: string;
     value?: unknown;
+    color: string
     fond: iCanvasImage;
-    setColor(col: tColor | string): tColor;
+    constructor(sbecher: tBECHER, canvas: Canvas)
+    setColor(col: string): void;
     remplir(debit: number, volume: number, mode: number): void;
     showDetail(mode: number): void;
     reset(mode: number): void;
@@ -72,7 +91,7 @@ declare class Becher implements iBecher {
 declare class Appareil implements iAppareil {
     fill: string;
     zindex: number;
-    origin: {x: number; y: number};
+    origin: {x: number|string; y: number|string};
     abs_x: number;
     abs_y: number;
     canvas: Canvas;
@@ -80,11 +99,12 @@ declare class Appareil implements iAppareil {
     unite: string;
     offsetX: number;
     offsetY: number;
-    image: iCanvasImage | string;
-    value: string;
+    image: string;
+    mesure: number
+    value: iCanvasText;
     fond: iCanvasImage;
     dispose: (becher: Becher) => void;
-    setText: (string) => void;
+    setText: (txt: string) => void;
 }
 
 declare class Phmetre extends Appareil {}
@@ -109,37 +129,41 @@ declare class Burette {
     graddiv_size: number;
     vidage: number;
     fond: iCanvasImage;
-    contenu: iCanvasImage;
+    contenu: iCanvasRect;
     burette_o: {abs_y: number; height: number};
     burette_f: {abs_y: number; height: number};
-    liquide: iCanvasImage;
-    graduation: Record<string, unknown>;
-    menisque: Record<string, unknown>;
+    liquide: iCanvasRect;
+    graduation: iCanvasImage;
+    menisque: iCanvasImage;
     txtgrad: iCanvasText[];
-    vidange: (number, Becher) => void;
+    vidange: (arg0: number, arg1: Becher) => void;
     reset: () => void;
     leave: (label: string) => void;
 }
 
 declare class Tooltip {
-    dspText: (string) => void;
+    dspText: (arg0?: string) => void;
 }
 
 type tCanvasDisplay = {
-    text: (iCanvasText) => iCanvasText;
-    image: (iCanvasImage) => iCanvasImage;
-    rectangle: (iCanvasRect) => iCanvasRect;
+    text: (arg0: tCanvasText) => iCanvasText;
+    image: (arg0: tCanvasImage) => iCanvasImage;
+    rectangle: (arg0: tCanvasRect) => iCanvasRect;
 };
+
 declare class Canvas {
     width: number;
     height: number;
-    background: {set: (string) => void};
+    background: {set: (arg0: string) => void};
     keyboard: tKeyboard;
     display: tCanvasDisplay;
-    mouse: {cursor: (string) => void};
+    mouse: iCanvasMouse;
+    timeline: iCanvasTimeline
     redraw: () => void;
     addChild: (a: object) => void;
+    removeChild: (b: object) => void
     bind: (label: string, callback: () => void) => void;
+    setLoop: (arg: any) => iCanvasLoop
 }
 
 declare class Flacon implements iFlacon {
@@ -148,11 +172,10 @@ declare class Flacon implements iFlacon {
     w: number;
     h: number;
     color: string;
-    image: iCanvasImage | string;
+    image: string;
     fond: iCanvasImage;
     label: string;
-    id: number;
-    contenu: iCanvasImage | string;
+    contenu: iCanvasImage;
     canvas: Canvas;
     ox: number;
     oy: number;
@@ -164,16 +187,20 @@ declare class Flacon implements iFlacon {
     text_flacon: iCanvasText;
     liquide: tOCANVAS;
     length?: number;
+    chgText: (txt:string, x:number, y:number) => void
+    dispose: (arg: Becher) => void
+    vidange: (arg:Becher) => void
 }
 
-declare class Graph {
+export class Graph {
     canvas: string;
-    chart: Record<string, unknown>;
+    chart: object;
     data: Record<string, unknown>[];
     selectedIndicePoint: number;
     old_selectedIndicePoint: number;
     activePoints: unknown[];
     info: string;
+    setOption: (label:string, value:object) => object
 }
 
 declare class Graphx extends Graph {
@@ -182,7 +209,7 @@ declare class Graphx extends Graph {
     pentes: number[];
     indiceTangentes: number[];
     type: number;
-    createChart: (type: ChartType|string, dataset: unknown, options?: unknown) => void
+    createChart: (type: keyof ChartTypeRegistry, dataset: unknown, options?: unknown) => void
     setType: (type: number) => void;
     setOptions: (G: Dosage) => void;
     setDatas: (data: []) => void;
@@ -199,11 +226,11 @@ declare class Graphx extends Graph {
     dspPerpendiculaire: (etat?: number) => number;
     _getPerpendiculaire: (p0: tPoint, p1: tPoint, pente: number, factor: number) => void;
     _calcPente: (indice_1: number, indice_2: number, points: unknown[]) => number;
-    setEvent: (event: string, callback: (evt: Event, elt? : unknown[]) => boolean) => void   
+    setEvent: (event: string, callback: (evt: Event, elt? : unknown[]) => any) => void   
     changeData: (data: object[]) => void
-    removeData: (number)=> void
+    removeData: (arg: number)=> void
     getChartByProp: (id:string, prop:string) => number
-    clearData: (number) => void
+    clearData: (arg: number) => void
 }
 
 declare class EventForm{
@@ -238,4 +265,4 @@ declare class Input extends Element{
     _feedback: object
 }
 
-export {Becher, Dosage, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, EventForm, Element, Input, Label, Form, Graph, Tooltip}
+export {Becher, Dosage, Dosages, Especes, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, EventForm, Element, Input, Label, Form, Tooltip}

@@ -4,6 +4,8 @@ import * as e from "../../../modules/utils/errors.js"
 /**
  * @typedef {import ('../../../../types/types').tTOOLTIP} tTOOLTIP
  * @typedef {import ('../../../../types/classes').Canvas} Canvas
+ * @typedef {import('../../../../types/interfaces').iCanvasRect} iCanvasRect
+ * @typedef {import('../../../../types/interfaces').iCanvasText} iCanvasText
  */
 
 /**  Création tooltip
@@ -23,6 +25,7 @@ class Tooltip {
         this.sTooltip = sTooltip;
 
         // tooltip
+        /** @type {iCanvasRect} */
         this.tooltip = canvas.display.rectangle({
             x: sTooltip.x,
             y: sTooltip.y,
@@ -34,7 +37,9 @@ class Tooltip {
             opacity: 0,
             zindex: 2,
         });
+
         // tooltip texte
+        /** @type {iCanvasText} */
         this.tooltip_text = canvas.display.text({
             x: 5,
             y: 5,

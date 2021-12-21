@@ -5,33 +5,55 @@ import * as e from "../../../modules/utils/errors.js"
  * @typedef {import ('../../../../types/classes').Canvas} Canvas
  * @typedef {import ('../../../../types/classes').Becher} Becher
  * @typedef {import ('../../../../types/types').tBURETTE} tBURETTE
+ * @typedef {import('../../../../types/interfaces').iCanvasRect} iCanvasRect
+ * @typedef {import('../../../../types/interfaces').iCanvasText} iCanvasText
+ * @typedef {import('../../../../types/interfaces').iCanvasImage} iCanvasImage
  */
 
 /**
  * @class Burette
  * @classdesc Construit l'objet Burette
- * @param {tBURETTE} burette structure
- * @param {Canvas} canvas 
  */
 
 class Burette {
+
+  /**
+   * @param {tBURETTE} burette structure
+   * @param {Canvas} canvas 
+   */
   constructor(burette, canvas){
     
     this.canvas = canvas
     this.burette = burette
+
+    /** @type {number} */
     this.vol_verse = 0
+
+    /** @type {number} */
     this.volume = burette.volume        // volume en cours
+    
+    /** @type {number} */
     this.echelle = burette.echelle      // volume d'une division
+    
+    /** @type {number} */
     this.debit = burette.debit          // volume minimal versé
+    
+    /** @type {number} */
     this.grad_size = 0.659*burette.h    // taille ensemble graduation
+    /** @type {number} */
     this.div_size = this.grad_size/60   // taille d'une division
+    /** @type {number} */
     this.grad_offset = 105*burette.h/1190 - burette.h/2  // distance entre haut burette et niveau zéro liquide
+    /** @type {number} */
     this.vol_size = this.div_size/this.echelle  // taille d'un mL 
+    /** @type {number} */
     this.vol_max = 60 * this.echelle    // volume max
+    /** @type {number} */
     this.graddiv_size = burette.graduationH/20   // taille d'une division du zoom
+    /** @type {number} */
     this.vidage = 0 // 0 = burette fermée, 1 = burette ouverte, 2 = burette vide 
     
-    // fond
+    /** @type {iCanvasImage} */
     this.fond = canvas.display.image({
       x: burette.x,
       y: burette.y,
@@ -42,12 +64,15 @@ class Burette {
     })
 
     // burette ouverte
-    this.burette_o = this.fond.clone({x:0,y:0,image:burette.openImage})
+    /** @type {iCanvasImage} */
+    this.burette_o = this.fond.clone({x:0 ,y:0 ,image:burette.openImage})
 
     // burette fermée
+    /** @type {iCanvasImage} */
     this.burette_f = this.fond.clone({x:0,y:0})
 
     // contenu
+    /** @type {iCanvasRect} */
     this.contenu = canvas.display.rectangle({
       x: -2,
       y: this.grad_offset + (this.vol_max - this.volume) *  this.vol_size,
@@ -59,6 +84,7 @@ class Burette {
     })
 
     // liquide qui coule
+    /** @type {iCanvasRect} */
     this.liquide = canvas.display.rectangle({
       x: this.burette_f.x-3,
       y: this.burette_f.y + this.burette_f.height/2 - 2,
@@ -72,6 +98,7 @@ class Burette {
     this.contenu.zindex = "back"
 
     // détails
+    /** @type {iCanvasImage} */
     this.graduation = canvas.display.image({
       x: burette.graduationX,
       y: burette.graduationY,
@@ -82,6 +109,7 @@ class Burette {
     })
 
     // menisque et graduation
+    /** @type {iCanvasImage} */
     this.menisque = canvas.display.image({
       x: 0,
       y: this.graduation.height/2,
@@ -91,6 +119,7 @@ class Burette {
       image: burette.graduationMenisque
     })
 
+    /** @type {iCanvasText[]} */
     this.txtgrad = []
     for (var i =0; i<3; i++){
       this.txtgrad[i] = canvas.display.text({

@@ -66,24 +66,18 @@ dispatcher = function( io ) {
             const pyshell = new PythonShell( DOS_CALLBACK, options );
             pyshell.send( data );
             pyshell.on( "message", function( message ) {
+                //console.log(message)
                 socket.emit( DATA_GET_DOSAGE_OK, message );
             } );
-            pyshell.on( "pyerror", function( err ) {
-                console.log( 'The exit code was: ' + err.code );
-                console.log( 'The exit signal was: ' + err.signal );
-                console.log( 'finished' );
-            } );
-            //socket.emit("pyerror", err)
 
-            // @ts-ignore
+            // Erreur système (interruption du script Python)
             pyshell.end( function( err, code, signal ) {
                 if ( err ) {
                     console.log( 'The err was: ' + err );
-                    throw ( err )
+                    console.log( 'The exit signal was: ' + signal );
+                    console.log( 'finished with error' );
+                    socket.emit("Error_system", err);
                 }
-
-                console.log( 'The exit signal was: ' + signal );
-                console.log( 'finished' );
             } );
         } );
 

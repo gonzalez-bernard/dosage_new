@@ -2,10 +2,7 @@
  *  @desc Module problem.data
  *  
  */
-import * as cts from "../environnement/constantes.js";
-import { uString } from "../modules/utils/string.js";
-import { initPage } from "./problem.ui.js"
-import { ETAT_PROBLEM } from "../environnement/constantes.js";
+import {cts} from"../environnement/constantes.js";
 import { getData } from "../data.js";
 
 // @ts-ignore

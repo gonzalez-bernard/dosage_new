@@ -3,11 +3,11 @@
  *  EVENTS  
  * ****************************************/
 import * as ui from "./html_cts.js"
-import * as cts from "../environnement/constantes.js"
-
+import {cts} from"../environnement/constantes.js"
+import {gDosages, gEspeces} from "../environnement/globals.js"
 import { setDosageOxValues, eventValidation } from "./especes.data.js"
 import { getElt, getValue, getEltID } from "../modules/utils/html.js"
-import { inputValidSaisie, updSaisieSelect, getListEspeceTitrante, changeOxSelect, dspPH, initDataInfo } from "./especes.ui.js"
+import { inputValidSaisie, updSaisieSelect, getListEspeceTitrante, changeOxSelect, initDataInfo } from "./especes.ui.js"
 import { Form } from "../modules/utils/form.js"
 import { dspInfo } from "../infos/infos.js";
 
@@ -63,7 +63,7 @@ function setEvents( G ) {
 
     /*** Quand on a sélectionné les deux espèces on active le bouton info */
     let data_info = {
-        buttons: [ '#' + ui.ES_BT_VALID, '#' + ui.ES_BT_DSPINFO_AC ],
+        buttons: [ '#' + ui.ES_BT_VALID, '#' + ui.ES_BT_dspINFO_AC ],
         mark: true,
         pass: false,
         feedback: "*_feedback",
@@ -73,20 +73,21 @@ function setEvents( G ) {
     getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).on( 'change', data_info, frm.validButtons.bind( frm ) );
     let data_action = {
         fields: ['#' + ui.ES_ACIDEBASE_TITRANT_SELECT, '#' + ui.ES_ACIDEBASE_TITRE_SELECT ],
-        action: (()=>{$("#"+ui.ES_BT_DSPINFO_AC).prop('disabled',false)})
+        action: (()=>{$("#"+ui.ES_BT_dspINFO_AC).prop('disabled',false)})
     }
     getEltID( ui.ES_ACIDEBASE_TITRANT_SELECT ).on( 'change', data_action, frm.actionFields.bind( frm ) );
 
     /** Selection d'une réaction    */
     getEltID( ui.ES_AUTREDOS_SELECT ).on( 'change', data_info, function( e ) {
+        const G = gDosages.GetCurrentDosage()
         changeOxSelect( G )
-        setDosageOxValues( G )
+        setDosageOxValues( G, E )
         frm.validButtons.bind( frm )( e )
     } )
 
     data_action = {
         fields: ['#' + ui.ES_AUTREDOS_SELECT],
-        action: (()=>{$("#"+ui.ES_BT_DSPINFO_AC).prop('disabled',false)})
+        action: (()=>{$("#"+ui.ES_BT_dspINFO_AC).prop('disabled',false)})
     }
     getEltID( ui.ES_AUTREDOS_SELECT ).on( 'change', data_action, frm.actionFields.bind( frm ) );
 
@@ -95,12 +96,12 @@ function setEvents( G ) {
 
     /**  Validation        */
     getEltID( ui.ES_BT_VALID ).on( 'click', function() {
-        eventValidation( G )
+        eventValidation( gEspeces )
     } )
 
     /** Affichage de l'aide */
-    getEltID( ui.ES_BT_DSPINFO_AC ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
-    getEltID( ui.ES_BT_DSPINFO_OX ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
+    getEltID( ui.ES_BT_dspINFO_AC ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
+    getEltID( ui.ES_BT_dspINFO_OX ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
 
     /*
         getElt( 'a[data-toggle="tab"]' ).on( 'shown.bs.tab', function( e ) {
@@ -114,4 +115,4 @@ function setEvents( G ) {
     */
 }
 
-export { setEvents }
+export { setEvents}

@@ -5,7 +5,7 @@
  */
 
 import {getEltID} from "../modules/utils/html.js";
-import * as cts from "./html_cts.js"
+import * as cts from"./html_cts.js"
 import {html} from "./html.js"
 
 /** Affiche la page Aide

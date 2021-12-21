@@ -3,6 +3,7 @@ import {Appareil} from "./appareil.js"
 /** 
 * @typedef {import('../../../../types/classes').Canvas} Canvas 
 * @typedef {import('../../../../types/types').tAPPAREIL} tAPPAREIL 
+* @typedef {import('../../../../types/interfaces').iCanvasText} iCanvasText
 */
 
 /**  Création potentiomètre
@@ -22,7 +23,8 @@ class Potentiometre extends Appareil{
   constructor(app, canvas, etat, unite){
     super(app, canvas, etat, unite)
 
-    this.valeur = canvas.display.text({
+    /** @type {iCanvasText} */
+    this.value = canvas.display.text({
       x: app.w/2+10,
       y: app.h/2-23,
       size: app.w/8,
@@ -31,7 +33,7 @@ class Potentiometre extends Appareil{
       origin: {x:"center",y:"center"}
     })
 
-    this.fond.addChild(this.valeur)
+    this.fond.addChild(this.value)
   }
 }
 

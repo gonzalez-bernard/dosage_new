@@ -42,6 +42,10 @@ if func == "data_dosage_ac":
 
   # calcul des couples v, pH
   (v, pH, c, s) = dos.main(25, 0.1)
+
+  # si erreur
+  if len(v) < 20:
+    print(json.dumps(ERR_DOSAGE_IMPOSSIBLE)) 
   
   # calcul des couples v, dpH 
   [v, dpH] = get_derive(v, pH)

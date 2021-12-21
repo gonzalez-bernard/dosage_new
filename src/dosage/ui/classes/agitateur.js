@@ -19,14 +19,14 @@ class Agitateur {
     this.sagitateur = sagitateur
     
 
-    // fond
+    /** @type {import('../../../../types/interfaces').iCanvasImage} */ 
     this.fond = canvas.display.image({
       x: sagitateur.x,
       y: sagitateur.y,
       width: sagitateur.w,
       height: sagitateur.h,
       image: sagitateur.image,
-      zIndex: "back"
+      zindex: "back"
     })
   }
 }

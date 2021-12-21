@@ -9,11 +9,11 @@
 */
 
 import * as cFlacon from "./classes/flacon.js";
-import { FLACON_COLORS, FLACON_IMAGES, FLACON_LABELS } from "./interface.js"
+import { FLACON_COLORS, FLACON_IMAGES, FLACON_LABELS, FLACON } from "./interface.js"
 import * as txt from "./lang_fr.js";
 import { getColor } from "../dosage.js";
 import { isObject } from "../../modules/utils/type.js";
-import * as cts from "../../environnement/constantes.js"
+import {cts} from"../../environnement/constantes.js"
 import * as e from "../../modules/utils/errors.js"
 
 /**
@@ -37,6 +37,20 @@ function set_drag(flacons, state) {
     }
 }
 
+/** Positionne les flacons
+ * 
+ * @param {Flacon[]} flacons 
+ * @return void
+ */
+function setPosFlacons(flacons){
+    let x = FLACON.x+45
+    for (let i = 0; i < 7; i++) {
+        flacons[i].fond.x = x
+        flacons[i].fond.y = FLACON.y
+        x += 45
+    }
+}
+
 /** Crée les flacons
  * 
  * Définit les events
@@ -53,7 +67,8 @@ function initFlacon(G, canvas, tooltip, becher, sFlacon) {
     if (!isObject(canvas) || !isObject(tooltip) || !isObject(becher)) throw new TypeError(e.ERROR_OBJ)
 
     // Crée les flacons
-    var flacons = [];
+    /** @type {Flacon[]} flacons */
+    const flacons = [];
     let x = sFlacon.x
 
 
@@ -62,7 +77,6 @@ function initFlacon(G, canvas, tooltip, becher, sFlacon) {
         sFlacon.image = "./img/dosage/flacon_" + FLACON_IMAGES[i] + ".png";
         sFlacon.color = FLACON_COLORS[i];
         sFlacon.label = FLACON_LABELS[i];
-        sFlacon.id = i;
         flacons[i] = new cFlacon.Flacon(sFlacon, canvas);
         canvas.addChild(flacons[i].fond);
 
@@ -84,50 +98,53 @@ function initFlacon(G, canvas, tooltip, becher, sFlacon) {
 
             // vidage si flacon retourné, on teste qu'un indicateur n'a pas déjà été mis
             flacons[i].fond.bind("mousedown", function () {
-                // si indicateur déjà versé
-                if (G.etat & cts.ETAT_INDIC) return
-                //if (flacons[i].vidage == 1 && e.detail == 1) {
-                if (flacons[i].vidage == 1 ) {
+                // si flacon sur portoir
+                if (flacons[i].vidage == 0 && (G.indic == -1 || G.indic == null)){
+                    set_drag(flacons, true)
+                    flacons[i].vidage = 1
+                } 
+                    
+                // flacon penché, on vidange
+                else if (flacons[i].vidage == 2 ) {
                     flacons[i].vidange(becher);
                     // positionne indicateur
                     G.etat = G.etat | cts.ETAT_INDIC
                     G.indic = i;
-
+              
                     // initialise couleurs
-                    G.titre.color =
-                        becher.setColor(getColor(0));
+                    G.titre.color = "black"
+                    becher.setColor(getColor(0));
+        
+                }                        
 
-                    flacons[i].dispose(becher);
-                    set_drag(flacons, false)
-
-                    canvas.redraw();
-                } else 
-                    set_drag(flacons, true)
-
-            });
+            })
 
             // Remise en état du flacon
-            flacons[i].fond.bind("dblclick", function (e) {
-                //G.indic = i;
-                if (G.etat & cts.ETAT_INDIC) return
-                flacons[i].dispose(becher);
-                canvas.redraw();
-                e.stopPropagation();
+            flacons[i].fond.bind("dblclick", function () {
+                // si flacon en route on le penche si dans zone active
+                if (flacons[i].vidage == 1){
+                    flacons[i].dispose(becher);
+                    flacons[i].vidage = 2
+                   
+                // flacon penché on le remet en place
+                } else if (flacons[i].vidage == 2){
+                    flacons[i].dispose(becher);
+                    flacons[i].vidage = 0
+                    if (G.indic != -1)
+                      set_drag(flacons, false)
+                }
             });
 
             // Déplacement du flacon
             flacons[i].fond.dragAndDrop({
-
                 
                 move: function () {
                     if ((G.type == cts.TYPE_ACIDEBASE && i < 5) || (G.type == cts.TYPE_OXYDO && i >= 5)) {
                         flacons[i].chgText("default", 3, flacons[i].flacon_image.height / 5);
                     }
-                },
-                
+                }                
             });
         }
-
     }
 
     sFlacon.x = x
@@ -135,4 +152,4 @@ function initFlacon(G, canvas, tooltip, becher, sFlacon) {
     return flacons;
 }
 
-export { initFlacon, set_drag }
+export { initFlacon, set_drag, setPosFlacons }

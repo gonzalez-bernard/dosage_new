@@ -1,27 +1,52 @@
-import {tOCANVAS, tBURETTE, tBECHER, tFLACON, tColor} from "./types"
+import {tOCANVAS, tBURETTE, tBECHER, tFLACON, tPoint} from "./types"
 import {Canvas, Becher} from "./classes"
 
-interface iCanvasImage extends tOCANVAS {
-  image: string | HTMLImageElement
-  height: number
-  width: number
-
+interface iCanvasLoop{
+  start: () => void
+}
+interface iCanvasMouse {
+  x: number
+  y: number
+  cursor: (arg0: string) => void
 }
 
-interface iCanvasText extends tOCANVAS{
-  font: string
-  height: number
+interface iCanvasTimeline {
+  stop: () => void
+}
+
+interface iCanvasMethods {
+  addChild: (arg: iCanvasImage | iCanvasText | iCanvasRect) => void
+  clone: (arg0: tPoint) => iCanvasImage
+  dragAndDrop: (arg: boolean|{}) => void
+  rotateTo: (arg: number) => void
+  bind: (name:string, callback:() => void) => void
+  animate: (pos:tPoint, options?: {duration: number, easing: string, callback?: (arg:any)=> any}) => iCanvasRect
+  scale: (w: number, h: number) => iCanvasImage
+  removeChild: (obj: any, arg?: any) => void
+  fadeTo: (duree: number, type_in: string, type_out:string, callback?: ()=>void) => iCanvasRect
+  fadeOut: (type_in: string, type_out:string, callback?: ()=>void) => iCanvasRect
+  stop: () => void
+}
+
+export interface iCanvasImage extends iCanvasMethods{
+  x: number
+  y: number
   width: number
+  height: number
+  image: string | HTMLImageElement
+  abs_y: number
+}
+
+export interface iCanvasText extends tOCANVAS, iCanvasMethods{
+  font: string
   size: number
   style: string
-  text: string
+  text: string | number
   align: string
 }
 
-interface iCanvasRect extends tOCANVAS{
-  stop: () => void
-  fadeTo: (duree: number, type_in: string, type_out:string, callback?: ()=>void) => iCanvasRect
-  fadeOut: (type_in: string, type_out:string, callback?: ()=>void) => iCanvasRect
+interface iCanvasRect extends tOCANVAS, iCanvasMethods{
+  text: string | number
 }
 
 
@@ -33,16 +58,17 @@ interface iAppareil {
   canvas: Canvas
   unite: string
   etat: number
-  value: string
+  value: iCanvasText
   zindex: number
-  origin: {x:number, y:number}
+  origin: {x:number|string, y:number|string}
   offsetX: number
   offsetY: number 
   fond: iCanvasImage
+  image: string
   dispose:(becher: Becher, x:number, y:number) => void
-  setText: (string) => void
+  setText: (arg: string) => void
 }
-// phmetre 
+
 
 // Structure burette
 interface iBurette extends tBURETTE {
@@ -68,14 +94,12 @@ interface iBurette extends tBURETTE {
 
 
 // interface pour classe Becher
-interface iBecher extends tBECHER{
+interface iBecher {
   canvas: Canvas
   sbecher: tBECHER
-  contenu: iCanvasImage
+  contenu: iCanvasRect
   fond: iCanvasImage
-  //becher_image: iCanvasImage
-  //color: tColor
-  setColor(col: tColor): void
+  setColor(col: string): void
   remplir (debit: number, volume: number, mode: number): void
   showDetail(mode: number): void
   reset(mode: number): void  
@@ -83,7 +107,7 @@ interface iBecher extends tBECHER{
 
 
 // interface pour classe
-interface iFlacon extends tFLACON{
+interface iFlacon{
   canvas: Canvas
   ox: number,
   oy: number
@@ -106,6 +130,16 @@ interface iFrmData{
   buttons: string[]
   callback: ()=>unknown
   validator: object;
+}
+
+interface iGraph{
+  canvas: string;
+  chart: Record<string, unknown>;
+  data: Record<string, unknown>[];
+  selectedIndicePoint: number;
+  old_selectedIndicePoint: number;
+  activePoints: unknown[];
+  info: string;
 }
 
 

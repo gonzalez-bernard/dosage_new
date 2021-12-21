@@ -1,26 +1,28 @@
 import * as t from "../infos/lang_fr.js"
-import * as cts from "../environnement/constantes.js"
+import {cts} from"../environnement/constantes.js"
 import { uString } from "../modules/utils/string.js"
 import { setDosageAcValues } from "./especes.data.js"
 
 /**
  * @typedef {import ('../../types/classes').Dosage} Dosage
+ * @typedef {import ('../../types/classes').Especes} Especes
  * @typedef {import ('../../types/types').tInfo} tInfo 
  */
 
 /** Construit le message d'information à partir des données
  * 
  * @param {Dosage} data données
+ * @param {Especes} E liste des espèces
  * @returns {tInfo} 
  * @file especes.infos.js
  */
-function getInfoPH(data) {
+function getInfoPH(data, E) {
 
     let info1, infoText, infoTitle
 
     // initialise espèces si réaction acido-basique
     if (data.type == cts.TYPE_ACIDEBASE) {
-        setDosageAcValues(data)
+        setDosageAcValues(data, E)
     }
 
     // récupère titre et infos

@@ -1,10 +1,10 @@
-import {G} from '../src/modules/graph.js'
+import {Graph} from '../src/modules/graph.js'
 //import Chart from "/node/chart.js/dist/Chart.js";
 
 var canvas = "container"
 
 // Création de l'instance
-var gr = new G.charts( canvas )
+//var gr = new G.charts( canvas )
 
 // Initialisation données
 var data = [ { x: 1, y: 1 }, { x: 2, y: 8 }, { x: 3, y: 15 } ]
@@ -14,7 +14,8 @@ var other = {
     pointBackgroundColor: "red",
     borderColor: "rgba(255,0,0,0.5)",
     pointRadius: 3,
-    id: 'pH'
+    id: 'pH',
+    label:'new test'
         //yAxisID: 'pH'
 }
 
@@ -69,7 +70,8 @@ var optPlugin = {
 }
 
 var options = {
-        //responsive: true,
+        responsive: false,
+        maintainAspectRatio: true,
         plugins: {
             title: {
                 display: true,
@@ -77,6 +79,11 @@ var options = {
             },
         },
         events: [ 'mousemove' ],
+        layout: {
+            padding: {
+                top: 20
+            }
+        },
         onHover: showPos,
         scales: {
             x: {},
@@ -88,17 +95,20 @@ var options = {
 // pente
 var pente = ( data[ 1 ].y - data[ 0 ].y ) / ( data[ 1 ].x - data[ 0 ].x )
 
+let G = new Graph(canvas)
+
 // initialise options
-var opts = gr.setOption( "scales", optAxe )
-gr.setOption( "plugins", optPlugin )
-gr.setOption( "responsive", false )
+var opts = G.setOption( "scales", optAxe )
+G.setOption( "plugins", optPlugin )
+G.setOption( "responsive", false )
+G.setOption( "maintainAspectRatio", true)
 
 // crée le dataset
-//let dataset = gr.setDataset('test',data, other, 'pH')
-let dataset = gr.setDataset( 'test', data, other )
+//let dataset = G.setDataset('test',data, other, 'pH')
+let dataset = G.setDataset( 'test', data, other )
 
 // Crée le graphe
-gr.createChart( 'scatter', dataset, opts )
+G.createChart( 'scatter', dataset, opts )
 
 
 data = [ { x: 0, y: 8 }, { x: 1, y: 15 }, { x: 2, y: 22 } ]
@@ -112,21 +122,21 @@ other = {
 }
 
 // Ajout d'un nouveau graphe
-gr.addDataset( 'new', data, other )
+G.addDataset( 'new', data, other )
 
 
 // Suppression du point N°2 du graphe N°1
-//gr.removeData( 1, 2 )
+//G.removeData( 1, 2 )
 
 // perpendiculaire
 let perp = get_perp( { x: 3, y: 15 }, { x: 1, y: 15 }, pente, ( 7 / 25 ) * ( 5 / 9 ) )
 let data_perp = [ { x: 3, y: 15 }, perp.p ]
-gr.addDataset( 'new', data_perp, other )
+G.addDataset( 'new', data_perp, other )
 
 // Ajout d'un gestionnaire d'événements
-gr.setEvent( 'onClick', _event )
-gr.setEvent( 'onHover', showPos )
-    //gr.setEvent('onClick', _del)
+//G.setEvent( 'onClick', _event )
+G.setEvent( 'onHover', showPos )
+G.setEvent('onClick', _del)
 
 function get_perp( p0, p1, pente, factor ) {
     // calcul distance initiale
@@ -179,44 +189,44 @@ function get_perp( p0, p1, pente, factor ) {
 }
 
 function _del( evt, elt ) {
-    var index = gr.getEventIndexChart( elt )
-    var indice = gr.getEventIndicePoint( elt )
-    gr.removeData( index, indice )
+    var index = G.getEventIndexChart( elt )
+    var indice = G.getEventIndicePoint( elt )
+    G.removeData( index)
 }
 
 function _event( evt, elt ) {
     if ( elt.length > 0 ) {
-        var a = gr.getEventArray( evt )
+        var a = G.getEventArray( evt )
         console.log( "Ensemble des éléments du point : ", a )
-        console.log( "Index du graphe : " + gr.getEventIndexChart( elt ) )
-        console.log( "Indice du point : " + gr.getEventIndicePoint( elt ) )
-        console.log( "Coordonnées en pixels : " + gr.getEventCoordPixel( elt ) )
-        console.log( "Coordonnées du point : " + gr.getEventCoord( elt ) )
+        console.log( "Index du graphe : " + G.getEventIndexChart( elt ) )
+        console.log( "Indice du point : " + G.getEventIndicePoint( elt ) )
+        console.log( "Coordonnées en pixels : " + G.getEventCoordPixel( elt ) )
+        console.log( "Coordonnées du point : " + G.getEventCoord( elt ) )
 
-        console.log( "Index du graphe possédant la propriété : " + gr.getChartByProp( 'pointBackgroundColor', 'blue' ) )
-        console.log( "Label et id : ", gr.getIdChart( gr.getEventIndexChart( elt ) ) )
+        console.log( "Index du graphe possédant la propriété : " + G.getChartByProp( 'pointBackgroundColor', 'blue' ) )
+        console.log( "Label et id : ", G.getIdChart( G.getEventIndexChart( elt ) ) )
 
 
         var data = [ { x: 3, y: 2 }, { x: 5, y: 1 } ]
             // change les données du graphe N°1
-            //gr.changeData( data, 1 )
+            //G.changeData( data, 1 )
 
         // Ajout de données
         var new_data = [ { x: 3, y: 5 } ]
-            //gr.addData( new_data, 1 )
+            //G.addData( new_data, 1 )
 
         // Récupère data
-        // console.log(gr.getData(0))
-        console.log( "Données de la courbe : ", gr.getData( elt ) )
+        // console.log(G.getData(0))
+        console.log( "Données de la courbe : ", G.getData( elt ) )
 
         // Modifie options max de la courbe identifiée par dpH
-        //gr.setOption( "scales/dpH/max", 30 )
-        //gr.removeOption( "scales/x/ticks/color" )
-        gr.chart.update()
+        //G.setOption( "scales/dpH/max", 30 )
+        //G.removeOption( "scales/x/ticks/color" )
+        G.chart.update()
     }
 }
 
 function showPos( elt ) {
     if ( elt.length > 0 )
-        console.log( gr.getEventCoord( elt ) )
+        console.log( G.getEventCoord( elt ) )
 }

@@ -8,7 +8,7 @@
  * ***export initBurette***
 */
 
-import * as cts from "../../environnement/constantes.js";
+import {cts} from"../../environnement/constantes.js";
 import * as cBurette from "./classes/burette.js";
 import { BURETTE } from "./interface.js"
 import {vidage} from "../dosage.js";
@@ -17,7 +17,7 @@ import { ERROR_OBJ } from "../../modules/utils/errors.js"
 
 /**
  * @typedef {import ('../../../types/classes').Canvas} Canvas
- * @typedef {import ('../../../types/classes').Dosage} Dosage
+ * @typedef {import ('../../../types/classes').Dosages} Dosages
  * @typedef {import ('../../../types/classes').Burette} Burette
  * @typedef {import ('../../../types/types').tLab} tLab 
  */
@@ -28,14 +28,16 @@ import { ERROR_OBJ } from "../../modules/utils/errors.js"
  * 
  * @param {Canvas} canvas
  * @param {tLab} lab 
- * @param {Dosage} G
+ * @param {Dosages} DS
  * @returns {Burette}
  * @public
  * @file initBurette.js
  */
-function initBurette( G, canvas, lab) {
+function initBurette( DS, canvas, lab) {
 
     if ( !isObject(canvas) ) throw new TypeError(ERROR_OBJ)
+
+    const G = DS.getCurrentDosage()
 
     // crée burette
     const burette = new cBurette.Burette( BURETTE, canvas );
@@ -47,7 +49,8 @@ function initBurette( G, canvas, lab) {
      */
     burette.burette_f.bind( "mousedown", function() {
         if ( G.test('etat',cts.ETAT_ESPECES )) {
-            vidage(lab, G);
+            // @ts-ignore
+            vidage(lab, DS);
         }
     } );
 

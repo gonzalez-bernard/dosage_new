@@ -4,7 +4,7 @@ import * as txt from "./lang_fr.js"
 import * as ui from "./html_cts.js"
 import { Element, Div, Link, Button, Form, Label, Input, Img, Message } from "./../modules/dom.js"
 
-import { FOOTER } from "../environnement/constantes.js"
+import { cts } from "../environnement/constantes.js"
 
 function getHtml( id, objectif, context, question, inconnu, img = null ) {
 
@@ -46,7 +46,7 @@ function getHtml( id, objectif, context, question, inconnu, img = null ) {
     // Problème, niveau et zoom
     elts.niveau = new Element( 'h4', { class: 'col col-sm-4' } ).setText( txt.PB_NUMBER + id )
     links.zoom = new Link( '#', { id: ui.PB_ZOOM, class: 'col col-sm-2' } )
-    elts.zoom = new Img( 'static/resources/img/zoom-in.png', { w: '50px' } )
+    elts.zoom = new Img( 'static/resources/img/zoom-in.png', { width: '50px' } )
     links.zoom.addChild( elts.zoom )
     divs.soustitre = new Div( 'row' ).addChild( elts.niveau, links.zoom )
     divs.content.addChild( divs.soustitre )
@@ -62,7 +62,7 @@ function getHtml( id, objectif, context, question, inconnu, img = null ) {
     divs.row_question = new Div( 'row' ).addChild( elts.question, buts.btExp )
 
     if ( img != null ) {
-        elts.img = new Img( "static/resources/img/" + img, { id: 'pb_img', w: 'auto', class: 'image-fluid rounded col col-lg-3' } ).setStyle( 'max-width:200px' )
+        elts.img = new Img( "static/resources/img/" + img, { id: 'pb_img', width: 'auto', class: 'image-fluid rounded col col-lg-3' } ).setStyle( 'max-width:200px' )
     } else
         elts.img = null
 
@@ -117,7 +117,7 @@ function getHtml( id, objectif, context, question, inconnu, img = null ) {
 
     divs.container.addChild( alerts.error.div, alerts.success.div, divs.btproblem )
 
-    return divs.container.getHTML() + FOOTER
+    return divs.container.getHTML() + cts.FOOTER
 
 }
 

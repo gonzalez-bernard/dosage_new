@@ -6,12 +6,12 @@
  * - Gère le vidage de la burette et les couleurs
  */
 
-import * as cts from "../environnement/constantes.js";
+import {cts} from "../environnement/constantes.js";
 import * as ui from "./ui/html_cts.js";
 
 import * as labo from "./ui/interface.js";
-import { G } from "../environnement/globals.js";
-import { ES_BT_DSPINFO_OX,MNU_ESPECES, ESPECES, ES_DIV_INFO, ES_BT_DSPINFO_AC } from "./../especes/html_cts.js"
+import { Dosages, gDosages, gGraphs, Charts} from "../environnement/globals.js";
+import { ES_BT_dspINFO_OX, MNU_ESPECES, ESPECES, ES_BT_dspINFO_AC } from "./../especes/html_cts.js"
 
 // utils
 import * as e from "../modules/utils/errors.js";
@@ -21,25 +21,24 @@ import { hasKey } from "../modules/utils/object.js";
 import { isNumeric, isObject } from "../modules/utils/type.js";
 import { getEltID, getElt } from "../modules/utils/html.js";
 
-import { dspContextInfo, dspInfo } from "../infos/infos.js";
+import { dspContextInfo, dspMessage } from "../infos/infos.js";
 
 // labo
 import { initBecher } from "./ui/initBecher.js";
 import { initTooltip } from "./ui/initTooltip.js";
 import { initBurette } from "./ui/initBurette.js";
-import { initFlacon } from "./ui/initFlacon.js";
+import { initFlacon, set_drag } from "./ui/initFlacon.js";
 import { initPhmetre } from "./ui/initPhmetre.js";
 import { initConductimetre } from "./ui/initConductimetre.js";
 import { initPotentiometre } from "./ui/initPotentiometre.js";
-import { ERR_DOSAGE } from "./ui/lang_fr.js";
-import { ES_BTCLOSE_LABEL, ES_MSG_INFO_ERR } from "../especes/lang_fr.js";
 
-import { setEvents, setEventsClick } from "./dosage.events.js";
-import { setClassMenu, dspTabDosage } from "./dosage.ui.js";
+import { setEvents, setEventsClick, reset } from "./dosage.events.js";
+import { dspTabDosage, setButtonClass, setButtonState } from "./dosage.ui.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { resetMesures, setDosageValues, updValues, getDosage } from "./dosage.datas.js";
 import { defGraphCD, defGraphPH, defGraphPT } from "./dosage.graph.js";
 import { html } from "./ui/html.js";
+import {ES_MSG_DOSAGE_ERR, ES_MSG_INFO_ERR } from "../especes/lang_fr.js";
 
 /**
  * @typedef {import("../../types/classes").Dosage} Dosage
@@ -50,54 +49,73 @@ import { html } from "./ui/html.js";
  * 
  * - Lance la routine python et récupère les points des courbes 
  * - Initialise le dosage (Crée le graphe sans affichage)
- * @param {Dosage} G global
+ * @param {Dosages} DS global
  * @returns void
  * @public
  * @file dosage.js
  */
- async function initDosage( G ) {
+async function initDosage(DS) {
 
-    // Lance calcul dosage
-    getDosage(G.type).then( function( data ) {
+    try {
 
-        // si dosage impossible data est une constante affiche message d'erreur
-        if ( data == "pyError" ) {
-            if (G.type == cts.TYPE_ACIDEBASE)
-                dspMessage( ES_BT_DSPINFO_AC )
-            else 
-                dspMessage( ES_BT_DSPINFO_OX )
-        } else {
+        const G = DS.getCurrentDosage()
+        const C = gGraphs[DS.currentDosage]
 
-            // initialise la constante dosage avec data
-            setDosageValues( G, data )
+        // Lance calcul dosage
+        getDosage(G.type).then(function (data) {
 
-            // modifie l'état
-            G.setState( cts.ETAT_DOS, 1 )
-
-            // Affiche page
-            getEltID( ui.DOSAGE ).html( html );
-            getElt( ".title" ).html( G.title )
-
-            // On bascule sur dosage
-            dspTabEspeces(false)
-            dspTabDosage(true)
-            getEltID( MNU_ESPECES ).removeClass( 'active' )
-            getEltID( ESPECES ).removeClass( 'active show' )
-        
-            /** Initialisation du dosage (dosage.js)  */
-            //if (isObject(G.lab)) {
-            //    updateLab(G)
-            //    G.lab.canvas.redraw();
-            //} else {
-                createLab(G)
-            //}
+            // si dosage impossible, data est une constante on affiche message d'erreur
+            if (data == cts.ERR_DOSAGE_IMPOSSIBLE) {
+                if (G.type == cts.TYPE_ACIDEBASE)
+                    dspMessage(ES_MSG_INFO_ERR,ES_MSG_DOSAGE_ERR,ES_BT_dspINFO_AC, {img:"../../static/resources/img/titration2.jpg"})
+                else
+                    dspMessage(ES_MSG_INFO_ERR,ES_MSG_DOSAGE_ERR,ES_BT_dspINFO_OX, {img:"../../static/resources/img/titration2.jpg"})
             
-        }
-    })
+            // Erreur système
+            } else if (data == "Error_system"){
+                console.log("Erreur systeme")
+            }
+            
+            // Dosage réussi
+            else {
+
+                // initialise la constante dosage avec data
+                setDosageValues(G, data)
+
+                // modifie l'état
+                G.setState(cts.ETAT_DOS, 1)
+
+                // Affiche page
+                getEltID(ui.DOSAGE).html(html);
+                getElt(".title").html(G.title)
+
+                // On bascule sur dosage
+                dspTabEspeces(false)
+                dspTabDosage(true)
+                getEltID(MNU_ESPECES).removeClass('active')
+                getEltID(ESPECES).removeClass('active show')
+
+                /** Initialisation du dosage (dosage.js)  */
+                createLab(DS)
+                createGraph()
+
+                reset( false )
+                G.setState( cts.ETAT_INDIC, -1 )
+        
+                // désactive les boutons
+                setButtonClass( "" )
+                set_drag( G.lab.flacons, true )
+            }
+        })
+    }
+    catch (err) {
+        console.log(err)
+    }
 }
 
+/*
 function updateLab(G) {
-    
+
     G.lab.becher.remplir(0, G.solution.vol, 0);
     G.lab.becher.setColor(getColor(0));
     G.lab.phmetre.dispose(G.lab.becher);
@@ -108,10 +126,11 @@ function updateLab(G) {
     G.charts.chartPH.setOptions(G);
     G.charts.chartCD.setOptions(G);
     G.charts.chartPT.setOptions(G);
-    
+
     // définition des événements
-    setEvents(G);
+    setEvents();
 }
+*/
 
 /** Initialise les composants du dosage
  *
@@ -119,7 +138,7 @@ function updateLab(G) {
  * Définit les événements
  *
  * @access public
- * @param {Dosage} G objet global
+ * @param {Dosages} DS objet global
  *
  * @use Becher#remplir, Becher#setColor
  * @use Appareil#dispose
@@ -131,59 +150,56 @@ function updateLab(G) {
  * @returns {Promise} Objet contenant les éléments du dosage
  * @file dosage.js
  */
-async function createLab(G) {
+async function createLab(DS) {
+
+    const G = DS.getCurrentDosage()
+    //const C = gGraphs[DS.currentDosage]
+
 
     // création canvas
     // @ts-ignore
     // eslint-disable-next-line no-undef
-        await oCanvas.domReady(function () {
+    await oCanvas.domReady(function () {
 
-            var _lab = {}
+        var _lab = {}
+       
+        // @ts-ignore
+        // eslint-disable-next-line no-undef
+        _lab.canvas = oCanvas.create({
+            canvas: "#" + ui.DOS_CANVAS,
+            fps: 40,
+            background: "./" + cts.FILE_BACKGROUND_LABO,
+        });
+        _lab.canvas.width = labo.CANVAS.width;
+        _lab.canvas.height = labo.CANVAS.height;
 
-            // @ts-ignore
-            // eslint-disable-next-line no-undef
-            _lab.canvas = oCanvas.create({
-                canvas: "#" + ui.DOS_CANVAS,
-                fps: 40,
-                background: "./" + cts.FILE_BACKGROUND_LABO,
-            });
-            _lab.canvas.width = labo.CANVAS.width;
-            _lab.canvas.height = labo.CANVAS.height;
+        // fond écran
+        _lab.canvas.background.set("image(" + cts.FILE_BACKGROUND_LABO + ")");
 
-            // fond écran
-            _lab.canvas.background.set("image(" + cts.FILE_BACKGROUND_LABO + ")");
-
-            // création des éléments
-            _lab.becher = initBecher(G, _lab.canvas, labo.BECHER);
-            _lab.tooltip = initTooltip(_lab.canvas);
-            _lab.flacons = initFlacon(G, _lab.canvas, _lab.tooltip, _lab.becher, labo.FLACON);
-            _lab.burette = initBurette(G, _lab.canvas, _lab);
-            _lab.phmetre = initPhmetre(_lab, G);
-            _lab.conductimetre = initConductimetre(_lab, G);
-            _lab.potentiometre = initPotentiometre(_lab, G);
-            G.lab = _lab
+        // création des éléments
+        _lab.becher = initBecher(G, _lab.canvas, labo.BECHER);
+        _lab.tooltip = initTooltip(_lab.canvas);
+        _lab.flacons = initFlacon(G, _lab.canvas, _lab.tooltip, _lab.becher, labo.FLACON);
+        _lab.burette = initBurette(DS, _lab.canvas, _lab);
+        _lab.phmetre = initPhmetre(_lab, G);
+        _lab.conductimetre = initConductimetre(_lab, G);
+        _lab.potentiometre = initPotentiometre(_lab, G);
+        G.lab = _lab
 
     });
 
     if (isObject(G.lab)) {
 
         /** création des instances de graphes */
-
-        // Création graphe pH
-        G.charts.chartPH = defGraphPH()
-        G.charts.chartPH.setEvent("onHover", setEventsClick);
-
-        // Création graphe conductance
-        G.charts.chartCD = defGraphCD()
-
-        // Création graphe potentiometre
-        G.charts.chartPT = defGraphPT()
-
+        // createGraph()
+        
         // Modifie affichage pHmetre et graph
         G.lab.phmetre.setText(G.sph);
 
+        //DS.currentDosage += 1
+
         // définition des événements
-        setEvents(G);
+        setEvents();
 
         // Affiche info
         dspContextInfo("init")
@@ -191,7 +207,24 @@ async function createLab(G) {
         getEltID(ui.DOS_DIV_GRAPH).hide()
     }
 }
-    
+
+function createGraph(){
+    const C = new Charts()
+
+    // Création graphe pH
+    C.chartPH = defGraphPH()
+    C.chartPH.setEvent("onHover", setEventsClick);
+
+    // Création graphe conductance
+    C.chartCD = defGraphCD()
+
+    // Création graphe potentiometre
+    C.chartPT = defGraphPT()
+
+    gGraphs.charts.push(C)
+
+}
+
 
 /********************************************************** */
 
@@ -201,7 +234,7 @@ async function createLab(G) {
  * met à jour le graphe et l'affichage du texte des phmetre et conductimètre
  *
  * @param {tLab} lab
- * @param {Dosage} G
+ * @param {Dosages} DS
  * @returns void
  * @use dosage.datas=>updValues
  * @use burette#vidange, becher#setColor
@@ -210,43 +243,45 @@ async function createLab(G) {
  * @public
  * @file dosage.js
  */
-function vidage( lab, G ) {
+function vidage(lab, DS ) {
+
+    const G = DS.getCurrentDosage()
+    const C = gGraphs.charts[DS.currentDosage]
+
     // change état
     lab.burette.vidage = lab.burette.vidage == 0 ? 1 : 0;
 
     // vidage de la burette
-    lab.burette.vidange( lab.burette.debit, lab.becher );
+    lab.burette.vidange(lab.burette.debit, lab.becher);
 
     // Mise à jour des valeurs
-    if ( !updValues( lab.burette ) ) return false;
+    if (!updValues(lab.burette)) return false;
 
     // Modifie la couleur du bécher en fonction du dosage
-    lab.becher.setColor( getColor( 0 ) );
+    lab.becher.setColor(getColor(0));
 
     // si dosage pH
     // définit le texte et actualise le graphe
-    if ( G.test( "etat", cts.ETAT_PHMETRE ) ) {
-        lab.phmetre.setText( G.sph );
-        G.charts.chartPH.changeData( G.charts.chartPH.data );
-
+    if (G.test("etat", cts.ETAT_PHMETRE)) {
+        lab.phmetre.setText(G.sph);
+        C.chartPH.changeData(C.chartPH.data);
+        
         // Boutons
-        // Active les boutons si volume titrant supérieur à 10 mL
-        if ( G.titrant.vol > 5 ) {
-            getEltID( ui.DOS_BT_DERIVEE ).removeAttr( "disabled" );
-            getEltID( ui.DOS_BT_TAN1 ).removeAttr( "disabled" );
-            getEltID( ui.DOS_BT_COTH ).removeAttr( "disabled" );
+        // Active les boutons si volume titrant supérieur à 5 mL
+        if (G.titrant.vol > 5) {
+            setButtonState(false)
         }
     }
     // dosage ox
-    else if ( G.test( "etat", cts.ETAT_COND ) ) {
-        lab.conductimetre.setText( G.scond );
-        G.charts.chartCD.changeData( G.charts.chartCD.data );
+    else if (G.test("etat", cts.ETAT_COND)) {
+        lab.conductimetre.setText(G.scond);
+        C.chartCD.changeData(C.chartCD.data);
     }
 
     // dosage potentiomètrique
-    else if ( G.test( "etat", cts.ETAT_POT ) ) {
-        lab.potentiometre.setText( G.spot );
-        G.charts.chartPT.changeData( G.charts.chartPT.data );
+    else if (G.test("etat", cts.ETAT_POT)) {
+        lab.potentiometre.setText(G.spot);
+        C.chartPT.changeData(C.chartPT.data);
     }
 }
 
@@ -259,60 +294,71 @@ function vidage( lab, G ) {
  * @public
  * @file dosage.js
  */
-function getColor( container ) {
-    if ( !isNumeric( container ) ) throw new TypeError( e.ERROR_NUM );
+function getColor(container) {
+    const G = gDosages.getCurrentDosage()
+    if (!isNumeric(container)) throw new TypeError(e.ERROR_NUM);
 
     function _getColorPH() {
-        // Modification couleur du bécher
-        if ( G.indic == null ) {
-            return cts.COLOR_INIT;
-        }
-        var indic = labo.INDICATEURS[ G.indic ];
+        let resp = ""
 
-        // ajuste la couleur en fonction du pH et de l'indicateur coloré
-        if ( G.titre.vol > 0 ) {
-            const col = parseFloat( indic.values[ 0 ] );
-            if ( G.ph < col - 0.5 ) return indic.values[ 1 ];
-            else if ( G.ph > col + 0.5 ) return indic.values[ 3 ];
-            else return indic.values[ 2 ];
+        const G = gDosages.getCurrentDosage()
+        const indic = labo.INDICATEURS[G.indic];
+
+        // Modification couleur du bécher
+        if (G.indic == null) {
+            resp = cts.COLOR_INIT;
+        } else {
+            // ajuste la couleur en fonction du pH et de l'indicateur coloré
+            if (G.titre.vol > 0) {
+
+                const col = parseFloat(indic.values[0]);
+                if (G.ph < col - 0.5)
+                    resp = indic.values[1];
+                else if (G.ph > col + 0.5)
+                    resp = indic.values[3];
+                else
+                    resp = indic.values[2];
+            }
         }
+        return resp
     }
 
     function _getColorOX() {
+
         // suivant le type de dosage (simple, retour ou ) on cherche la concentration du titré ou celle du réactif
         // on récupère l'indice du tableau 'vols' avec le volume théorique le plus proche du volume en cours
-
-        var ind = new uArray( G.vols ).getArrayNearIndex( G.titrant.vol );
-        var idTitle = [ 0, 0, 3, 7 ]; // indice de l'espèce titrée
+        const G = gDosages.getCurrentDosage()
+        var ind = new uArray(G.vols).getArrayNearIndex(G.titrant.vol);
+        var idTitle = [0, 0, 3, 7]; // indice de l'espèce titrée
 
         // récupère la concentration
-        var concentration = G.concs[ ind ][ idTitle[ G.typeDetail ] ];
+        var concentration = G.concs[ind][idTitle[G.typeDetail]];
 
         // changement de couleur - On commence à modifier si la concentration est inférieure à 1/100 de la concentration initiale en mixant les couleurs.
-        var indic = labo.INDICATEURS[ G.indic ];
+        var indic = labo.INDICATEURS[G.indic];
         let firstColor, endColor;
         let currentColor = null;
 
-        if ( G.indic == null || G.indic == undefined ) {
+        if (G.indic == null || G.indic == undefined) {
             firstColor = G.titre.color;
             endColor = G.colProduit.endColor;
-            if ( hasKey( G.colProduit, "currentColor" ) ) currentColor = G.colProduit.currentColor;
+            if (hasKey(G.colProduit, "currentColor")) currentColor = G.colProduit.currentColor;
         } else {
-            firstColor = indic.values[ 1 ];
-            currentColor = indic.values[ 2 ];
-            endColor = indic.values[ 3 ];
+            firstColor = indic.values[1];
+            currentColor = indic.values[2];
+            endColor = indic.values[3];
         }
 
-        if ( concentration > 0 ) {
-            let initialConcentration = G.concs[ 0 ][ idTitle[ G.typeDetail ] ];
-            if ( concentration < initialConcentration / 20 ) {
-                var proportion = 1 - ( 20 * concentration ) / initialConcentration;
+        if (concentration > 0) {
+            let initialConcentration = G.concs[0][idTitle[G.typeDetail]];
+            if (concentration < initialConcentration / 20) {
+                var proportion = 1 - (20 * concentration) / initialConcentration;
 
-                if ( currentColor )
-                    return mixColors( currentColor, endColor, 1 - proportion, proportion );
-                else return mixColors( G.titre.color, endColor, 1 - proportion, proportion );
+                if (currentColor)
+                    return mixColors(currentColor, endColor, 1 - proportion, proportion);
+                else return mixColors(G.titre.color, endColor, 1 - proportion, proportion);
             } else {
-                if ( currentColor ) return currentColor;
+                if (currentColor) return currentColor;
                 else return firstColor;
             }
         } else {
@@ -320,38 +366,23 @@ function getColor( container ) {
         }
     }
 
-    if ( container == 0 ) {
+    let resp = ""
+    if (container == 0) {
+        
         // si dosage pH
-        if ( G.type == cts.TYPE_ACIDEBASE ) return _getColorPH();
+        if (G.type == cts.TYPE_ACIDEBASE) 
+            resp = _getColorPH();
         // dosage oxydo
-        else if ( G.type == cts.TYPE_OXYDO ) return _getColorOX();
+        else if (G.type == cts.TYPE_OXYDO) 
+            resp = _getColorOX();
     }
+        
+    return resp
 }
 
 /********************************************************** */
 
-/** Affiche le message d'erreur
- *
- * @param {string} idButton ID du bouton
- * @returns void
- * @public
- * @file dosage.js
- */
-function dspMessage( idButton ) {
-    const data = {
-        idmodal: "idModal",
-        idcontainer: ES_DIV_INFO,
-        labelbtclose: ES_BTCLOSE_LABEL,
-        title: ES_MSG_INFO_ERR,
-        actionbtclose: setClassMenu,
-        idbtclose: idButton,
-        msg: ERR_DOSAGE,
-    };
-    dspInfo( data );
-}
-
-export {
-    createLab, updValues,vidage, getColor,setClassMenu,dspMessage,
-    resetMesures,setDosageValues,setEvents,setEventsClick, updateLab
-    ,initDosage
+export { createLab, updValues, vidage, getColor,
+    resetMesures, setDosageValues, setEvents, setEventsClick
+    ,initDosage, createGraph
 };

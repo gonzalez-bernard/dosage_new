@@ -12,12 +12,12 @@ import * as e from "./errors.js"
 
 /** Calcule la couleur obtenue par mixage de deux couleurs
  *
- * @param {String} col1 couleur 1 hexa
- * @param {String} col2 couleur 2 
- * @param {Number} val1 pourcentage de couleur 1 (entre 0 et 1)
- * @param {Number} val1 pourcentage de couleur 2 (entre 0 et 1)
+ * @param {string | ""} col1 couleur 1 hexa
+ * @param {string | ""} col2 couleur 2 
+ * @param {number} val1 pourcentage de couleur 1 (entre 0 et 1)
+ * @param {number} val1 pourcentage de couleur 2 (entre 0 et 1)
  * 
- * @return {String} couleur mixée
+ * @return {string} couleur mixée
  * @file 'modules/utils/color.js'
  */
 function mixColors(col1, col2, val1, val2) {

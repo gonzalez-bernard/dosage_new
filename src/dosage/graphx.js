@@ -6,8 +6,8 @@
  * ***export : Graphx***
 */
 
-import * as cts from "../environnement/constantes.js";
-import { G } from "../environnement/globals.js";
+import {cts} from"../environnement/constantes.js";
+import { gDosages } from "../environnement/globals.js";
 import * as e from "../modules/utils/errors.js"
 import { Graph } from "../modules/graph.js";
 import { calcDistance2Pts, getMedium } from "../modules/utils/math.js";
@@ -23,7 +23,6 @@ import { dspContextInfo } from "../infos/infos.js"
  */
 
 class Graphx extends Graph {
-    
 
     /**
      * Creates an instance of Graphx.
@@ -95,6 +94,8 @@ class Graphx extends Graph {
      * les valeurs de G
      */
     initDataTheorique() {
+
+        const G = gDosages.getCurrentDosage() 
         if (this.data_theorique.length != 0) return;
         for (var i = 0; i < G.vols.length; i++) {
             this.data_theorique.push({
@@ -112,10 +113,11 @@ class Graphx extends Graph {
 
     /** Affiche le graphe ou le cache
      *
-     * Affiche ou cache le graphe en fonction de ETAT_GRAPH_DSP
+     * Affiche ou cache le graphe en fonction de ETAT_GRAPH_dsp
      */
     display() {
-        if (G.test('etat', cts.ETAT_GRAPH_DSP)) {
+        const G = gDosages.getCurrentDosage() 
+        if (G.test('etat', cts.ETAT_GRAPH_dsp)) {
             $(this.canvas).hide();
         } else {
             $(this.canvas).show();
@@ -277,7 +279,7 @@ class Graphx extends Graph {
      * @see {@link Graph#addDataSet}
      */
     dspDerivee() {
-
+        const G = gDosages.getCurrentDosage() 
         const other = {
             id: "derivee",
             showLine: true,
@@ -320,6 +322,7 @@ class Graphx extends Graph {
             this.initDataTheorique();
             var data = { label: "courbe théorique", data: this.data_theorique, id: "theo" };
             this.chart.data.datasets.push(data);
+            this.chart.data.labels.push(data.label)
             this.chart.update();
         } else {
             var idx = this.getChartByProp("label", "courbe théorique");

@@ -5,31 +5,48 @@ import {ERROR_COLOR, ERROR_NUM, ERROR_RANGE} from "../../../modules/utils/errors
 /**
  * @typedef {import ('../../../../types/classes').Canvas} Canvas
  * @typedef {import ('../../../../types/types').tBECHER} tBECHER
+ * @typedef {import('../../../../types/interfaces').iCanvasRect} iCanvasRect
+ * @typedef {import('../../../../types/interfaces').iCanvasImage} iCanvasImage
+ * @typedef {tBECHER} sbecher
  */
 
 /**  Création bécher 
  *
  * @class Becher
  * @classdesc Construit l'objet Becher
- * @param {tBECHER} sbecher
- * @param {Canvas} canvas 
 */
  class Becher {
 
+  /**
+   * @param {tBECHER} sbecher 
+   * @param {Canvas} canvas 
+   */
     constructor(sbecher, canvas){
       
       this.canvas = canvas
       this.sbecher = sbecher
-      this.volume = 0
-      this.contenu = 0
-      this.fVolumeContenu = 0
-      this.x = 0
-      this.y = 0
-      this.w = 0
-      this.h = 0
-      this.image = undefined
 
-      // fond
+      /** @type {number} */
+      this.volume = 0
+
+      /**
+      @type {iCanvasRect}
+      this.contenu = {}
+      */
+
+      /** @type {number} */
+      this.fVolumeContenu = 0
+      
+      /** @type {number} */
+      this.x = this.y = this.w = this.h = 0
+
+      /** @type {string} */
+      this.image = ""
+
+      /** @type {string} */
+      this.color = ""
+
+      /** @type {iCanvasImage} */
       this.fond = canvas.display.image({
         x: sbecher.x,
         y: sbecher.y,
@@ -38,10 +55,10 @@ import {ERROR_COLOR, ERROR_NUM, ERROR_RANGE} from "../../../modules/utils/errors
         image: sbecher.image
       })
 
-      // image
+      /** @type {iCanvasImage} */
       this.becher_image = this.fond.clone({x:0, y:0})
 
-      // contenu
+      /** @type {iCanvasRect} */
       this.contenu = canvas.display.rectangle({
         origin: {x:"center",y:"top"},
         x: this.becher_image.width/2,

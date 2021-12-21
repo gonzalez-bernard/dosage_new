@@ -1,12 +1,13 @@
 /** DOSAGE - html.js */
 
-import { Element, Button, Div } from "../../modules/dom.js"
+import { Element, Button, Div, Img, Input, Label } from "../../modules/dom.js"
 import * as txt from "./lang_fr.js"
-import { DOS_BT_RESET, DOS_BT_NEW_DOSAGE, DOS_BT_DSPINFO, DOS_BT_PERP, DOS_BT_TAN1, DOS_BT_TAN2, DOS_BT_DERIVEE, DOS_BT_COTH, DOS_DIV_INFO, DOS_CANVAS, DOS_GRAPH_CD, DOS_GRAPH_PH, DOS_GRAPH_PT, DOS_GRAPHE, DOS_DIV_GRAPH } from "./html_cts.js"
+import { DOS_BT_RESET, DOS_BT_NEW_DOSAGE, DOS_BT_dspINFO, DOS_BT_PERP, DOS_BT_TAN1, DOS_BT_TAN2, DOS_BT_DERIVEE, DOS_BT_COTH, DOS_DIV_INFO, DOS_CANVAS, DOS_GRAPH_CD, DOS_GRAPH_PH, DOS_GRAPH_PT, DOS_GRAPHE, DOS_DIV_GRAPH, DOS_IMG, DOS_CHK_GRAPH } from "./html_cts.js"
 
 var buttons = {},
     divs = {},
-    elts = {}
+    elts = {}, 
+    imgs = {}
 var html = ""
 
 elts.title = new Element( 'h3' ).setText( txt.DO_TITLE )
@@ -23,13 +24,15 @@ buttons.reset = new Button( txt.DO_RESET, { id: DOS_BT_RESET, class: 'btn btn-su
     .setTitle( txt.DO_BT_RESET )
 buttons.new_dosage = new Button( txt.DOS_NEW_DOSAGE, { id: DOS_BT_NEW_DOSAGE, class: 'btn btn-warning' } )
     .setTitle( txt.DOS_BT_NEW_DOSAGE )
-buttons.info = new Button( txt.DO_INFO, { id: DOS_BT_DSPINFO, class: 'btn btn-info' } ).setTitle( txt.DOS_BT_INFO )
-    //buttons.check_input = new Input( 'checkbox', { class: 'form-check-Input', id: 'dos_chk_graph' } )
-    //buttons.check_label = new Label( 'Conserver les courbes', { class: 'form-check-Label' } ).setFor( 'dos_chk_graph' )
-    //divs.check = new Div( 'form-check' ).addChild( buttons.check_input, buttons.check_label )
+buttons.info = new Button( txt.DO_INFO, { id: DOS_BT_dspINFO, class: 'btn btn-info' } ).setTitle( txt.DOS_BT_INFO )
+
+// Check Conserver courbes
+buttons.check_input = new Input( 'checkbox', { class: 'form-check-Input', id: DOS_CHK_GRAPH } );buttons.check_label = new Label( 'Conserver les courbes', { class: 'form-check-Label' } ).setFor( 'dos_chk_graph' )
+divs.check = new Div( 'form-check' ).addChild( buttons.check_input, buttons.check_label ).setStyle("align-items: center")
 
 divs.buttons_col = new Div( 'col-md-6' ).addChild( buttons.reset, buttons.new_dosage, buttons.info )
-divs.buttons = new Div( 'row' ).addChild( divs.buttons_col )
+divs.check_courbe = new Div( 'col-md-6' ).addChild(divs.check).setStyle("display: flex; align-items: center")
+divs.buttons = new Div( 'row' ).addChild( divs.buttons_col , divs.check_courbe)
 
 /************************************************** */
 
@@ -51,6 +54,9 @@ elts.gr_cd = new Element( 'canvas', { id: DOS_GRAPH_CD } )
 elts.gr_pt = new Element( 'canvas', { id: DOS_GRAPH_PT } )
 
 divs.chart = new Div( 'row' ).addChild( elts.gr_ph, elts.gr_cd, elts.gr_pt ).setID( DOS_GRAPHE ).setStyle( "display:none; max-width:600px; min-width:500px" )
+
+imgs.labo = new Img( './static/resources/img/labo.png', { class: 'image-fluid img-labo', width: '100%' } ).setStyle( 'max-height:500px' )
+divs.image = new Div( 'col-md-6'  ).addChild( imgs.labo ).setID( DOS_IMG ).setStyle( "max-width:600px; min-width:500px" )
 
 // boutons graph
 buttons.derivee = new Button( '', { id: DOS_BT_DERIVEE, class: 'btn btn-dosage btn-image bt-derivee' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'top' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_DERIVEE )
@@ -74,11 +80,11 @@ buttons.tanpp = new Button( '', { id: DOS_BT_COTH, class: 'btn btn-dosage btn-im
 divs.bts = new Div( 'row', 'btChart' ).addChild( buttons.derivee, buttons.tan1, buttons.tan2, buttons.tanp, buttons.tanpp ).setStyle( "min-width: 400px" )
 
 // conteneur boutons et graph
-divs.bts_graph = new Div( 'col-md-6' ).addChild( divs.bts, divs.chart ).setStyle( 'display: none ' ).setID( DOS_DIV_GRAPH )
+divs.bts_graph = new Div( 'col-md-6' ).addChild( divs.bts, divs.chart).setStyle( 'display: none ' ).setID( DOS_DIV_GRAPH )
 
 /************************************************** */
 
-divs.container = new Div( 'row container-fluid', 'content' ).addChild( divs.info_labo, divs.bts_graph )
+divs.container = new Div( 'row container-fluid', 'content' ).addChild( divs.info_labo, divs.bts_graph,divs.image  )
 
 divs.info = new Div( "container" ).setID( DOS_DIV_INFO )
 

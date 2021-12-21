@@ -28,8 +28,8 @@ const DO_BT_PERP = "Affiche la perpendiculaire déplaçable aux deux tangentes t
 const DO_BT_COTH = "Affiche la courbe théorique."
 
 const ERR_DOSAGE = "<p>Le dosage est impossible.</p>" +
-"<p>La cause d'erreur est certainement dûe à une valeur mal choisie.</p><p> Il est possible, par exemple, que la quantité de matière initiale de réactif soit insuffisante pour consommer toute la quantité de l'espèce à titrer.</p>" +
-"<p>Il faut probablement modifier cette quantité de matière dans le formulaire de saisie.</p>"
+"<p>La cause d'erreur est certainement dûe à une valeur mal choisie.</p><p> Il est possible, par exemple, que la quantité de matière initiale de réactif ou de titrant soit insuffisante pour consommer toute la quantité de l'espèce à titrer.</p>" +
+"<p>Il faut modifier les valeurs dans le formulaire de saisie.</p>"
 
 const DO_BT_RESET = "On recommence le dosage avec les conditions initiales."
 

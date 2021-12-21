@@ -1,38 +1,43 @@
-import * as cts from "../environnement/constantes.js";
+import {cts} from"../environnement/constantes.js";
 import * as ui from "./html_cts.js";
-
+import {gDosages} from "../environnement/globals.js"
 import { getValueID, getValue, getEltID } from "../modules/utils/html.js";
 import { uString } from "../modules/utils/string.js";
 import { mathArrondir } from "../modules/utils/number.js";
 import { MNU_DOSAGE } from "../dosage/ui/html_cts.js";
 import { getData } from "../data.js"
 import { initDosage} from "../dosage/dosage.js"
+import { parseObjectType } from "../modules/utils/type.js";
 
 
 /**
  * @typedef { import ( '../../types/classes' ).Dosage } Dosage 
+ * @typedef { import ( '../../types/classes' ).Especes } Especes 
  */
 
 /** Validation des espèces
  *
- * @param {Dosage} G
+ * @param {Especes} E
  * @returns void
  * @file especes.data
  * @external especes.events
  */
-function eventValidation( G ) {
+function eventValidation( E ) {
+    
+    const G = gDosages.getCurrentDosage()
+        
     // type de dosage (acide/base ou autres)
     G.type = getValue( "input[name='choice_type']:checked", { type: "int" } );
 
     // initialise espèces et calcule les différents points (volume, pH,...)
     if ( G.type == cts.TYPE_ACIDEBASE ) {
-        setDosageAcValues( G );
+        setDosageAcValues( G, E );
         G.title = "Dosage " + G.titre.nomc + " par " + G.titrant.nomc;
     } else {
-        setDosageOxValues( G );
+        setDosageOxValues( G, E );
         G.title = new uString( G.label ).convertExpoIndice().html;
     }
-    initDosage( G )
+    initDosage( gDosages )
 
     // indique que les espèces ont été enregistrées
     G.setState( cts.ETAT_ESPECES, 1 );
@@ -49,7 +54,7 @@ function eventValidation( G ) {
  * @file especes.data.js
  * @external especes.events
  */
-function setDosageOxValues( G ) {
+function setDosageOxValues( G, E ) {
     // volumes de la solution
     G.titrant.vol = 0;
     G.titre.vol = getValueID( ui.ES_TITRE_VOL, "float" );
@@ -67,7 +72,7 @@ function setDosageOxValues( G ) {
 
     // Divers
     G.equation.id = getValueID( ui.ES_AUTREDOS_SELECT, "int" ) - 1;
-    const r = G.listOxydo[ G.equation.id ];
+    const r = E.listOxydo[ G.equation.id ];
     G.mesure = r.mesure;
     G.indics = new uString( r.indic ).strListToArray().getArray();
     G.label = r.label;
@@ -76,12 +81,12 @@ function setDosageOxValues( G ) {
     // equation
     var eq = [];
     if ( G.hasReactif ) {
-        eq.push( JSON.parse( G.eqs[ G.equation.id ][ 0 ] ) );
-        eq.push( JSON.parse( G.eqs[ G.equation.id ][ 1 ] ) );
+        eq.push( JSON.parse( E.eqs[ G.equation.id ][ 0 ] ) );
+        eq.push( JSON.parse( E.eqs[ G.equation.id ][ 1 ] ) );
         var s = r.reaction[ 0 ].reactifs.split( "," );
         G.reactif.formule = s[ 1 ];
     } else {
-        eq.push( JSON.parse( G.eqs[ G.equation.id ] ) );
+        eq.push( JSON.parse( E.eqs[ G.equation.id ] ) );
     }
 
     G.equation.params = eq;
@@ -100,19 +105,23 @@ function setDosageOxValues( G ) {
  * @param {Dosage} G
  * @file especes.data.js
  */
-function setDosageAcValues( G ) {
+function setDosageAcValues( G, E) {
     G.titre.id = getValueID( ui.ES_ACIDEBASE_TITRE_SELECT, "int" ) - 1;
     G.titrant.id = getValueID( ui.ES_ACIDEBASE_TITRANT_SELECT, "int" ) - 1;
-    G.titre = G.listAcideBase[ G.titre.id ];
-    G.titrant = G.listAcideBase[ G.titrant.id ];
-
+    G.titre = E.listAcideBase[ G.titre.id ];
+    G.titrant = E.listAcideBase[ G.titrant.id ];
+    
+    // formatage des valeurs string -> number
+    parseObjectType(G.titre, ['@id', 'type'], 'int')
+    parseObjectType(G.titrant, ['@id', 'type'], 'int')
+ 
     G.titrant.vol = 0;
     G.titre.vol = getValueID( ui.ES_TITRE_VOL, "float" );
     G.titre.conc = getValueID( ui.ES_TITRE_CONC, "float" );
     G.titrant.conc = getValueID( ui.ES_TITRANT_CONC, "float" );
     G.eau.vol = getValueID( ui.ES_EAU_VOL, "float" );
     G.solution.vol = G.titre.vol + G.eau.vol;
-    G.mesure = 3;
+    G.mesure = cts.MESURE_PH + cts.MESURE_COND;
     G.indics = new uString( G.titre.indics ).strListToArray().getArray();
 }
 

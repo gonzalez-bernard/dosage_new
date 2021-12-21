@@ -1,15 +1,21 @@
-import { G } from "../environnement/globals.js";
-import * as cts from "../environnement/constantes.js";
+import { gDosages, gGraphs } from "../environnement/globals.js";
+import {cts} from "../environnement/constantes.js";
 import { roundDecimal } from "../modules/utils/number.js";
 import { isLimit, addData } from "./dosage.graph.js";
 import { uArray } from "../modules/utils/array.js";
 import { getData } from "../data.js"
 
+
+
 /** Récupère les espèces à partir de Python
  * 
+ * @param {number|string} type
  * @returns Promise
  */
 async function getDosage(type) {
+    
+    const G = gDosages.getCurrentDosage()
+    
     const datas = {
         type: G.typeDetail,
         c1: G.titre.conc,
@@ -41,7 +47,7 @@ async function getDosage(type) {
             type = "data_dosage_ox"
     }
 
-    return getData( cts.DATA_GET_DOSAGE, cts.DATA_GET_DOSAGE_OK, { func: type, datas: datas } )
+    return getData( cts.DATA_GET_DOSAGE, cts.DATA_GET_DOSAGE_OK, { func: type, data: datas } )
 }
 
 /** Met à jour les valeurs de volume et de pH
@@ -54,6 +60,11 @@ async function getDosage(type) {
  * @file dosage.datas.js
  * */
 function updValues( burette ) {
+
+    const G = gDosages.getCurrentDosage()
+    const C = gGraphs.charts[gDosages.currentDosage]
+
+
     // vol = volume versé, on ne prend que les valeurs différentes
     var vol = roundDecimal( burette.vol_verse, 3 );
 
@@ -73,7 +84,8 @@ function updValues( burette ) {
         G.sph = G.ph.toFixed( 2 );
 
         // met à jour le tableau pour le graphe
-        addData( G.charts.chartPH, vol, G.ph )
+        // @ts-ignore
+        addData( C.chartPH, vol, G.ph )
 
         // si conductance
     } else if ( G.test( 'etat', cts.ETAT_COND ) ) {
@@ -81,7 +93,8 @@ function updValues( burette ) {
         G.scond = G.cond.toFixed( 2 );
 
         // met à jour le tableau pour le graphe
-        addData( G.charts.chartCD, vol, G.cond )
+        // @ts-ignore
+        addData( C.chartCD, vol, G.cond )
 
         // potentiomètre
     } else if ( G.test( 'etat', cts.ETAT_POT ) ) {
@@ -89,7 +102,8 @@ function updValues( burette ) {
         G.spot = G.pot.toFixed( 2 );
 
         // met à jour le tableau pour le graphe
-        addData( G.charts.chartPT, vol, G.pot )
+        // @ts-ignore
+        addData( C.chartPT, vol, G.pot )
 
     }
 
@@ -103,6 +117,9 @@ function updValues( burette ) {
  * @param {boolean} all si true on efface tout sinon uniquement pH et cond
  */
 function resetMesures( all = true ) {
+
+    const G = gDosages.getCurrentDosage()
+
     // réinitialisation complète
     if ( all ) {
         G.pHs = [];
@@ -110,12 +127,18 @@ function resetMesures( all = true ) {
         G.conds = [];
         G.pots = [];
         G.titrant = {
-            vol: undefined,
-            conc: undefined
+            vol: 0,
+            conc: 0,
+            type: 0,
+            indics: "",
+            color: ""
         };
         G.titre = {
-            vol: undefined,
-            conc: undefined
+            type: 0,
+            vol: 0,
+            conc: 0,
+            indics: "",
+            color: ""
         };
         G.ph = 0;
         G.sph = "---";
@@ -198,6 +221,7 @@ function setDosageValues( G, data) {
  * @use uArray.getArrayNearIndex
  */
 function _getPH( vol ) {
+    const G = gDosages.getCurrentDosage()
     let i = new uArray( G.vols ).getArrayNearIndex( vol, 0 );
     return G.pHs[ i ];
 }
@@ -211,6 +235,7 @@ function _getPH( vol ) {
  * @returns {number} conductance
  */
 function _getConductance( vol ) {
+    const G = gDosages.getCurrentDosage()
     let i = new uArray( G.vols ).getArrayNearIndex( vol, 1 );
     // on extrapole
     let c = uArray.extrapolate( vol, i, G.vols, G.conds )
@@ -226,6 +251,7 @@ function _getConductance( vol ) {
  * @returns {number} potentiel
  */
 function _getPotentiel( vol ) {
+    const G = gDosages.getCurrentDosage()
     let i = new uArray( G.vols ).getArrayNearIndex( vol, 1 );
     return G.pots[ i ];
 }

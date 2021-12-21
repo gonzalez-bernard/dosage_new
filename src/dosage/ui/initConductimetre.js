@@ -9,13 +9,14 @@
 */
 
 import * as cConductimetre from "./classes/conductimetre.js";
-import * as cts from "../../environnement/constantes.js";
+import {cts} from"../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
-//import { G } from "../../environnement/globals.js";
 import { isObject } from "../../modules/utils/type.js";
 import { CONDUCTIMETRE } from "./interface.js";
-import { displayGraph, updateGraph } from "../dosage.graph.js"
+import { updateGraph } from "../dosage.graph.js"
+import { updateAppareil } from "./initAppareil.js";
+import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
 /**
  * @typedef { import ("../../../types/types").tLab} tLab
@@ -59,19 +60,13 @@ function initConductimetre(lab, G) {
     /* Installe le conductimetre ou le positionne à sa place.
     Gère la création et l'affichage de la courbe */
     conductimetre.fond.bind("dblclick", function () {
-        if (G.test('etat', cts.ETAT_PHMETRE) || G.test('etat', cts.ETAT_POT))
-            return
-        if (G.test('mesure', 2)) {
-            if (!(G.test('etat', cts.ETAT_ESPECES))) return false;
-
-            // change l'état de branchement du conductimètre
-            G.setState(cts.ETAT_COND, -1)
-        
-            // Positionne le conductimètre
-            conductimetre.dispose(lab.becher);
-            conductimetre.setText(G.scond);
+        if (updateAppareil(conductimetre, lab.becher)) {
+            // met à jour le graphe
             updateGraph(lab.canvas)
-            displayGraph(lab.canvas)
+
+            // actualise les boutons
+            setButtonState(false)
+            setButtonVisible(false)
         }
     });
 

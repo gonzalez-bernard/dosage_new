@@ -313,3 +313,21 @@ input[type=password] {
   transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
 
+.img-labo{
+    border-radius: 1rem !important;
+    margin-top: 100px;
+    /* padding-right: 50px; */
+    border-width: 2px;
+    border-style: solid;
+}
+
+.img-rounded{
+    border-radius: 15px;
+    /* border-block: inherit; */
+    /* border-block-color: inherit; */
+    border-color: aliceblue;
+    border-style: solid;
+    /* border: thin; */
+    border-width: medium;
+    /* padding: 10px; */
+}

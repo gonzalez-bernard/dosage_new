@@ -1,28 +1,55 @@
 import {iCanvasImage, iCanvasRect, iCanvasText} from "./interfaces"
 import {Becher, Phmetre, Conductimetre, Potentiometre, Burette, Flacon, Canvas, Graphx, Dosage, Tooltip} from "./classes"
 
-type tColor = {
-  color: string
-}
-
 // structure objet Canvas
-type tOCANVAS = {
+type tOCANVAS  = {
   x: number
   y: number
   w: number
   h: number
   fill: string
-  zindex: number
-  origin: {x:number, y:number}
+  zindex: number|string
+  origin: {x:number|string, y:number|string}
   abs_x: number
   abs_y: number
+  width: number
   height: number
-  addChild: (arg: iCanvasImage | iCanvasText | iCanvasRect) => void
-  clone: (tPoint) => iCanvasImage
-  dragAndDrop: (boolean) => void
-  rotateTo: (number) => void
-  bind: (name:string, callback:() => void) => void
-  animate: (iPoint, object) => void
+  rotation: number 
+}
+
+type tCanvasImage = {
+  x: number
+  y: number
+  width: number
+  height: number
+  image: string
+  origin?: {x:string|number, y: string|number}
+  id?: string
+  fill?: string
+  zindex?: number | string
+}
+
+type tCanvasRect = {
+  x: number
+  y: number
+  width: number
+  height: number
+  origin?: {x:string|number, y: string|number}
+  fill: string
+  zindex? : number | string
+  borderRadius?: number
+  opacity?: number
+}
+
+type tCanvasText = {
+  x: number
+  y: number
+  origin?: {x:string|number, y: string|number}
+  fill: string
+  zindex? : number | string
+  size: number
+  text: string
+  align?: string 
 }
 
 // structure becher
@@ -31,10 +58,10 @@ type tBECHER = {
   h: number,
   x: number,
   y: number
-  //color: string | tColor,
-  image: string | iCanvasImage,
+  color: string,
+  image: string,
   fVolumeContenu: number
-  contenu: string | iCanvasImage
+  contenu: string
 }
 
 // Structure flacon
@@ -44,11 +71,8 @@ type tFLACON = {
   x: number,
   y: number
   color: string,
-  image: string | iCanvasImage,
+  image: string,
   label: string,
-  contenu?: string | iCanvasImage
-  id?: number
-  image_contenu?: iCanvasImage
 } 
 
 type tAGITATEUR = {
@@ -56,8 +80,7 @@ type tAGITATEUR = {
   h: number,
   x: number,
   y: number
-  image: string | iCanvasImage,
-  contenu?: string | iCanvasImage
+  image: string
   id?: number
   zindex?: number
 }
@@ -67,16 +90,15 @@ type tAPPAREIL = {
   y: number
   w: number
   h: number
-  fill: string
+  fill?: string
   zindex: number
-  origin: {x:number, y:number}
-  abs_x: number
-  abs_y: number
+  origin: {x?:number|string, y?:number|string}
+  abs_x?: number
+  abs_y?: number
   offsetX: number
   offsetY: number 
-  fond: iCanvasImage
   value: string
-  image: iCanvasImage | string
+  image: string
 }
 
 type tBURETTE = {
@@ -85,7 +107,7 @@ type tBURETTE = {
   w: number
   h: number
   fill?: string
-  color: string | tColor,
+  color: string,
   openImage: string
   closeImage: string
   graduationImage: string
@@ -112,18 +134,32 @@ type tTOOLTIP = {
 }
 
 type tReactif = {
+  /**
+   * type : type de réactifs 0 : monoacide acide fort, 1 : monoacide faible, 2: polyacide fort
+   * 3: polyacide faible, 4: base forte, 5: base faible
+   */
+  type: number
+  vol: number
+  conc: number
+  
   nom?: string;
   nomc?: string
   acide?: string
   base?: string
-  type?: number
-  vol: number
+  
   id?: number
-  conc: number
   pka?: number
-  indics?: string
+  indics: string
   formule?: string
-  color?: tColor
+  color: string | ""
+}
+
+type tField = {
+  precision: string
+}
+
+type tInconnu = {
+  field: tField[]
 }
 
 
@@ -143,9 +179,9 @@ type tEquation = {
 }
 
 type tColorProduit = {
-  currentColor: tColor
-  endColor: tColor
-  finale: tColor
+  currentColor: string
+  endColor: string
+  finale: string
 }
 
 // Objet contenant les éléments du labo
@@ -174,6 +210,7 @@ type tGlobalCharts = {
 type tPoint = {
   x: number;
   y: number;
+  image?: string
 }
 
 type tValidator = {
@@ -250,6 +287,10 @@ type iGraphOptions = {
   onClick: (evt: Event, elt: unknown) => void
 }
 
+type tGraphChart = {
+  data: any
+}
+
 type tInfos = {
   title: string             // titre
   idBtClose: string         // id bouton close
@@ -263,4 +304,9 @@ type tInfos = {
   latex?: boolean           // vrai si affichage mathématique (défaut = false)
   callbacks?:  ()=> unknown
   data?: object;
+}
+
+type tGraphID = {
+  id: string;
+  graph: Graphx
 }
