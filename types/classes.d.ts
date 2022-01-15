@@ -1,10 +1,7 @@
-import { ChartType, ChartTypeRegistry } from "../node_modules/chart.js";
-import { tBECHER, tBURETTE, tCanvasImage, tColorProduit, tDataDPH, tDataPH, tEquation, tGlobalCharts, tKeyboard, tInconnu, tLab, tOCANVAS, tPoint, tReactif, tReaction, tCanvasRect, tCanvasText, tFLACON, tGraphChart } from "./types.js";
+import { ChartType, ChartTypeRegistry, ChartItem } from "../node_modules/chart.js";
+import { tBECHER, tBURETTE, tCanvasImage, tColorProduit, tDataDPH, tDataPH, tEquation, tGlobalCharts, tKeyboard, tInconnu, tLab, tOCANVAS, tPoint, tReactif, tReaction, tCanvasRect, tCanvasText, tFLACON, tGraphChart, tGraphID } from "./types.js";
 import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil, iCanvasTimeline, iCanvasLoop, iCanvasMouse, iGraph} from "./interfaces"
 
-declare class Graphs{
-    charts: tGlobalCharts[]
-}
 
 declare class Dosages {
     saveGraphs: boolean;
@@ -192,30 +189,33 @@ declare class Flacon implements iFlacon {
     vidange: (arg:Becher) => void
 }
 
-export class Graph {
-    canvas: string;
-    chart: object;
-    data: Record<string, unknown>[];
+export class ChartX extends Chart {
+    canvas: any;
+    chart: any;
     selectedIndicePoint: number;
-    old_selectedIndicePoint: number;
-    activePoints: unknown[];
-    info: string;
+    old_selectedIndicePoint: number;string
+    activePoints: tPoint[];
     setOption: (label:string, value:object) => object
+    getEventIndexChart: (elt: ChartItem[]) => number
+    getIdChart: (index:number) => {id:string}
+    getEventIndicePoint: (elt: ChartItem) => number
+    getData: (data: number | ChartItem) => any[]
 }
 
-declare class Graphx extends Graph {
+declare class Graphx extends ChartX {
     data_theorique: unknown[];
     data_derive_theorique: unknown[];
     pentes: number[];
     indiceTangentes: number[];
     type: number;
+    tangente_point: number
     createChart: (type: keyof ChartTypeRegistry, dataset: unknown, options?: unknown) => void
     setType: (type: number) => void;
     setOptions: (G: Dosage) => void;
     setDatas: (data: []) => void;
     initDataTheorique: () => void;
     display: () => void;
-    dspTangente: (chartID: number, elt: Record<string, unknown>, idTangente: number) => void;
+    dspTangente: (chartID: number, elt: Record<string, unknown>[], idTangente: number) => void;
     addTangente: (num: number, pts: tPoint[]) => void;
     delTangente: (index: number) => void;
     movTangente: (evt: Event, indice: number, points: tPoint[], idx: number) => void;
@@ -231,6 +231,13 @@ declare class Graphx extends Graph {
     removeData: (arg: number)=> void
     getChartByProp: (id:string, prop:string) => number
     clearData: (arg: number) => void
+}
+
+declare class Graphs{
+    lstID: string[]
+    charts: tGraphID[]
+    activeChart: string;
+    currentGraph: Graphx
 }
 
 declare class EventForm{
@@ -265,4 +272,4 @@ declare class Input extends Element{
     _feedback: object
 }
 
-export {Becher, Dosage, Dosages, Especes, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, EventForm, Element, Input, Label, Form, Tooltip}
+export {Becher, Dosage, Dosages, Especes, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, Graphs, EventForm, Element, Input, Label, Form, Tooltip}

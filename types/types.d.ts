@@ -1,5 +1,5 @@
-import {iCanvasImage, iCanvasRect, iCanvasText} from "./interfaces"
-import {Becher, Phmetre, Conductimetre, Potentiometre, Burette, Flacon, Canvas, Graphx, Dosage, Tooltip} from "./classes"
+import { ChartTypeRegistry } from "chart.js"
+import {Becher, Phmetre, Conductimetre, Potentiometre, Burette, Flacon, Canvas, Graphx, Dosage, Tooltip, ChartX} from "./classes"
 
 // structure objet Canvas
 type tOCANVAS  = {
@@ -306,7 +306,19 @@ type tInfos = {
   data?: object;
 }
 
+type tDataset = {
+  label: string;
+  data: {}[]
+  //yAxisID: string;
+  other: {}
+  options: {}
+  setEvent: (event:string, callback:(evt:Event)=>void)=>void
+}
+
 type tGraphID = {
-  id: string;
-  graph: Graphx
+  id: string      // ID du graphe du type PH_0
+  dataset: tDataset  // structure
+  visible: boolean  // indique si courbe visible
+  save: boolean     // indique si courbe à mémoriser
+  numDosage: number    // indice du dosage dans tableau dosages.items[]
 }

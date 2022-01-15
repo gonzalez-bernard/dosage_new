@@ -13,7 +13,7 @@ import {cts} from"../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
-import { updateGraph } from "../dosage.graph.js"
+import { displayGraph, manageGraph } from "../dosage.graph.js"
 import { updateAppareil } from "./initAppareil.js";
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
@@ -64,8 +64,9 @@ function initPotentiometre(lab, G) {
         
         if (updateAppareil(potentiometre, lab.becher)) {
             // met à jour le graphe
-            updateGraph(lab.canvas)
-
+            manageGraph(cts.ETAT_POT)
+            displayGraph();
+            G.setState(cts.ETAT_GRAPH_PT, -1)
             // actualise les boutons
             setButtonState(false)
             setButtonVisible(false)

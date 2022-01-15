@@ -14,9 +14,11 @@ import {cts} from"../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import { isObject } from "../../modules/utils/type.js";
 import * as e from "../../modules/utils/errors.js";
-import {updateGraph} from "../dosage.graph.js"
+import {displayGraph, manageGraph} from "../dosage.graph.js"
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 import {updateAppareil} from "../../dosage/ui/initAppareil.js"
+import { getEltID } from "../../modules/utils/html.js";
+import { DOS_GRAPHE, DOS_IMG, DOS_CHART, DOS_DIV_GRAPH } from "./html_cts.js";
 
 /**
  * @typedef {import('../../../types/types').tLab} tLab
@@ -68,10 +70,10 @@ function initPhmetre( lab, G ) {
 
         if (updateAppareil(phmetre, lab.becher)) {
             // met à jour le graphe
-            //if ( G.test('etat',cts.ETAT_PHMETRE )) {  
-                updateGraph(lab.canvas)
-            //}
-
+            manageGraph(cts.ETAT_PHMETRE)
+            displayGraph()
+            // actualise etat
+            G.setState(cts.ETAT_GRAPH_PH, -1)
             // actualise les boutons
             setButtonVisible(true)
             setButtonState(true)

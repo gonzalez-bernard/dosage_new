@@ -64,10 +64,7 @@ function updSaisieSelect( G ) {
  * @param {Dosage} G
  * @returns {tDataInfo} objet utilisé par dspInfo
  * @public
- * @see especes.infos~getInfoPH
- * @see especes.infos~getInfoOX
  * @file especes.ui.js
- * @external especes.events
  */
 function initDataInfo( G ) {
 
@@ -90,9 +87,9 @@ function initDataInfo( G ) {
     let infos
     if ( G.type == cts.TYPE_ACIDEBASE ) {
         const _G = initDataInfo.data()
-        infos = getInfoPH( _G, E )
+        infos = getInfoPH( _G, gEspeces )
     } else
-        infos = getInfoOX( initDataInfo.data(), E )
+        infos = getInfoOX( initDataInfo.data(), gEspeces )
 
     initDataInfo.msg = infos.msg
     initDataInfo.title = infos.title
@@ -101,10 +98,7 @@ function initDataInfo( G ) {
 
 /** Affiche le pH
  * 
- * @public
- * @see especes.data~getPH
  * @file especes.ui.js 
- * @external especes.events
  */
 function dspPH() {
     getEltID( ui.ES_EXC_PH).text( txt.ES_EXC_PH + getPH() )
@@ -138,13 +132,10 @@ function resetForm(){
  * 
  * @param {Dosage} G
  * @returns void
- * @public
- * @see especes.data~getCharge
  * @file especs.ui.js
- * @external especes.events
  */
-function changeOxSelect( G ) {
-    const r = G.listOxydo[ getValueID( ui.ES_AUTREDOS_SELECT, "int" ) - 1 ]
+function changeOxSelect( G, E ) {
+    const r = E.listOxydo[ getValueID( ui.ES_AUTREDOS_SELECT, "int" ) - 1 ]
     let reac = r.reaction
 
     G.hasReactif = false
@@ -180,9 +171,7 @@ function changeOxSelect( G ) {
  * G.inconnu est un tableau d'objet ou un objet
  * @param {Dosage} G
  * @returns void
- * @see _updEspece
  * @file especes.ui.js 
- * @external problem.ui
  */
 function updEspeces( G ) {
     // si type acide-base on sélectionne le bon formulaire
@@ -335,6 +324,7 @@ function initEspeces( G ) {
 /** Active ou désactive l'onglet
  * 
  * @param {boolean} display indique si on active ou non 
+ * @file especes.ui.js
  */
  function dspTabEspeces(display){
     if (display){

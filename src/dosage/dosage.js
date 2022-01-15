@@ -10,18 +10,18 @@ import {cts} from "../environnement/constantes.js";
 import * as ui from "./ui/html_cts.js";
 
 import * as labo from "./ui/interface.js";
-import { Dosages, gDosages, gGraphs, Charts} from "../environnement/globals.js";
+import { Dosages, gDosages, gGraphs} from "../environnement/globals.js";
 import { ES_BT_dspINFO_OX, MNU_ESPECES, ESPECES, ES_BT_dspINFO_AC } from "./../especes/html_cts.js"
 
 // utils
 import * as e from "../modules/utils/errors.js";
 import { uArray } from "../modules/utils/array.js";
 import { mixColors } from "../modules/utils/color.js";
-import { hasKey } from "../modules/utils/object.js";
+import { getCircularReplacer, hasKey } from "../modules/utils/object.js";
 import { isNumeric, isObject } from "../modules/utils/type.js";
 import { getEltID, getElt } from "../modules/utils/html.js";
 
-import { dspContextInfo, dspMessage } from "../infos/infos.js";
+import { dspContextInfo, dspErrorMessage } from "../infos/infos.js";
 
 // labo
 import { initBecher } from "./ui/initBecher.js";
@@ -33,10 +33,10 @@ import { initConductimetre } from "./ui/initConductimetre.js";
 import { initPotentiometre } from "./ui/initPotentiometre.js";
 
 import { setEvents, setEventsClick, reset } from "./dosage.events.js";
-import { dspTabDosage, setButtonClass, setButtonState } from "./dosage.ui.js";
+import { dspTabDosage, setButtonClass, setButtonState, initGraphMenu, dspGraphMenu } from "./dosage.ui.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { resetMesures, setDosageValues, updValues, getDosage } from "./dosage.datas.js";
-import { defGraphCD, defGraphPH, defGraphPT } from "./dosage.graph.js";
+import { manageGraph, displayGraph } from "./dosage.graph.js";
 import { html } from "./ui/html.js";
 import {ES_MSG_DOSAGE_ERR, ES_MSG_INFO_ERR } from "../especes/lang_fr.js";
 
@@ -51,10 +51,15 @@ import {ES_MSG_DOSAGE_ERR, ES_MSG_INFO_ERR } from "../especes/lang_fr.js";
  * - Initialise le dosage (Crée le graphe sans affichage)
  * @param {Dosages} DS global
  * @returns void
- * @public
+ * @use dosage.datas~getDosage, dosage.datas~setDosageValues
+ * @use dosage.graph~manageGraph, dosage.graph~displayGraph
+ * @use infos~dspErrorMessage
+ * @use dialog.ui~initGraphMenu
+ * @use especes.ui~dspTabEspeces, especes.ui~dspTabDosage
+ * @use createLab
  * @file dosage.js
  */
-async function initDosage(DS) {
+async function initDosage(DS, canvas) {
 
     try {
 
@@ -67,9 +72,9 @@ async function initDosage(DS) {
             // si dosage impossible, data est une constante on affiche message d'erreur
             if (data == cts.ERR_DOSAGE_IMPOSSIBLE) {
                 if (G.type == cts.TYPE_ACIDEBASE)
-                    dspMessage(ES_MSG_INFO_ERR,ES_MSG_DOSAGE_ERR,ES_BT_dspINFO_AC, {img:"../../static/resources/img/titration2.jpg"})
+                    dspErrorMessage(ES_MSG_INFO_ERR,ES_MSG_DOSAGE_ERR,ES_BT_dspINFO_AC, {img:"../../static/resources/img/titration2.jpg"})
                 else
-                    dspMessage(ES_MSG_INFO_ERR,ES_MSG_DOSAGE_ERR,ES_BT_dspINFO_OX, {img:"../../static/resources/img/titration2.jpg"})
+                    dspErrorMessage(ES_MSG_INFO_ERR,ES_MSG_DOSAGE_ERR,ES_BT_dspINFO_OX, {img:"../../static/resources/img/titration2.jpg"})
             
             // Erreur système
             } else if (data == "Error_system"){
@@ -88,6 +93,7 @@ async function initDosage(DS) {
                 // Affiche page
                 getEltID(ui.DOSAGE).html(html);
                 getElt(".title").html(G.title)
+                initGraphMenu()
 
                 // On bascule sur dosage
                 dspTabEspeces(false)
@@ -97,7 +103,11 @@ async function initDosage(DS) {
 
                 /** Initialisation du dosage (dosage.js)  */
                 createLab(DS)
-                createGraph()
+                manageGraph()
+                
+                // Affichage
+                displayGraph()
+                //createGraph()
 
                 reset( false )
                 G.setState( cts.ETAT_INDIC, -1 )
@@ -113,25 +123,6 @@ async function initDosage(DS) {
     }
 }
 
-/*
-function updateLab(G) {
-
-    G.lab.becher.remplir(0, G.solution.vol, 0);
-    G.lab.becher.setColor(getColor(0));
-    G.lab.phmetre.dispose(G.lab.becher);
-    G.lab.conductimetre.dispose(G.lab.becher);
-    G.lab.potentiometre.dispose(G.lab.becher);
-
-    // met à jour les graphes
-    G.charts.chartPH.setOptions(G);
-    G.charts.chartCD.setOptions(G);
-    G.charts.chartPT.setOptions(G);
-
-    // définition des événements
-    setEvents();
-}
-*/
-
 /** Initialise les composants du dosage
  *
  * Crée les instances des différents éléments du canvas et le canvas.
@@ -142,9 +133,9 @@ function updateLab(G) {
  *
  * @use Becher#remplir, Becher#setColor
  * @use Appareil#dispose
- * @use initBecher=>initBecher, initPhmetre=>initPhmetre
+ * @use initBecher~initBecher, initPhmetre~initPhmetre
  * @use Graphx#setOptions
- * @use dosage.graph=>defGraphPH, dosage.graph=>defGraphCD, dosage.graph=>defGraphPT
+ * @use dosage.graph~defGraphPH, dosage.graph~defGraphCD, dosage.graph~defGraphPT
  *
  * @requires Graphx
  * @returns {Promise} Objet contenant les éléments du dosage
@@ -153,7 +144,6 @@ function updateLab(G) {
 async function createLab(DS) {
 
     const G = DS.getCurrentDosage()
-    //const C = gGraphs[DS.currentDosage]
 
 
     // création canvas
@@ -208,26 +198,6 @@ async function createLab(DS) {
     }
 }
 
-function createGraph(){
-    const C = new Charts()
-
-    // Création graphe pH
-    C.chartPH = defGraphPH()
-    C.chartPH.setEvent("onHover", setEventsClick);
-
-    // Création graphe conductance
-    C.chartCD = defGraphCD()
-
-    // Création graphe potentiometre
-    C.chartPT = defGraphPT()
-
-    gGraphs.charts.push(C)
-
-}
-
-
-/********************************************************** */
-
 /** fonction de vidage burette
  *
  * met à jour la burette et le bécher
@@ -236,17 +206,16 @@ function createGraph(){
  * @param {tLab} lab
  * @param {Dosages} DS
  * @returns void
- * @use dosage.datas=>updValues
+ * @use dosage.datas~updValues
  * @use burette#vidange, becher#setColor
  * @use potentiometre#setText, conductimetre#setText, phmetre#setText
  * @use Graphx#changeData
- * @public
  * @file dosage.js
  */
 function vidage(lab, DS ) {
 
     const G = DS.getCurrentDosage()
-    const C = gGraphs.charts[DS.currentDosage]
+    const C = gGraphs.currentGraph
 
     // change état
     lab.burette.vidage = lab.burette.vidage == 0 ? 1 : 0;
@@ -264,34 +233,34 @@ function vidage(lab, DS ) {
     // définit le texte et actualise le graphe
     if (G.test("etat", cts.ETAT_PHMETRE)) {
         lab.phmetre.setText(G.sph);
-        C.chartPH.changeData(C.chartPH.data);
+        C.changeData(C.data);
         
         // Boutons
         // Active les boutons si volume titrant supérieur à 5 mL
-        if (G.titrant.vol > 5) {
+        if (G.titrant.vol > 5 && G.titrant.vol < 6) {
             setButtonState(false)
+            dspGraphMenu(true)
         }
     }
     // dosage ox
     else if (G.test("etat", cts.ETAT_COND)) {
         lab.conductimetre.setText(G.scond);
-        C.chartCD.changeData(C.chartCD.data);
+        C.changeData(C.data);
     }
 
     // dosage potentiomètrique
     else if (G.test("etat", cts.ETAT_POT)) {
         lab.potentiometre.setText(G.spot);
-        C.chartPT.changeData(C.chartPT.data);
+        C.changeData(C.data);
     }
-}
 
-/********************************************************** */
+    localStorage.setItem("Graph",JSON.stringify(C, getCircularReplacer()))
+}
 
 /** Récupère la couleur du bécher ou de la burette
  *
  * @param {number} container: type du récipient 0 : bécher , 1 : burette
  * @returns {string} couleur
- * @public
  * @file dosage.js
  */
 function getColor(container) {
@@ -380,9 +349,4 @@ function getColor(container) {
     return resp
 }
 
-/********************************************************** */
-
-export { createLab, updValues, vidage, getColor,
-    resetMesures, setDosageValues, setEvents, setEventsClick
-    ,initDosage, createGraph
-};
+export { createLab, updValues, vidage, getColor, resetMesures, setDosageValues, setEvents, setEventsClick, initDosage };

@@ -9,3 +9,5 @@ static/jquery-validation
 static/popper.js
 static/@bokeh
 package-lock.json
+.history
+

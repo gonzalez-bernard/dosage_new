@@ -29,11 +29,11 @@ import * as e from "./utils/errors.js"
 import { isObject, isString, isEvent, isNumeric, isStrNum, isInteger, isDefined } from "./utils/type.js"
 
 /**
- * @typedef {import("../../node_modules/chart.js").ChartItem} chartItem
+ * @typedef {import("chart.js").ChartItem} chartItem
  * @typedef {import("../../types/types").tPoint} tPoint
  */
 
-class Graph {
+class ChartX {
     /** Constructeur
      *
      * @param {string}  canvas nom du canvas destinataire "#canvas"
@@ -53,7 +53,6 @@ class Graph {
         /** @type {tPoint[]} */
         this.activePoints = [];
         /** @type {string} */
-        this.info = "";
     }
 
     /********************************************************** */
@@ -94,18 +93,19 @@ class Graph {
      * @param {string} label nom du jeu de données
      * @param {object[]} data jeu de données
      * @param {object} other paramètres du jeu
+     * @param {string} yAxe ID de l'axe vertical utilisé pour les options
      * @returns {object} dataset
      */
-    setDataset(label, data, other = undefined, id = undefined) {
+    setDataset(label, data, yAxe = "", other = undefined) {
         if (!isString(label)) throw new TypeError(e.ERROR_STR)
         if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
         if (isDefined(other) && !isObject(other)) throw new TypeError(e.ERROR_OBJ)
-        if (isDefined(id) && !isObject(id)) throw new TypeError(e.ERROR_OBJ)
+        if (isDefined(yAxe) && !isString(yAxe)) throw new TypeError(e.ERROR_STR)
 
         let dataset = {};
         dataset.label = label;
         dataset.data = data;
-        dataset.yAxisID = id
+        dataset.yAxisID = yAxe
         for (let key in other) {
             dataset[key] = other[key];
         }
@@ -113,43 +113,56 @@ class Graph {
     }
 
     /********************************************************** */
-
     /** Ajoute une série de données
      *
-     * @param {string} label
-     * @param {object} data données
-     * @param {object} other paramètre de dessin (couleur)
-     * @param {object} options : contient les options. Le niveau maximum d'inclusion est de 2 niveaux.
+     * @param {array | object} arg dataset ou paramètres nécessaires :
+     *  - label {string} label
+     *  - data {object} data données
+     *  - yAxe {string} ID axe vertical
+     *  - other {object} other paramètre de dessin (couleur)
+     *  - options {object} options : contient les options. Le niveau maximum d'inclusion est de 2 niveaux.
      * Ex : {scales: {x:{...}, y:{...}}}
      * @use setDataset
      */
-    addDataset(label, data, other = undefined, id = undefined, options = undefined) {
+     addDataset(...arg) {
+        if (isObject(arg[0]))
+            this._addDataset(arg[0].label, arg[0].data, arg[0].other, arg[0].options, arg[0].yAxe)
+        else
+            this._addDataset(arg[0], arg[1], arg[2], arg[3], arg[4])
+    }
+
+    _addDataset(label= "", data = [], yAxe= "", other = undefined, options = {}, _dataset = {}) {
 
         if (!isString(label)) throw new TypeError(e.ERROR_STR)
         if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
         if (isDefined(other) && !isObject(other)) throw new TypeError(e.ERROR_OBJ)
-        if (isDefined(id) && !isObject(id)) throw new TypeError(e.ERROR_OBJ)
+        if (isDefined(yAxe) && !isString(yAxe)) throw new TypeError(e.ERROR_STR)
         if (isDefined(options) && !isObject(options)) throw new TypeError(e.ERROR_OBJ)
 
+        
         // met en forme le dataset
-        let dataset = this.setDataset(label, data, other, id);
+        let dataset = this.setDataset(label, data, yAxe, other);
 
         // ajoute le dataset
         this.chart.data.datasets.push(dataset);
         this.chart.data.labels.push(label);
+        
 
         if (options != undefined) {
+            //Object.assign(this.chart.options, options)
+                
             for (var elt in options) {
                 if (typeof options[elt] === "object") {
+                    this.chart.options[elt] = {}
                     for (var subelt in options[elt]) {
-                        this.chart.options[elt][subelt].push(
-                            options[elt][subelt]
-                        );
+                         this.chart.options[elt][subelt] = options[elt][subelt]
                         //this.options[ elt ][ subelt ].push( options[ elt ][ subelt ] );
                     }
                 }
             }
-        }
+            
+            
+        } 
         this.chart.update();
     }
 
@@ -163,7 +176,10 @@ class Graph {
         for (let i = 0; i<this.chart.data.datasets.length;i++ ){
             this.removeData(i)
         }
-        
+        this.chart.data.datasets = {}
+        this.chart.data.labels = {}
+        this.chart.data.options = {}
+        this.chart.scales = {}
         this.chart.update();
     }
 
@@ -179,7 +195,7 @@ class Graph {
         if (index == -1) return
         
         // si on supprime toute la courbe
-        if (this.chart.data.datasets[index].data.length > 0) {
+        if (this.chart.data.datasets[index]) {
 
             // on récupère xAxisID et yAxisID
             const xAxis = this.chart.data.datasets[index].xAxisID;
@@ -273,7 +289,7 @@ class Graph {
      * @return {Array}
      */
     getEventArray(evt) {
-        if (!isEvent(evt)) throw new TypeError(e.ERROR_EVT);
+        //if (!isEvent(evt)) throw new TypeError(e.ERROR_EVT);
 
         return this.chart.getElementsAtEventForMode(
             evt,
@@ -381,6 +397,7 @@ class Graph {
         if (!isString(prop)) throw new TypeError(e.ERROR_STR)
         if (!isString(value) && !isNumeric(value)) throw new TypeError(e.ERRORTYPE)
 
+        if (!this.chart.data) return -1
         for (var i = 0; i < this.chart.data.datasets.length; i++) {
             if (
                 this.chart.data.datasets[i][prop] != undefined &&
@@ -412,7 +429,7 @@ class Graph {
 
     /** Retourne le tableau des points
      *
-     * @param {number|chartItem} prm N° de la courbe
+     * @param {number|import("chart.js").ChartItem} prm N° de la courbe
      * @returns {array} tableau coordonnées des points
      */
     getData(prm) {
@@ -486,4 +503,45 @@ class Graph {
     }
 }
 
-export { Graph };
+/**
+ * @class Dataset
+ */
+class Dataset {
+
+    /**
+     * 
+     * @param {string} label label   
+     * @param {any[]} data données 
+     * @param {object} options  
+     * @param {object} other 
+     */
+    constructor(label, data, yAxe, options, other){
+        this.label = label == undefined ? "" : label
+        this.data = data == undefined ? [] : data;
+        this.yAxe = yAxe == undefined ? "" : yAxe
+        this.options = options = undefined ? {} : options;
+        this.other = other = undefined ? {} : other;
+
+        for (let key in other) {
+            this[key] = other[key];
+        }
+    }
+
+   setOptions(name, value){
+       this.options[name] = value
+   } 
+
+   setOther(name, value){
+       this.other[name] = value
+   }
+
+   setEvent(name, callback){
+        if (!isString(name)) throw new TypeError(e.ERROR_STR)
+
+        this.options[name] = function (evt, elt) {
+        callback(evt, elt);
+    };
+   }
+}
+
+export { ChartX, Dataset };

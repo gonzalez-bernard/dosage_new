@@ -14,7 +14,7 @@ import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
 import { CONDUCTIMETRE } from "./interface.js";
-import { updateGraph } from "../dosage.graph.js"
+import { displayGraph, manageGraph } from "../dosage.graph.js"
 import { updateAppareil } from "./initAppareil.js";
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
@@ -62,8 +62,9 @@ function initConductimetre(lab, G) {
     conductimetre.fond.bind("dblclick", function () {
         if (updateAppareil(conductimetre, lab.becher)) {
             // met à jour le graphe
-            updateGraph(lab.canvas)
-
+            manageGraph(cts.ETAT_COND)
+            displayGraph()
+            G.setState(cts.ETAT_GRAPH_CD, -1)
             // actualise les boutons
             setButtonState(false)
             setButtonVisible(false)

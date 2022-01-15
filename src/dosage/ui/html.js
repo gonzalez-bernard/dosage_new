@@ -1,13 +1,14 @@
 /** DOSAGE - html.js */
 
-import { Element, Button, Div, Img, Input, Label } from "../../modules/dom.js"
+import { Element, Button, Div, Img, Input, Label, Link, Form } from "../../modules/dom.js"
 import * as txt from "./lang_fr.js"
-import { DOS_BT_RESET, DOS_BT_NEW_DOSAGE, DOS_BT_dspINFO, DOS_BT_PERP, DOS_BT_TAN1, DOS_BT_TAN2, DOS_BT_DERIVEE, DOS_BT_COTH, DOS_DIV_INFO, DOS_CANVAS, DOS_GRAPH_CD, DOS_GRAPH_PH, DOS_GRAPH_PT, DOS_GRAPHE, DOS_DIV_GRAPH, DOS_IMG, DOS_CHK_GRAPH } from "./html_cts.js"
+import * as ui from "./html_cts.js"
 
-var buttons = {},
-    divs = {},
-    elts = {}, 
-    imgs = {}
+function show_menu(){
+    $("#list").show()
+}
+
+var buttons = {},divs = {}, elts = {}, imgs = {}, selects = {}
 var html = ""
 
 elts.title = new Element( 'h3' ).setText( txt.DO_TITLE )
@@ -18,26 +19,80 @@ html = divs.title.getHTML()
 elts.span = new Element( 'span' ).setText( txt.DO_MSG )
 html += elts.span.getHTML()
 
-/************************************************** */
 // buttons
-buttons.reset = new Button( txt.DO_RESET, { id: DOS_BT_RESET, class: 'btn btn-success' } )
+buttons.reset = new Button( txt.DO_RESET, { id: ui.DOS_BT_RESET, class: 'btn btn-success' } )
     .setTitle( txt.DO_BT_RESET )
-buttons.new_dosage = new Button( txt.DOS_NEW_DOSAGE, { id: DOS_BT_NEW_DOSAGE, class: 'btn btn-warning' } )
+buttons.new_dosage = new Button( txt.DOS_NEW_DOSAGE, { id: ui.DOS_BT_NEW_DOSAGE, class: 'btn btn-warning' } )
     .setTitle( txt.DOS_BT_NEW_DOSAGE )
-buttons.info = new Button( txt.DO_INFO, { id: DOS_BT_dspINFO, class: 'btn btn-info' } ).setTitle( txt.DOS_BT_INFO )
+buttons.info = new Button( txt.DO_INFO, { id: ui.DOS_BT_dspINFO, class: 'btn btn-info' } ).setTitle( txt.DOS_BT_INFO )
+divs.buttons_col = new Div( 'col-md-6', 'buttons_col' ).addChild( buttons.reset, buttons.new_dosage, buttons.info )
 
-// Check Conserver courbes
-buttons.check_input = new Input( 'checkbox', { class: 'form-check-Input', id: DOS_CHK_GRAPH } );buttons.check_label = new Label( 'Conserver les courbes', { class: 'form-check-Label' } ).setFor( 'dos_chk_graph' )
-divs.check = new Div( 'form-check' ).addChild( buttons.check_input, buttons.check_label ).setStyle("align-items: center")
 
-divs.buttons_col = new Div( 'col-md-6' ).addChild( buttons.reset, buttons.new_dosage, buttons.info )
-divs.check_courbe = new Div( 'col-md-6' ).addChild(divs.check).setStyle("display: flex; align-items: center")
-divs.buttons = new Div( 'row' ).addChild( divs.buttons_col , divs.check_courbe)
+
+
+buttons.saveGraph = new Button( txt.DOS_SAVE_GRAPH, {id: ui.DOS_BT_SAVE_GRAPH, class: 'btn btn-success col-md-12'}).setAttrs('disabled')
+//buttons.dspGraph = new Button( txt.DOS_DSP_LST_GRAPH, {id: ui.DOS_BT_DSP_GRAPH, class: 'btn btn-success'}).setAction("onmouseover","$('#fond').show()").setStyle("margin-bottom:1px").setAttrs('disabled') 
+
+/***************************************************
+ * Liste des graphes
+ ***************************************************/
+// items
+/*
+elts.menu1 = new Link("#", {text:'test'})
+elts.menu2 = new Label("titre",{class:'no-marge'})
+elts.menu3 = new Link("#",{id:'icon_1'}).addChild(new Img("../../static/resources/img/oeil_ouvert.png", {class: 'menu-icone'}))
+elts.menu4 = new Link("#",{id:'icon_2'}).addChild(new Img("../../static/resources/img/oeil_ferme.png",{class: 'menu-icone'}))
+
+// columns items
+divs.menu_c11 = new Div("col-4 menu-item").addChild(elts.menu2)
+divs.menu_c12 = new Div("col-4 menu-item").addChild(elts.menu1)
+divs.menu_c13 = new Div("col-4 menu-item").addChild(elts.menu3)
+
+divs.menu_c21 = new Div("col-4 menu-item").addChild(elts.menu2)
+divs.menu_c22 = new Div("col-4 menu-item").addChild(elts.menu1)
+divs.menu_c23 = new Div("col-4 menu-item").addChild(elts.menu4)
+
+// rows item
+//divs.menu_cr0 = new Div("row").addChild(buttons.dspGraph)
+divs.menu_cr1 = new Div("row menu-item-row").addChild(divs.menu_c11, divs.menu_c12, divs.menu_c13)
+divs.menu_cr2 = new Div("row menu-item-row").addChild(divs.menu_c21, divs.menu_c22, divs.menu_c23)
+divs.menu_crg = new Div("container-fluid menu-list","lstmenu").addChild(divs.menu_cr1, divs.menu_cr2)
+*/
+divs.menu = new Div("", 'menu') 
+
+divs.menu_bt1 = new Div( 'col-md-6', 'menu_bt1' ).addChild(buttons.saveGraph)
+divs.menu_bt2 = new Div( 'col-md-6', 'menu_bt2' ).addChild(divs.menu)
+
+divs.buttons_row = new Div("row").addChild(divs.menu_bt1, divs.menu_bt2)
+divs.buttons_cont = new Div("col-md-6 container").addChild(divs.buttons_row)
+divs.menu_col = new Div( 'col-md-6', 'menu_col' ).addChild(divs.buttons_cont)
+
+divs.colbuttons = new Div("row").addChild( divs.buttons_col , divs.buttons_cont)
+divs.buttons = new Div( 'container-fluid', 'buttons' ).addChild( divs.colbuttons)
+
+
+/***************************************************
+ * dialogue pour choix du nom de la courbe
+ ***************************************************/
+divs.dgName = new Div('form-group col').setStyle("margin-bottom:0.4em; margin-right:0.4em")
+
+const label = new Label("Indiquez un nom pour la courbe").addClass("col col-form-label")
+const labelName = new Label("Nom :",{class:'col-md-4 col-form-label'})
+const input = new Input('text').setID("graphName").addClass("text ui-widget-content ui-corner-all")
+divs.dgColname = new Div('col-md-8').addChild(input)
+divs.dgRow = new Div("row").addChild(labelName, divs.dgColname) 
+divs.dgName.addChild(divs.dgRow)
+
+const dgFieldset = new Element('fieldset').setStyle("margin-right:1em").addChild(label, divs.dgName)
+const dgForm = new Form().addChild(dgFieldset)
+
+divs.dialog = new Div("","dialog-form")
+
 
 /************************************************** */
 
 // canvas labo
-elts.labo = new Element( 'canvas', { class: 'canvas', id: DOS_CANVAS } )
+elts.labo = new Element( 'canvas', { class: 'canvas', id: ui.DOS_CANVAS } )
 divs.labo = new Div( 'row', 'labo' ).addChild( elts.labo ).setStyle( "min-width:500px" )
 
 // info
@@ -48,30 +103,23 @@ divs.info_labo = new Div( 'col' ).setStyle( "width:600px" ).addChild( divs.info,
 
 /************************************************** */
 
-// graphe
-elts.gr_ph = new Element( 'canvas', { id: DOS_GRAPH_PH } )
-elts.gr_cd = new Element( 'canvas', { id: DOS_GRAPH_CD } )
-elts.gr_pt = new Element( 'canvas', { id: DOS_GRAPH_PT } )
-
-divs.chart = new Div( 'row' ).addChild( elts.gr_ph, elts.gr_cd, elts.gr_pt ).setID( DOS_GRAPHE ).setStyle( "display:none; max-width:600px; min-width:500px" )
-
 imgs.labo = new Img( './static/resources/img/labo.png', { class: 'image-fluid img-labo', width: '100%' } ).setStyle( 'max-height:500px' )
-divs.image = new Div( 'col-md-6'  ).addChild( imgs.labo ).setID( DOS_IMG ).setStyle( "max-width:600px; min-width:500px" )
+divs.image = new Div( 'col-md-6'  ).addChild( imgs.labo ).setID( ui.DOS_IMG ).setStyle( "max-width:600px; min-width:500px" )
 
 // boutons graph
-buttons.derivee = new Button( '', { id: DOS_BT_DERIVEE, class: 'btn btn-dosage btn-image bt-derivee' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'top' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_DERIVEE )
+buttons.derivee = new Button( '', { id: ui.DOS_BT_DERIVEE, class: 'btn btn-dosage btn-image bt-derivee' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'top' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_DERIVEE )
     //divs.button1 = new Div( 'col-md-2' ).addChild( buttons.derivee )
 
-buttons.tan1 = new Button( '', { id: DOS_BT_TAN1, class: 'btn btn-dosage btn-image bt-tan1' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'right' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_TAN1 )
+buttons.tan1 = new Button( '', { id: ui.DOS_BT_TAN1, class: 'btn btn-dosage btn-image bt-tan1' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'right' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_TAN1 )
     //divs.button2 = new Div( 'col-md-2' ).addChild( buttons.tan1 )
 
-buttons.tan2 = new Button( '', { id: DOS_BT_TAN2, class: 'btn btn-dosage btn-image bt-tan2' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'right' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_TAN2 )
+buttons.tan2 = new Button( '', { id: ui.DOS_BT_TAN2, class: 'btn btn-dosage btn-image bt-tan2' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'right' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_TAN2 )
     //divs.button3 = new Div( 'col-md-2' ).addChild( buttons.tan2 )
 
-buttons.tanp = new Button( '', { id: DOS_BT_PERP, class: 'btn btn-dosage btn-image bt-perp' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'right' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_PERP )
+buttons.tanp = new Button( '', { id: ui.DOS_BT_PERP, class: 'btn btn-dosage btn-image bt-perp' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'right' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_PERP )
     //divs.button4 = new Div( 'col-md-2' ).addChild( buttons.tanp )
 
-buttons.tanpp = new Button( '', { id: DOS_BT_COTH, class: 'btn btn-dosage btn-image bt-courbe' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'top' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_COTH )
+buttons.tanpp = new Button( '', { id: ui.DOS_BT_COTH, class: 'btn btn-dosage btn-image bt-courbe' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'top' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_COTH )
     //divs.button5 = new Div( 'col-md-2' ).addChild( buttons.tanpp )
     //divs.espace = new Div( 'col' )
 
@@ -79,17 +127,25 @@ buttons.tanpp = new Button( '', { id: DOS_BT_COTH, class: 'btn btn-dosage btn-im
 //divs.bts = new Div( 'row', 'btChart' ).addChild( divs.button1, divs.button2, divs.button3, divs.button4, divs.button5 ).setStyle("min-width: 400px")
 divs.bts = new Div( 'row', 'btChart' ).addChild( buttons.derivee, buttons.tan1, buttons.tan2, buttons.tanp, buttons.tanpp ).setStyle( "min-width: 400px" )
 
+// canvas graphe
+elts.chart = new Element( 'canvas', { class:'canvas', id: ui.DOS_CHART } )
+
+// contient le canvas
+divs.graph = new Div( 'row' ).addChild( elts.chart ).setID( ui.DOS_GRAPHE ).setStyle( "max-width:600px; min-width:500px" )
+
 // conteneur boutons et graph
-divs.bts_graph = new Div( 'col-md-6' ).addChild( divs.bts, divs.chart).setStyle( 'display: none ' ).setID( DOS_DIV_GRAPH )
+divs.div_graph = new Div( 'col-md-6' ).addChild( divs.bts, divs.graph).setStyle( 'display: none ' ).setID( ui.DOS_DIV_GRAPH )
 
 /************************************************** */
 
-divs.container = new Div( 'row container-fluid', 'content' ).addChild( divs.info_labo, divs.bts_graph,divs.image  )
+divs.container = new Div( 'row container-fluid', 'content' ).addChild( divs.info_labo, divs.div_graph,divs.image)
 
-divs.info = new Div( "container" ).setID( DOS_DIV_INFO )
+divs.info = new Div( "container" ).setID( ui.DOS_DIV_INFO )
 
 html += divs.buttons.getHTML()
+html += divs.menu.getHTML()
 html += divs.container.getHTML()
 html += divs.info.getHTML()
+html += divs.dialog.getHTML()
 
-export { html }
+export { html, dgForm }

@@ -8,6 +8,7 @@ import { MNU_DOSAGE } from "../dosage/ui/html_cts.js";
 import { getData } from "../data.js"
 import { initDosage} from "../dosage/dosage.js"
 import { parseObjectType } from "../modules/utils/type.js";
+//import { Canvas } from "../../types/classes";
 
 
 /**
@@ -22,7 +23,7 @@ import { parseObjectType } from "../modules/utils/type.js";
  * @file especes.data
  * @external especes.events
  */
-function eventValidation( E ) {
+function eventValidation( E, canvas ) {
     
     const G = gDosages.getCurrentDosage()
         
@@ -37,7 +38,7 @@ function eventValidation( E ) {
         setDosageOxValues( G, E );
         G.title = new uString( G.label ).convertExpoIndice().html;
     }
-    initDosage( gDosages )
+    initDosage( gDosages, canvas )
 
     // indique que les espèces ont été enregistrées
     G.setState( cts.ETAT_ESPECES, 1 );

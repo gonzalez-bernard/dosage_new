@@ -24,7 +24,7 @@ import { DOS_INFO } from "../dosage/ui/html_cts.js"
 import { getEltID } from "../modules/utils/html.js"
 import { ES_DIV_INFO } from "./../especes/html_cts.js"
 import { ES_BTCLOSE_LABEL } from "../especes/lang_fr.js";
-import { setClassMenu } from "../dosage/dosage.ui.js";
+import { displayEspece } from "../dosage/dosage.ui.js";
 
 
 
@@ -193,14 +193,15 @@ function dspContextInfo( type, arg = [undefined, undefined] ) {
  *  - prm {object?} paramètres à fournir à setMsg
  *  - latex {boolean?} vrai si affichage mathématique (défaut = false)
  *  - callbacks {object?} {id:function}
+ * @file infos.js
  */
-function dspMessage(title, msg, idButton, options={}){
+function dspErrorMessage(title, msg, idButton, options={}){
     const data = {
         idmodal: "idModal",
         idcontainer: ES_DIV_INFO,
         labelbtclose: ES_BTCLOSE_LABEL,
         title: title,
-        actionbtclose: setClassMenu,
+        actionbtclose: displayEspece,
         idbtclose: idButton,
         msg: msg,
     };
@@ -215,4 +216,4 @@ function dspMessage(title, msg, idButton, options={}){
 }
 
 
-export { dspInfo, dspContextInfo, dspMessage };
+export { dspInfo, dspContextInfo, dspErrorMessage };

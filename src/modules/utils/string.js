@@ -36,8 +36,6 @@ class uString extends String {
     return this.array
   }
 
-  /*************************************************************** */
-
   /** Ajoute un motif à une chaîne
    * 
    * @param {string} motif motif à ajouter
@@ -60,8 +58,6 @@ class uString extends String {
     return this
   }
 
-  /*************************************************************** */
-
   /** Met la première lettre en majuscule
  * 
  * @returns {uString} Chaine modifiée
@@ -71,8 +67,6 @@ class uString extends String {
     this.val = this.val.charAt(0).toUpperCase() + this.val.slice(1);
     return this
   }
-
-  /*************************************************************** */
 
   /** Insère une chaine dans une autre
    * 
@@ -94,8 +88,6 @@ class uString extends String {
     this.val = this.val.replace(/>([\sa-zA-Z0-9,'.\(\)]*)<\//, subst)
     return this
   }
-
-  /*************************************************************** */
 
   /** Permet d'afficher certains caractères en html 
   * @return {uString}
@@ -130,8 +122,6 @@ class uString extends String {
     return this
   }
 
-  /*************************************************************** */
-
   /** remplace caractères par flèches
  * 
  * @param {string} right suite de caractère pour flèche droite ('->')
@@ -149,8 +139,6 @@ class uString extends String {
     this.html = this.html.replace(left, '&larr;')
     return this
   }
-
-  /*************************************************************** */
 
   /** Transforme une chaîne comportant des indices ou des exposants délimités par un symbole
   * 
@@ -178,6 +166,7 @@ class uString extends String {
         reg_sup = new RegExp(exp + r1 + exp + "|&apos;" + r1 + "&apos;", 'g')
       else
         reg_sup = new RegExp(exp + r1 + exp, 'g')
+
       reg_inf = new RegExp(ind + r0 + ind, 'g')
     } else {
       if (html)
@@ -194,8 +183,6 @@ class uString extends String {
     this.html = this.html.replace(reg_inf, "<sub>$1</sub>")
     return this
   }
-
-  /*************************************************************** */
 
   /** transforme une chaine de type "[a,b]" en tableau
   * 
@@ -220,6 +207,20 @@ class uString extends String {
       else return element
     })
     return this
+  }
+
+  /** Retourne une chaine à partir d'un symbole
+   * du début jusqu'au symbole si pos = 0
+   * du symbole jusqu'à la fin si pos = 1  
+   * @param {string} symbol 
+   * @param {number} pos définit le type
+   * @return {string} chaîne tronquée
+   * */
+  getStringDelimSymbol(symbol, pos = 0){
+    const regexp = pos == 0 ? new RegExp("([^"+symbol+"])") : new RegExp(symbol + "([^"+symbol+"])") 
+    const v = this.val.match(regexp)
+    if ( v == null || v.length === 0 ) return ""
+    return v[0]
   }
 }
 

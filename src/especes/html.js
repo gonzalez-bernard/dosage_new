@@ -43,7 +43,7 @@ inputs.ac = new Input("radio", { id: "type_ac", name: "choice_type" }).setValue(
 labels.ac = new Label(txt.ES_AB, { class: "radio-inline col-md-4" }).setFor("type_ac")
     .addChild(inputs.ac)
 inputs.ox = new Input("radio", { id: "type_ox", name: "choice_type" }).setValue(2);
-labels.ox = new Label(txt.ES_OR, { class: "radio-inline col-md-8" }).setFor("type_ox")
+labels.ox = new Label(txt.ES_OR, { class: "radio-inline col-md-7" }).setFor("type_ox")
     .addChild(inputs.ox);
 fieldsets.type = new Element("fieldset", { class: "type-border col-10 col-md-10" })
     .addChild(legends.type, labels.ac, labels.ox);
@@ -96,7 +96,7 @@ let oInput = {
     min: cts.CONC_MIN,
     pattern: "[0-9.]{1,7}",
     title: new uString(INT_C1).convertHtmlChar().getVal(),
-    label: { label: txt.ES_CONC_TITRE, o: { class: "label col-md-9" } },
+    label: { label: txt.ES_CONC_TITRE, o: { class: "label col-md-8" } },
     ext: [{ data: "Toggle", value: "tooltip" }, { data: "html", value: "true" }],
     feedback: { feedback: [INT_C1], o: { offset: 7, class: "col-md-5" } },
     value: 0.01
@@ -104,7 +104,7 @@ let oInput = {
 // champs pour concentration
 inputs.titre_conc = new Input("text", oInput)
 
-obj.replace(oInput, { id: ui.ES_TITRANT_CONC, label: { label: txt.ES_CONC_TITRANT, o: { class: "label col-md-9" } } })
+obj.replace(oInput, { id: ui.ES_TITRANT_CONC, label: { label: txt.ES_CONC_TITRANT, o: { class: "label col-md-8" } } })
 inputs.titrant_conc = new Input("text", oInput)
 
 divs.col_conc_titre = new Div("col-6 col-md-6").addChild(inputs.titre_conc)
@@ -112,13 +112,13 @@ divs.col_conc_titrant = new Div("col-6 col-md-6").addChild(inputs.titrant_conc)
 divs.concentration = new Div("row").addChild(divs.col_conc_titre, divs.col_conc_titrant)
 
 // champs pour volume
-obj.replace(oInput, { id: ui.ES_TITRE_VOL, value: 10, max: cts.VOL_MAX, min: cts.VOL_MIN, title: INT_VOL, pattern: "[0-9.]{1,4}", label: { label: txt.ES_VOL_TITRE, o: { class: "label col-md-9" } }, feedback: { feedback: [INT_VOL], o: { offset: 8, class: "col-md-4" } } })
+obj.replace(oInput, { id: ui.ES_TITRE_VOL, value: 10, max: cts.VOL_MAX, min: cts.VOL_MIN, title: INT_VOL, pattern: "[0-9.]{1,4}", label: { label: txt.ES_VOL_TITRE, o: { class: "label col-md-8" } }, feedback: { feedback: [INT_VOL], o: { offset: 8, class: "col-md-4" } } })
 
 inputs.titre_vol = new Input("text", oInput)
 
 divs.volume = new Div("row").addChild(new Div("col-6 col-md-6").addChild(inputs.titre_vol))
 
-obj.replace(oInput, { id: ui.ES_EAU_VOL, value: 40, max: cts.VOL_EMAX, min: cts.VOL_EMIN, title: INT_VOLEAU, pattern: "[0-9.]{1,2}", label: { label: txt.ES_EAU_VOL, o: { class: "label col-md-9" } }, feedback: { feedback: [INT_VOLEAU], o: { offset: 8, class: "col-md-4" } } })
+obj.replace(oInput, { id: ui.ES_EAU_VOL, value: 40, max: cts.VOL_EMAX, min: cts.VOL_EMIN, title: INT_VOLEAU, pattern: "[0-9.]{1,2}", label: { label: txt.ES_EAU_VOL, o: { class: "label col-md-8" } }, feedback: { feedback: [INT_VOLEAU], o: { offset: 8, class: "col-md-4" } } })
 
 // champ pour ajout d'eau
 inputs.eau_vol = new Input("text", oInput)
@@ -138,13 +138,13 @@ divs.supp = new Div("form-group row", 'div_supp').setID('supp');
 
 // espèce supplémentaire concentration
 let msgInterval = txt.ES_MSG_INTERVAL + cts.CONC_MIN + " et " + cts.CONC_MAX + " mol/L"
-obj.replace(oInput, { id: ui.ES_SUPP_CONC, value: null, max: cts.CONC_MAX, min: cts.CONC_MIN, title: msgInterval, pattern: "[0-1]{1}[0-9.]{0,3}", label: { label: txt.ES_SUPP_CONC, o: { class: "label col-md-9" } }, feedback: { feedback: [txt.ES_SUPP_CONC + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }, minlength: 1 })
+obj.replace(oInput, { id: ui.ES_SUPP_CONC, value: null, max: cts.CONC_MAX, min: cts.CONC_MIN, title: msgInterval, pattern: "[0-1]{1}[0-9.]{0,3}", label: { label: txt.ES_SUPP_CONC, o: { class: "label col-md-8" } }, feedback: { feedback: [txt.ES_SUPP_CONC + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }, minlength: 1 })
 
 inputs.supp_conc = new Input("text", oInput)
 
 // espèce supplémentaire volume
 msgInterval = txt.ES_MSG_INTERVAL + cts.VOL_MIN + " et " + cts.VOL_MAX + " mL"
-obj.replace(oInput, { id: ui.ES_SUPP_VOL, value: "", max: cts.VOL_MAX, min: cts.VOL_MIN, title: txt.ES_MSG_INTERVAL + txt.ES_SUPP_VOL, pattern: "[1-9].?[0-9]{0,1}", label: { label: txt.ES_SUPP_VOL, o: { class: "label col-md-9" } }, feedback: { feedback: [txt.ES_SUPP_VOL + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } } })
+obj.replace(oInput, { id: ui.ES_SUPP_VOL, value: "", max: cts.VOL_MAX, min: cts.VOL_MIN, title: txt.ES_MSG_INTERVAL + txt.ES_SUPP_VOL, pattern: "[1-9].?[0-9]{0,1}", label: { label: txt.ES_SUPP_VOL, o: { class: "label col-md-8" } }, feedback: { feedback: [txt.ES_SUPP_VOL + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } } })
 
 inputs.supp_vol = new Input("text", oInput)
 
@@ -164,7 +164,7 @@ divs.exc = new Div("form-group row", 'div_exc').setID('exc');
 
 // concentration
 msgInterval = txt.ES_MSG_INTERVAL + cts.CONC_RMIN + " et " + cts.CONC_RMAX + " mol/L"
-obj.replace(oInput, { id: ui.ES_EXC_CONC, value: "", max: cts.CONC_RMAX, min: cts.CONC_RMIN, title: msgInterval, pattern: "[0-5]{1}.?[0-9]{0,3}", label: { label: new uString(txt.ES_EXC_CONC).convertExpoIndice().html, o: { class: "col-9 col-md-9" } }, feedback: { feedback: [txt.ES_EXC_CONC + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }, minlength: 1 })
+obj.replace(oInput, { id: ui.ES_EXC_CONC, value: "", max: cts.CONC_RMAX, min: cts.CONC_RMIN, title: msgInterval, pattern: "[0-5]{1}.?[0-9]{0,3}", label: { label: new uString(txt.ES_EXC_CONC).convertExpoIndice().html, o: { class: "col-9 col-md-8" } }, feedback: { feedback: [txt.ES_EXC_CONC + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }, minlength: 1 })
 
 inputs.exc_conc = new Input("text", oInput)
 
@@ -172,7 +172,7 @@ inputs.exc_conc = new Input("text", oInput)
 msgInterval = txt.ES_MSG_INTERVAL + cts.VOL_MIN + " et " + cts.VOL_MAX + " mL"
 obj.replace(oInput, {
     id: ui.ES_EXC_VOL, value: "", max: cts.VOL_MAX, min: cts.VOL_MIN, title: msgInterval,
-    pattern: "[1-5]{1,2}", label: { label: txt.ES_EXC_VOL, o: { class: "col-9 col-md-9" } },
+    pattern: "[1-5]{1,2}", label: { label: txt.ES_EXC_VOL, o: { class: "col-9 col-md-8" } },
     feedback: { feedback: [txt.ES_EXC_VOL + txt.ES_MSG_HORS_INTERVAL], o: { offset: 8, class: "col-md-4" } }
 })
 

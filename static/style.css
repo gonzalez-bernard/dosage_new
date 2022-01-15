@@ -331,3 +331,22 @@ input[type=password] {
     border-width: medium;
     /* padding: 10px; */
 }
+
+.no-marge{
+    margin: 0 !important;
+}
+
+.no-padding{
+    padding: 0 !important;
+}
+
+
+
+.menu-list{
+    border-radius: 4px ! important;
+    border: 2px solid;
+}
+
+
+
+

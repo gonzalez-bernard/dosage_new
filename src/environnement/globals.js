@@ -1,13 +1,18 @@
 import { isNumeric, isString } from "../modules/utils/type.js";
 import * as e from "../modules/utils/errors.js"
 import { cts } from "./constantes.js";
+import { DOS_BT_DSP_GRAPH, DOS_CHART } from "../dosage/ui/html_cts.js";
+import { DOS_DSP_LST_GRAPH } from "../dosage/ui/lang_fr.js";
 import { Graphx } from "../dosage/graphx.js";
+import {getCircularReplacer} from "../modules/utils/object.js"
 
+ 
 
 /**
  * @class Dosage
  * 
  * @typedef {import('../../types/types').tReactif} tReactif
+ * @typedef {import("../../types/types").tGraphID} tGraphID
  */
 
 
@@ -30,7 +35,6 @@ class Dosages {
     }
 }
     
-
 /**
  * @class Especes
  * @description enregistre les listes des espèces
@@ -60,39 +64,53 @@ class Especes {
     }
 }
 
-class Charts {
-
-    constructor(){
-        this.chartPH = {}
-        this.chartCD = {}
-        this.chartPT = {}
-    }
+const gGraphMenu = {
+    label: DOS_DSP_LST_GRAPH,
+    idButton:  DOS_BT_DSP_GRAPH,
+    idMenu: "menu",
+    width: "300px",
+    imgVisible: '../static/resources/img/oeil_ouvert.png',
+    imgNoVisible: '../static/resources/img/oeil_ferme.png',
+    imgTrash: '../static/resources/img/poubelle.png',
+    menu: {},    // menu déroulant
+    dialog: {}  // dialog
 }
 
 
-
+/**
+ * @classdesc Cette classe permer de préciser la courbe active ainsi que les paramètres et valeurs des courbes enregistrées.
+ * Les courbes sont mémorisées dans le tableau 'charts'
+ */
 class Graphs{
 
-    constructor(){
+    constructor(canvas){
+        
         /** @type {string[]} liste des ID des courbes enregistrées */
         this.lstID = []
-        /** @type {import("../../types/types").tGraphID[]} structure enregistremen des courbes */
+        
+        /** tableau de structure (tGraphID) enregistrement des courbes 
+         * {id: string, chart: tDataset, visible: boolean, save: boolean, numDosage: number}
+        */
         this.charts = []
+        
+        /** @type {string} ID de la courbe active  */
+        this.activeChart = ""
+
+        /** @type {Graphx} en cours */
+        this.currentGraph = new Graphx(canvas)
+
     }
 
     /** Calcule et retourne un ID de courbe
      * 
+     * Celui-ci est formé de deux lettres pour le type suivi du tiret et du numéro du dosage
      * @param {number} type type d'appareil 0: Ph, 1: cond et 2: pot
+     * @param {number} idDosage N° du dosage
      * @returns {string} nouvel ID
      */
-    genNewID(type){
+    genNewID(type, idDosage){
         const app = ['PH', 'CD', 'PT']
-        // on extrait les ID du bon type
-        const tab = this.lstID.filter(v => v.substring(0,4) == app [type] )
-        // On cherche l'indice le plus grand
-        const ntab = tab.map(s => parseInt(s.substring(4)))
-        const max = Math.max(...ntab)
-        return app[type] + "_" + max
+        return app[type] + "_" + idDosage
     }
 
     /** Ajoute un ID à la liste
@@ -109,6 +127,44 @@ class Graphs{
      */
     removeLstID(id){
         this.lstID = this.lstID.filter(v => v !== id)
+    }
+
+    /** Retourne l'index dans la tableau charts du graphe identifié par l'ID fourni
+     * 
+     * @param {string} id ID
+     */
+    getChartIndexByID(id){
+        // On filtre les graphes présents dans charts
+        for (let i = 0; i<this.charts.length; i++){
+            if (this.charts[i].id == id)
+                return i
+        }
+        return -1
+    }
+
+    /** Retourne le dataset du graphe présents dans charts
+     * 
+     * @param {string} id ID
+     * @returns dataset
+     */
+    getChartByID(id){
+        return this.charts.filter(c => c.id == id)[0].dataset
+    }
+
+    /** Sauve la courbe courante dans le tableau 'charts'
+     */
+    saveCurrentGraph(){
+        this.charts.filter(c => c.id == this.activeChart)[0].save = true
+    }
+
+    /** Supprime un graphe */
+    removeGraph(id){
+        gGraphs.charts = gGraphs.charts.filter(v => v.id != id)
+    }
+
+    /** Modifie la visibilité d'un graphe */
+    setVisibility(id, visible){
+        this.charts.filter(c => c.id == id)[0].visible = visible
     }
 }
 
@@ -243,6 +299,8 @@ class Dosage {
         return ( ( this.get(name) & value ) == value )
     }
 
+    
+
     /** Modifie la variable "etat"
      * 
      * @param {number} name valeur de l'état défini dans constantes.js
@@ -263,6 +321,7 @@ class Dosage {
                 this.etat ^= name
                 break
         }
+        localStorage.setItem("dosage", JSON.stringify(this, getCircularReplacer()))
     }
 }
 
@@ -270,7 +329,7 @@ class Dosage {
 const gDosage = new Dosage()
 const gEspeces = new Especes()
 const gDosages = new Dosages()
-const gGraphs = new Graphs()
+const gGraphs = new Graphs(DOS_CHART)
 
 gDosages.items.push(gDosage)
 
@@ -278,4 +337,4 @@ function getGlobal(){
     return gDosages.getCurrentDosage()
 }
 
-export { Especes, Dosage, Dosages, gDosage, gDosages, gGraphs,gEspeces, Charts, getGlobal}
+export { Especes, Dosage, Dosages, gDosage, gDosages, gGraphs,gEspeces, gGraphMenu,  getGlobal}

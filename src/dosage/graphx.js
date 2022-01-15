@@ -9,7 +9,7 @@
 import {cts} from"../environnement/constantes.js";
 import { gDosages } from "../environnement/globals.js";
 import * as e from "../modules/utils/errors.js"
-import { Graph } from "../modules/graph.js";
+import { ChartX } from "../modules/chartX.js";
 import { calcDistance2Pts, getMedium } from "../modules/utils/math.js";
 import { uArray } from "../modules/utils/array.js";
 import { getCoordsTangente } from "../modules/utils/math.js";
@@ -22,28 +22,37 @@ import { dspContextInfo } from "../infos/infos.js"
  * @typedef {import ('../../types/types').tPoint} tPoint 
  */
 
-class Graphx extends Graph {
+class Graphx extends ChartX {
 
     /**
      * Creates an instance of Graphx.
      * @param {string} canvas 
-     * @param {string} label 
-     * @param {object[]} data 
-     * @param {object} other 
-     * @param {object} options 
      * 
      * @memberOf Graphx
      */
-    constructor(canvas, label, data, other, options) {
+    constructor(canvas) {
         super(canvas);
-        let dataset = this.setDataset(label, data, other);
-        this.createChart("scatter", dataset, options);
-        this.data = data
+        this.data = []
         this.data_theorique = [];
         this.data_derive_theorique = [];
         this.pentes = [];
         this.indiceTangentes = [0, 0] // indice des points des tangentes
         this.type = 1; // 1 = pH, 2 = CD et 3 = PT
+        this.tangente_point = 0
+    }
+
+    /** Initialise 
+     * 
+    *  @param {string} label 
+     * @param {object[]} data 
+     * @param {string} yAxe
+     * @param {object} other 
+     * @param {object} options  
+     */
+    init(label, data, yAxe, other, options){
+        this.data = data
+        let dataset = this.setDataset(label, data, yAxe, other);
+        this.createChart("scatter", dataset, options);
     }
 
     setType(type) {
@@ -76,7 +85,7 @@ class Graphx extends Graph {
     /** Enregistre les données dans data et appel la méthode changeData
      *
      * @param {object[]} data tableau des données
-     * @see {@link Graph#changeData}
+     * @file graphx.js
      */
     setDatas(data) {
         if (!isArray(data)) throw new TypeError(e.ERROR_ARRAY)
@@ -131,11 +140,7 @@ class Graphx extends Graph {
      * @param {number} chartID ID du graphe
      * @param {any} elt ChartElement
      * @param {number} idTangente indice de la courbe
-     * @see {@link Graph#getEventIndicePoint}
-     * @see {@link Graph#getData}
-     * @see {@link Graphx#_calcPente}
-     * @see {@link Graphx#addTangente}
-     * @see {@link Graphx#dspContextInfo}
+     * @file graphx.js
      */
     dspTangente(chartID, elt, idTangente) {
         if (!isNumeric(idTangente) || !isNumeric(chartID)) throw new TypeError(e.ERROR_NUM)
@@ -202,8 +207,7 @@ class Graphx extends Graph {
      *
      * @param {number} index indice de la tangente, peut-etre différent
      * de l'indice de la courbe
-     * @see {@link Graph#getChartByProp}
-     * @see {@link Graph#removeData}
+     * @file graphx.js
      */
     delTangente(index) {
         if (!isNumeric(index)) throw new TypeError(e.ERROR_NUM)
@@ -225,8 +229,7 @@ class Graphx extends Graph {
      * @param {number} indice numéro du point
      * @param {tPoint[]} points tableau des coordonnées
      * @param {number} idx indice de la courbe
-     * @see {@link Graph#changeData}
-     * @see {@link Graphx#dspContextInfo}
+     * @file graphx.js
      */
     movTangente(evt, indice, points, idx) {
 
@@ -273,10 +276,7 @@ class Graphx extends Graph {
 
     /** Affiche ou cache la courbe dérivée
      *
-     * @see {@link Graph#removeData}
-     * @see {@link Graphx#dspContextInfo}
-     * @see {@link Graphx#initDataTheorique}
-     * @see {@link Graph#addDataSet}
+     * @file graphx.js
      */
     dspDerivee() {
         const G = gDosages.getCurrentDosage() 
@@ -298,12 +298,12 @@ class Graphx extends Graph {
         this.initDataTheorique();
         if (G.test('etat', cts.ETAT_THEORIQUE)) {
             option = this._initOptions(this.data_derive_theorique);
-            this.addDataset("dérivée th.", this.data_derive_theorique, other, option);
+            this.addDataset("dérivée th.", this.data_derive_theorique, "dpH", other, option);
         } else {
             // extrait les valeurs dérivées à partir des données réelles (data)
             const lst_derivee = this._initDerivee(this.data, this.data_derive_theorique);
             option = this._initOptions(lst_derivee);
-            this.addDataset("dérivée exp", lst_derivee, other, option);
+            this.addDataset("dérivée exp", lst_derivee,"dpH", other, option);
         }
         this.chart.update();
     }
@@ -313,8 +313,7 @@ class Graphx extends Graph {
     /** Affiche la courbe théorique
      *
      * @param {number} etat 0 = affiche la courbe sinon on efface
-     * @see {@link Graph#getChartByProp}
-     * @see {@link Graph#removeData}
+     * @file graphx.js
      */
     dspCourbeTheorique(etat = 0) {
 
@@ -325,8 +324,9 @@ class Graphx extends Graph {
             this.chart.data.labels.push(data.label)
             this.chart.update();
         } else {
-            var idx = this.getChartByProp("label", "courbe théorique");
-            if (idx) this.removeData(idx);
+            const idx = this.getChartByProp("id", "theo")
+            if (idx) 
+                this.removeData(idx);
         }
     }
 
@@ -335,11 +335,8 @@ class Graphx extends Graph {
     /** Affiche la perpendiculaire
      *
      * @param {number} etat : 0 = on trace, 1 = on efface l'ancienne et on trace
-     * @see {@link Graph#getChartByProp}
-     * @see {@link Graph#getData}
-     * @see {@link Graphx#addTangente}
-     * @see {@link Graph#removeData}
      * @returns {number}
+     * @file graphx.js
      */
     dspPerpendiculaire(etat = 0) {
 
@@ -422,20 +419,20 @@ class Graphx extends Graph {
      */
     _initOptions(data) {
         var option = {
-            display: true,
-            title: {
-                display: true,
-                text: "dpH/dv",
-            },
-            id: "dpH",
-            position: "right",
-            ticks: {
-                stepSize: 1,
-            },
-            onClick: setEventsClick,
-            min: new uArray(data).getArrayObjectExtremumValues("y", "min"),
-            max: new uArray(data).getArrayObjectExtremumValues("y", "max") * 1.1,
-        };
+            scales: {
+                dpH: {
+                    position: "right",
+                    min: new uArray(data).getArrayObjectExtremumValues("y", "min"),
+                    max: new uArray(data).getArrayObjectExtremumValues("y", "max") * 1.1,
+                    ticks: {
+                        stepSize: 0.5,
+                    },
+                    title: {
+                        display: true,
+                        text: "dpH/dv",
+                    },
+                }
+        }};
         return option;
     }
 
@@ -450,7 +447,7 @@ class Graphx extends Graph {
      * @param {number} pente 
      * @param {number} factor pour tenir compte des ratios écran
      * @returns {object} point orthogonal et distance
-     * @see {@link module:modules/utils/utilsMath~calcDistance2Pts}
+     * @file graphx.js
      */
     _getPerpendiculaire(p0, p1, pente, factor) {
 

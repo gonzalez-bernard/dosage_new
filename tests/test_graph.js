@@ -1,4 +1,4 @@
-import {Graph} from '../src/modules/graph.js'
+import {ChartX} from '../src/modules/chartX.js'
 //import Chart from "/node/chart.js/dist/Chart.js";
 
 var canvas = "container"
@@ -95,7 +95,7 @@ var options = {
 // pente
 var pente = ( data[ 1 ].y - data[ 0 ].y ) / ( data[ 1 ].x - data[ 0 ].x )
 
-let G = new Graph(canvas)
+let G = new ChartX(canvas)
 
 // initialise options
 var opts = G.setOption( "scales", optAxe )
@@ -131,12 +131,13 @@ G.addDataset( 'new', data, other )
 // perpendiculaire
 let perp = get_perp( { x: 3, y: 15 }, { x: 1, y: 15 }, pente, ( 7 / 25 ) * ( 5 / 9 ) )
 let data_perp = [ { x: 3, y: 15 }, perp.p ]
+other.id = "AZE"
 G.addDataset( 'new', data_perp, other )
 
 // Ajout d'un gestionnaire d'événements
-//G.setEvent( 'onClick', _event )
+G.setEvent( 'onClick', _event )
 G.setEvent( 'onHover', showPos )
-G.setEvent('onClick', _del)
+//G.setEvent('onClick', _del)
 
 function get_perp( p0, p1, pente, factor ) {
     // calcul distance initiale
@@ -204,6 +205,7 @@ function _event( evt, elt ) {
         console.log( "Coordonnées du point : " + G.getEventCoord( elt ) )
 
         console.log( "Index du graphe possédant la propriété : " + G.getChartByProp( 'pointBackgroundColor', 'blue' ) )
+        console.log( "Index du graphe possédant l'ID AZE : " + G.getChartByProp( 'id', 'AZER' ) )
         console.log( "Label et id : ", G.getIdChart( G.getEventIndexChart( elt ) ) )
 
 

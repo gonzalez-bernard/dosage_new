@@ -19,12 +19,6 @@ var frm = new Form( ui.ES_FORM )
  * @param {Dosage} G global
  * @returns void
  * @public
- * @see  especes.ui~getListEspeceTitrante
- * @see  especes.ui~changeOxSelect
- * @see  especes.ui~updSaisieSelect
- * @see  especes.ui~dspPH
- * @see  especes.data~setDosageOxValues
- * @see  especes.data~eventValidation
  * @file especes.events
  * 
  */
@@ -79,9 +73,9 @@ function setEvents( G ) {
 
     /** Selection d'une réaction    */
     getEltID( ui.ES_AUTREDOS_SELECT ).on( 'change', data_info, function( e ) {
-        const G = gDosages.GetCurrentDosage()
-        changeOxSelect( G )
-        setDosageOxValues( G, E )
+        const G = gDosages.getCurrentDosage()
+        changeOxSelect( G, gEspeces )
+        setDosageOxValues( G, gEspeces )
         frm.validButtons.bind( frm )( e )
     } )
 
@@ -96,7 +90,7 @@ function setEvents( G ) {
 
     /**  Validation        */
     getEltID( ui.ES_BT_VALID ).on( 'click', function() {
-        eventValidation( gEspeces )
+        eventValidation( gEspeces)
     } )
 
     /** Affichage de l'aide */

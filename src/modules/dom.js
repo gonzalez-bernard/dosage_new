@@ -2,13 +2,15 @@
  * @module modules/DOM
  * @description Ensemble des classes permettant la gestion des pages html
  * ***
- * ***export  Element, Label, Input, P, Domus, Form, Button, Div, Img, Link, Alert, Message, List, dspMessage***
+ * ***export  Element, Label, Input, P, Domus, Form, Button, Div, Img, Link, Alert, Message, List, dspMessage, ListMenu, Dialog
+ * ***
  */
 
 import { uString } from "./utils/string.js"
 import { uArray } from "./utils/array.js"
 import { getEltID } from "./utils/html.js"
 import { isArray, isObject} from "./utils/type.js"
+import {initListMenu} from "./listmenu.js"
 
 /** classe Element */
 /**
@@ -32,12 +34,13 @@ class Element {
      *  - ext :
      *  - feedback: 
      *  - title {string} : titre
+     *  - width {number} : largeur de 1 à 12
      *  - attrs:
      *  - role {} : 
      * 
      */
     constructor(elt, o = null) {
-        const local = ['text', 'parent', 'tabindex', 'ext', 'feedback', 'role']
+        const local = ['text', 'parent', 'tabindex', 'ext', 'feedback', 'role', 'width']
         const valid = ['name', 'id', 'style', 'class'] 
         this._elt = elt
         this._div = null    // div englobante utilisée par exemeple pour alert
@@ -67,7 +70,8 @@ class Element {
 
     /** ****************** SETTERS ********************/
 
-    /** Définit les attributs (ex: disabled)
+    /** Définit les attributs (ex: 'disabled')
+     * Chaque attribut est séparé par une virgule
      * 
      * @param  {...any} attr attributs
      * @returns {Element}
@@ -160,16 +164,34 @@ class Element {
 
     /** Précise l'action
      * 
-     * @param {string} event déclencheur
-     * @param {string} action action à faire
+     * @param {string|string[]} event déclencheur
+     * @param {string|string[]} action action à faire
      * @param {boolean} escape échappe les caractères si True défaut = False
      * @returns {Element}
      */
     setAction(event, action, escape = false) {
+        let _action = ""
         if (!escape)
-            this._action = event + '="' + action + '"'
+            if (isArray(event)){
+                // @ts-ignore
+                event.forEach(function(e, index){
+                    // @ts-ignore
+                    _action += e + "=" + action[index] +" "
+                })
+            } else
+                _action = event + "=" + action +" "
         else
-            this._action = event + '="' + new uString(action).convertHtmlChar().html + '"'
+            if (isArray(event)){
+                // @ts-ignore
+                event.forEach(function(e, index){
+                    // @ts-ignore
+                    _action += e + "=" + new uString(action[index]).convertHtmlChar().html +" "
+            })
+        } else
+            // @ts-ignore
+            _action = event + "=" + new uString(action).convertHtmlChar().html + " "
+        
+        this._action = _action
         return this
     }
 
@@ -254,26 +276,23 @@ class Element {
 
     /** Crée la structure de base d'un élément
      * 
-     * @see getHTML
      * @returns {string} chaine HTML
      */
     getHTMLelt() {
         let html = ""
         html += "<" + this._elt + " "
 
-        let x = Object.entries(this)
-
         // parcours élément de la classe
         for (const [prop, value] of Object.entries(this)) {
             if (value != null) {
 
                 // propriétés natives
-                if (prop.indexOf('_') == -1) {
+                if (prop.indexOf('_') == -1 && value != "" && value != []) {
                     html += prop + "='" + value + "' "
                 } else { // sinon
                     switch (prop) {
                         case "_action":
-                            html += " action = '" + value + "' "
+                            html +=  value
                             break
                         case '_role':
                             html += " role = '" + value + "' "
@@ -341,16 +360,14 @@ class Element {
         // récupère les enfants
         let childs = this.getChilds()
         var pos = html.indexOf("</")
-        let elt, h
-        while (childs.length > 0) {
-            elt = childs[0]
-            //if (elt['_elt'] == 'img')
+        let h
+        childs.forEach((elt) => {
             h = elt.getHTML()
 
             html = html.substring(0, pos) + h + html.substring(pos)
             pos += h.length
-            childs.splice(0, 1)
-        }
+            //childs.splice(0, 1)
+        })
         return html
     }
 
@@ -373,6 +390,409 @@ class Element {
     removeStyle() {
         this.style = ""
         return this
+    }
+}
+
+/************************************************** */
+
+/**
+ * @class Listmenu
+ * @classdesc Gènère un menu déroulant 
+ * Ce menu peut contenir jusqu'à 4 items
+ * 
+ * La structure nécessaire est :
+ *  - un objet (prop) contenant :
+ *      - un label (label) affiché sur le bouton
+ *      - l'id (id) du bouton
+ *      - l'id (idMenu) du menu
+ *      - la largeur (width)
+ * - l'objet (rows) contenant la structure :   
+ *      - un tableau comportant l'ensemble des lignes
+ *      - chaque ligne est constituée d'un tableau d'objets qui seront les items affichés
+ *      - chaque item peut-etre:
+ *          - un label sans lien
+ *          - un texte avec lien et/ou action
+ *      -    une image avec lien et/ou action
+ * La structure d'un objet est :
+ *  {type: label|link|img, content: text|text|[src,alt], 
+ *  link: .|link|(link|.), class: (class|.), id: (id|.), action: function}
+ * 
+ * Le fichier 'listmenu.js' est nécessaire pour initialiser les actions
+ * l'appel se fait ainsi : initListMenu(prop, rows)
+ */
+class ListMenu{
+
+    /**
+     * 
+     * @param {Object} prop 
+     * @param {Object[][]} struct 
+     */
+    constructor(prop, struct){
+        this.html = ""
+        this.prop = prop
+        this.label = prop.label
+        this.id = prop.id    // id du bouton
+        this.idMenu = prop.idMenu    // id du menu
+        this.width = prop.width || '16em'
+        this.active = prop.enabled || false
+        this.menu = new Div("container-fluid")
+        this.lstMenu = new Div("container-fluid menu-list", "lstmenu")
+        this.rows = []
+        this.elts = []  // enregistre les éléments
+        this.items = []
+        this.divmenu_c = []
+        this.divmenu_cr = []
+        this.divmenu_s = []
+        struct.forEach( (objArray) =>{
+            this.rows.push(objArray)
+        })
+    }
+
+    /** Génère bouton principal
+     * 
+     */
+    createLabel(){
+        const elt = new Button(this.label, {id: this.id, class: "btn btn-success"})
+        this.divmenu_s.push(new Div("row").addChild(elt))
+        /*
+        if (!this.active)
+            elt.setAttrs('disabled')
+        */
+    }
+
+    /** Génère les items
+     * 
+     */
+    createElements(){
+        this.items = []
+        let elts
+        this.rows.forEach( (row) => {
+            elts = this._createElements(row)      
+            this.items.push(elts)
+        })
+    }
+
+    _calcWidthRow(items){
+        let width = 0  // largeur (nombre de colonnes) défini dans items.width
+        let nbFull = 0 // nombre d'items ayant une largeur défini dans items.width
+        const sizes = []
+        items.forEach( (item) => {
+            if (item._width) {
+                nbFull += 1
+                width += parseInt(item._width)
+                sizes.push(item._width)
+            } else
+                sizes.push(0)
+        })
+        // nombre de cases restantes
+        const nbEmpty = items.length - nbFull
+        const w = (12 - width)/nbEmpty
+
+        // initialise les largeurs nulles
+        let res = sizes.map( x => { return (x == 0) ? w : x})
+        return res
+    }
+
+    /** Ajoute une ligne de menu
+     * 
+     * @param {object[]} row
+     * @file dom.js
+     */
+    insertItems(row){
+        const items = this._createElements(row)
+        // calcule la largeur de chaque item dans la ligne
+        let classes = this._calcWidthRow(items)
+        // const size = this.items.length > 0 ? 12/this.items[0].length : 12/items.length
+
+        classes = classes.map((x) => {return "col-"+ x +" menu-item"})
+        this.rows.push(row)
+        this.items.push(items)
+        let elt
+        elt = this._createColItems(items,classes)
+        this.divmenu_c.push(elt)
+        elt = this._createRowItems(elt, "row menu-item-row")
+        this.divmenu_cr.push(elt)
+        this.lstMenu.addChild(elt)
+    }
+
+    /** Crée chaque élement présent dans une ligne de menu
+     * 
+     * @param {object[]} row 
+     * @returns {any[]}
+     */
+    _createElements(row){
+        const elts = []
+        row.forEach((item) => {
+            
+            const link = item.link ? item.link : "#"
+            const id = item.id ? item.id : undefined
+            const _class = item.class || ''
+            const _width = item.width || undefined
+            let classe, data, o
+            switch (item.type){
+                case 'label':
+                    classe = 'no-marge ' + _class
+                    o = id ? {id: id, class: classe, width: _width} : {class: classe, width: _width} 
+                    elts.push(new Label(item.content,o))
+                    break;
+                case 'link':
+                    classe = 'no-marge ' + _class
+                    o = id ? {id: id, class: classe, text: item.content, width: _width} : {class: classe, text: item.content, width: _width} 
+                    elts.push(new Link(link, o))
+                    break;
+                case 'img':
+                    classe = 'menu-icone ' + _class
+                    data =  isArray(item.content) ? item.content : [item.content, undefined]
+                    o = id ? {id: id, class: classe, data: data, width: _width} : {class: classe, data: data, width: _width} 
+                    elts.push(new Img(data[0], o))
+                    break;
+            }
+        })
+        return elts
+    }
+
+    /** Génère les colonnes abritant les items
+     * @use _createColItems
+     */
+    createColItems(width = undefined){
+        if (!width && this.items.length == 0 ) return
+        const size = width ? 12/width : 12/this.items[0].length 
+        const classe = "col-"+size+" menu-item"
+        
+        this.items.forEach(items => {
+            this.divmenu_c.push(this._createColItems(items, classe))
+        })
+    }
+
+    /** Crée les éléments présents dans une ligne
+     * 
+     * @param {object[]} items 
+     * @param {string|string[]} classe 
+     * @returns {any[]}
+     */
+    _createColItems(items, classe){
+        const row = []
+        if (isArray(classe)){
+            for (let i = 0; i<items.length; i++){
+                row.push(new Div(classe[i]).addChild(items[i]))    
+            }
+        } else {
+        items.forEach(item =>{
+            // @ts-ignore
+            row.push(new Div(classe).addChild(item))
+        })
+    }
+        return row
+    }
+
+    /** Génère les lignes
+     * 
+     * @use _createRowItems
+     * @file dom.js
+     */
+    createRowItems(){
+        const classe = "row menu-item-row"
+        let elt
+        this.divmenu_c.forEach(row => {
+            elt = this._createRowItems(row, classe)
+            this.divmenu_cr.push(elt)
+        } )
+        // création div groupe
+        
+        this.divmenu_cr.forEach(item =>{
+            this.lstMenu.addChild(item)
+        })
+        this.divmenu_s.push(this.lstMenu)
+    }
+
+    /**
+     * 
+     * @param {object[]} row 
+     * @param {string} classe 
+     * @returns {Div}
+     */
+    _createRowItems(row, classe){
+        const elt = new Div(classe)
+        row.forEach(item =>{
+            elt.addChild(item)
+        })
+        return elt
+    }
+    
+    /** Génère le menu
+     * 
+     * @returns {string}
+     */
+    createMenu(){
+        this.createLabel()
+        this.createElements()
+        this.createColItems()
+        this.createRowItems()
+        return this._createMenu()
+    }
+
+    _createMenu(){
+        let style = "position:absolute; top:0; left: 1em; width: "+this.width
+        if (this.divmenu_c.length == 0)
+            style += "; display:none"
+        else
+            style.replace("display:none","display:block")
+
+        this.menu = new Div("container-fluid")
+        this.menu_fond = new Div("menu-content", this.idMenu).addChild(this.divmenu_s[1])
+        this.menu = this.menu.addChild(this.divmenu_s[0],this.menu_fond).setStyle(style) 
+        this.html = this.menu.getHTML()
+        return this.html
+    }
+
+    /** Recalcule la page html à partir de this.html
+     * 
+     * @returns {string}
+     */
+    updateMenu(){
+        this.html = this.menu.getHTML()
+        return this.html   
+    }
+
+    /** Affiche le menu et initialise les events
+     * 
+     * @param {string} id id de la page web
+     * @param {boolean} display indique si on doit afficher le menu
+     * @file dom.js
+     */
+    displayMenu(id, display = false){
+        $(id).html(this.html)
+        initListMenu(this.prop, this.rows)
+        if (display)
+            $("#"+this.idMenu).show()
+    }
+
+    /** Ajoute une ligne et affiche le menu
+     * 
+     * @param {object[]} row ligne de menu  
+     * @param {boolean} display indique si on doit afficher le menu
+     */
+    addItem(row, display = false){
+        this.insertItems(row)
+        this.updateMenu()
+        this.displayMenu(this.idMenu, display)
+    }
+
+    getIndex(elt){
+        let index = 1
+        let menu = elt.parentElement.parentElement.parentElement
+        const nbElt = menu.childElementCount
+        const row = elt.parentElement.parentElement
+        let elem = row.nextSibling 
+        while (elem){
+            elem = elem.nextSibling
+            index +=1 
+        }
+        return nbElt - index
+    }
+
+    removeItem(elt, display = false){
+        const index = this.getIndex(elt)
+        this.rows.splice(index)
+        this.items.splice(index)
+        this.lstMenu = new Div("container-fluid menu-list", "lstmenu")
+        this.menu = new Div("container-fluid")
+        this.divmenu_c = []
+        this.divmenu_cr = []
+        this.divmenu_s = [this.divmenu_s[0]]
+        this.createColItems()
+        this.createRowItems()
+        this._createMenu()
+        this.displayMenu("#menu", display)
+    }
+}
+
+/************************************************** */
+
+/**
+ * Il faut définir 
+ *  - la structure html du formulaire
+ * 
+ * <form>
+ *  <fieldset>
+ *      <label class="col col-form-label"></label>
+ *      <div class="form-group col">
+ *          <div class="row">
+ *              <label class="col-form-label col-md-x"></label>
+ *              <div class="col-md-(12-x)">
+ *                  <input class="text ui-widget-content ui-corner-all">
+ *              </div>
+ *          </div>
+ *      </div>
+ *  </fieldset>
+ * </form>
+ * 
+ *  - les paramètres
+ *  const prm = {
+ *      autoOpen: false,
+ *      height: 'auto',
+ *      width: 'auto',
+ *      position: {my: 'center', at: "center"},
+ *      modal: true,
+ *      title: "Titre",
+ *      buttons: {
+ *      "Action": action,
+ *      "Annule": closeDialog,
+ *      "...": ...
+ *  }
+ * }
+ * 
+ * action et closeDialog sont des fonctions
+ * 
+ * La construction du dialogue se réalise avec :
+ * const diag = new dom.Dialog("dialog-form", form, prm)
+ * dialog-form est l'id d'une balise <div></div>
+ */
+class Dialog{
+    
+    /** Crée un dialogue
+     * 
+     * @param {string} idDialog id du div qui contient le dialogue
+     * @param {Object} form objet contenant le formulaire
+     * @param {Object} diag paramètres du dialogue
+     * 
+     * diag contient les paramètres  
+     * 
+     * Le fichier 'dialog.js' est indispensable 
+     */
+    constructor(idDialog, form, diag){
+        this.idDialog = idDialog
+        this.form = form
+        // @ts-ignore
+        this.dialogue = $("#"+this.idDialog).dialog(diag)
+        $("#"+this.idDialog).html(this.form.getHTML())
+    } 
+
+
+    /** Affiche la boite de dialogue
+     * 
+     */
+    display(){
+        this.dialogue.dialog('open')
+    }
+
+    /** Ferme le dialogue
+     * 
+     */
+    hide() {
+        this.dialogue.dialog('close')
+    }
+
+    getInputs(){
+        let val = []
+        let o
+        const tab = $($(this.dialogue)[0].children[0]).find("input")
+        // @ts-ignore
+        tab.each((index, elt) => {
+            o = {name:elt.name, id:elt.id, val:elt.value}
+            val.push(o)
+        })
+        return val
     }
 }
 
@@ -521,7 +941,7 @@ class Input extends Element {
      * - pattern {string} : chaîne de validation
      * - placeholder {string} : texte d'information affiché dans le champ
      */
-    constructor(type, o = null) {
+    constructor(type, o = {}) {
         super('input', o)
         this._label = null || o.label;
         this._feedback = null || o.feedback
@@ -727,7 +1147,7 @@ class Img extends Element {
         super('img', o)
         this.src = src
         const local = ["label", "feedback"]
-        const valid = ["alt","crossorigin","decoding", "height", "ismap", "max","min","pattern","placeholder"]
+        const valid = ["alt","crossorigin","decoding", "height", "ismap", "max","min","pattern","placeholder", "width"]
         if (o) {
             for (let key in o) {
                 if (local.includes(key))
@@ -818,8 +1238,6 @@ class List extends Element {
 
 }
 
-/************************************************** */
-
 /**  
  * @classdesc Crée la structure pour afficher un message temporaire
  * @param {object} o o.msg = message o.duration = durée
@@ -851,11 +1269,11 @@ class Message {
 
 /** Affiche un message
  * 
- * @param {string} id ID
+ * @param {string} id ID du container
  * @param {string} msg message
  * @param {number} duree durée
  */
-var dspMessage = function (id, msg, duree) {
+const dspMessage = function (id, msg, duree) {
     getEltID(id + "_msg").html(msg)
     let elt = getEltID(id)
     elt.fadeTo(duree, 100).slideUp(500, function () {
@@ -863,19 +1281,4 @@ var dspMessage = function (id, msg, duree) {
     })
 }
 
-export { Element, Label, Input, P, Domus, Form, Button, Div, Img, Link, Alert, Message, List, dspMessage }
-
-
-/** Ajoute une div
-     * 
-     * @param {string} cls classe
-     * @param {boolean} global si True place les attibuts avant la div
-     * @returns {Element}
-     */
-/*
- addDiv(cls = 'col', global = true) {
-    this._div = cls
-    this._global = global
-    return this
-}
-*/
+export { Element, Label, Input, P, Domus, Form, Button, Div, Img, Link, Alert, Message, List, dspMessage, ListMenu, Dialog }

@@ -1,8 +1,14 @@
 <html>
 
 <head>
+    
     <script type="text/javascript" src="node/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="node/chart.js/dist/chart.js"></script>
+    <link rel="stylesheet" href="static/style.css" type="text/css" />
+    <link rel="stylesheet" href="static/listmenu.css" type="text/css" />
+    <link rel="stylesheet" href="node/jquery-ui/themes/custom/jquery-ui.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="static/bootstrap/dist/css/bootstrap.min.css" />  
+    <script type="text/javascript" src="node/jquery-ui-dist/jquery-ui.js"></script>
     <style>
         .feedback {
             display: inline;
@@ -12,10 +18,24 @@
 </head>
 
 <body>
+    <div id="menu"></div>
+    <div id = "dialog-form"></div> 
+    
+    <!--
     <div class="chart-container" style="position: relative; height:400px; width:600px">
-    <canvas id="container" width="700" height="400"></canvas>
+        <canvas id="container" width="700" height="400"></canvas>
     </div>
-    <script type="module" src="../tests/test_graph.js"></script>
+    -->
+    <script type="module" src="../tests/create_dialog.js"></script>
+    <script type="module" src="../tests/test_listmenu.js"></script>
+    <script  type="text/javascript">
+        window.onload = function() {
+
+        var $ = window.jQuery
+    
+    }
+    </script>
+    
 </body>
 
 </html>

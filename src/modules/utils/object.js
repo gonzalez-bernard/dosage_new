@@ -10,6 +10,23 @@
 import { isObject, isString } from "./type.js"
 import * as e from "./errors.js"
 
+/** Fonction permettant d'enregsitrer un objet avec référence circulaire avec stringify
+ *  Ex : JSON.stringify(objet, getCircularReplacer())
+ * 
+ */
+const getCircularReplacer = () => {
+    const seen = new WeakSet();
+    return (key, value) => {
+      if (typeof value === "object" && value !== null) {
+        if (seen.has(value)) {
+          return;
+        }
+        seen.add(value);
+      }
+      return value;
+    };
+};
+
 /** Initie les propriétés d'une classe à partir d'un objet
  * 
  * @param {object} o 
@@ -82,4 +99,4 @@ function replace( obj, oChange, add = true ) {
     return obj
 }
 
-export { hasKey, propLower, replace, createClassByObject }
+export { hasKey, propLower, replace, createClassByObject, getCircularReplacer }

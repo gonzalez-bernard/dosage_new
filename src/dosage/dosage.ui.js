@@ -1,18 +1,21 @@
 import * as ui from "./ui/html_cts.js";
-import { gDosages, gGraphs } from "../environnement/globals.js";
+
+import { gDosages, gGraphs, gGraphMenu } from "../environnement/globals.js";
 import { getEltID } from "../modules/utils/html.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { cts } from "../environnement/constantes.js";
+import {Dialog, ListMenu} from "../modules/dom.js"
+import {activeDisplayGraph, removeGraphMenu} from "./dosage.graph.js"
+import { dgForm } from "./ui/html.js";
 
-// const G = gDosages.getCurrentDosage()
 
-/** Action à faire en cas de fermeture du dialogue "dspMessage"
- *
+/** Action à faire en cas de fermeture du dialogue "dspErrorMessage"
+ *  On bascule sur l'onglet Especes
  * @returns void
  * @public
  * @file dosage_ui.js
  */
-function setClassMenu() {
+function displayEspece() {
     // On bascule sur espèces
     dspTabEspeces(true)
     dspTabDosage(false)
@@ -33,10 +36,10 @@ function setClassMenu() {
  */
 function setButtonState(clear = true) {
     const G = gDosages.getCurrentDosage()
-    const C = gGraphs.charts[gDosages.currentDosage]
+    const C = gGraphs.currentGraph
 
-    let bts = [ui.DOS_BT_COTH, ui.DOS_BT_DERIVEE, ui.DOS_BT_TAN1, ui.DOS_BT_TAN2, ui.DOS_BT_PERP]
-    let _this = C.chartPH
+    let bts = [ui.DOS_BT_COTH, ui.DOS_BT_DERIVEE, ui.DOS_BT_TAN1, ui.DOS_BT_TAN2, ui.DOS_BT_PERP, ui.DOS_BT_SAVE_GRAPH]
+    let _this = C
 
     // désactive tous les boutons
     if (clear) {
@@ -60,10 +63,113 @@ function setButtonState(clear = true) {
     if (G.titrant.vol > 5) {
         getEltID(ui.DOS_BT_DERIVEE).prop("disabled", false);
         getEltID(ui.DOS_BT_TAN1).prop("disabled", false);
+        getEltID(ui.DOS_BT_SAVE_GRAPH).prop("disabled", false)
     }
-
 }
 
+/** Ferme la boite de dialogue d'ajout graphe
+ * 
+ * @file dosage.ui.js
+ */
+function closeDialog(){
+    gGraphMenu.dialog.hide()
+}
+
+/** Actions lors de la validation du dialogue ajout d'un graphe
+ * On ajoute la courbe à la liste déroulante
+ * On affiche la liste
+ * On ferme le dialogue
+ * @file dialog.ui.js
+ */
+function saveDialog(){
+    // @ts-ignore
+    addGraphMenuItem($("#graphName").val(), gGraphs.activeChart)
+    gGraphMenu.menu.show()
+    closeDialog();
+}
+
+/** Crée un object Dialog pour saisie du nom de la courbe
+ * 
+ * @returns {Dialog}
+ * @file dialog.ui.js
+ */
+function initDialog(){
+    const dgPrm = {
+        autoOpen: false,
+        height: 'auto',
+        width: 'auto',
+        position: {my: 'center', at: "center"},
+        modal: true,
+        title: "Nom de la courbe",
+        classes: {
+            "ui-dialog": "ui-corner-all",
+            "ui-dialog-titlebar": "ui-corner-all",
+        },
+        buttons: [
+            {
+                text: "Enregistre",
+                click: saveDialog,
+                class: 'button-success'
+            },
+            {
+                text: "Annule",
+                click: closeDialog,
+                class: 'button-close'
+            }
+        ],
+        close: {
+            click: closeDialog,
+            class: 'bt-close'
+        }
+    }
+    return new Dialog("dialog-form", dgForm, dgPrm)
+}
+
+/** Menu des graphes initial
+ * Crée le menu et la boite de dialogue
+ * 
+ * @file dialog.ui.js
+ */
+ function initGraphMenu(){
+    const prop = {label: gGraphMenu.label, id:gGraphMenu.idButton, idMenu: gGraphMenu.idMenu, width: gGraphMenu.width, enabled: false}
+    const rows = []
+
+    gGraphMenu.menu = new ListMenu(prop, rows)
+    gGraphMenu.menu.createMenu()
+    gGraphMenu.menu.displayMenu("#"+gGraphMenu.idMenu)
+    gGraphMenu.dialog = initDialog()
+}
+
+/** Ajoute une courbe à la liste
+ * 
+ * @param {string} label nom de la courbe
+ * @param {string} idGraph ID de la courbe
+ * @file dialog.ui.js
+ */
+function addGraphMenuItem(label, idGraph){
+    const row = []
+    row.push({type:'label', content: label})
+    row.push({type:'label', content: idGraph, width:1})
+    row.push({type:'img', content:[gGraphMenu.imgVisible, gGraphMenu.imgNoVisible], action: activeDisplayGraph, id: 'imgVisible_'+gGraphMenu.menu.rows.length, width: 1})
+    row.push({type:'img', content: gGraphMenu.imgTrash, action: removeGraphMenu, id: 'imgTrash_'+gGraphMenu.menu.rows.length, width:1})
+    gGraphMenu.menu.addItem(row, true)
+}
+
+/** Active ou désactive l'affichage de menu graphe
+ * 
+ */
+function dspGraphMenu(state = false){
+    if (state)
+        $("#" + gGraphMenu.idButton).hide()
+    else
+        $("#" + gGraphMenu.idButton).show()
+}
+
+/** Bascule l'état de visibilité des boutons des courbes pH
+ * 
+ * @param {boolean} visible true si boutons visibles
+ * @file dialog.ui.js
+ */
 function setButtonVisible(visible = true){
     const bts = [ui.DOS_BT_COTH, ui.DOS_BT_DERIVEE, ui.DOS_BT_PERP, ui.DOS_BT_TAN1, ui.DOS_BT_TAN2]
     if (visible)
@@ -81,7 +187,6 @@ function setButtonVisible(visible = true){
 * @param {string} bt ID du bouton
 * @param {number} state action 0 = désactive, 1 = active, -1 = bascule 
 * @returns void
-* @public
 * @file dosage.ui.js
 */
 function setButtonClass(bt, state = 1) {
@@ -103,9 +208,10 @@ function setButtonClass(bt, state = 1) {
         getEltID(bt).toggleClass("active-button")
 }
 
-/** Active ou désactive l'onglet
+/** Active ou désactive l'onglet Dosage
  * 
- * @param {boolean} display indique si on active ou non 
+ * @param {boolean} display indique si on active ou non
+ * @file dialog.ui.js
  */
 function dspTabDosage(display) {
     if (display) {
@@ -117,6 +223,4 @@ function dspTabDosage(display) {
     }
 }
 
-/********************************************************** */
-
-export { setButtonState, setButtonClass, dspTabDosage, setClassMenu, setButtonVisible }
+export { setButtonState, setButtonClass, dspTabDosage, displayEspece, setButtonVisible, initGraphMenu, dspGraphMenu }
