@@ -20,17 +20,16 @@ import { mixColors } from "../modules/utils/color.js";
 import { getCircularReplacer, hasKey } from "../modules/utils/object.js";
 import { isNumeric, isObject } from "../modules/utils/type.js";
 import { getEltID, getElt } from "../modules/utils/html.js";
-
 import { dspContextInfo, dspErrorMessage } from "../infos/infos.js";
 
 // labo
-import { initBecher } from "./ui/initBecher.js";
-import { initTooltip } from "./ui/initTooltip.js";
-import { initBurette } from "./ui/initBurette.js";
-import { initFlacon, set_drag } from "./ui/initFlacon.js";
-import { initPhmetre } from "./ui/initPhmetre.js";
-import { initConductimetre } from "./ui/initConductimetre.js";
-import { initPotentiometre } from "./ui/initPotentiometre.js";
+import { initBecher } from "./ui/becher.js";
+import { initTooltip } from "./ui/tooltip.js";
+import { initBurette } from "./ui/burette.js";
+import { initFlacon, set_drag } from "./ui/flacon.js";
+import { initPhmetre } from "./ui/phmetre.js";
+import { initConductimetre } from "./ui/conductimetre.js";
+import { initPotentiometre } from "./ui/potentiometre.js";
 
 import { setEvents, setEventsClick, reset } from "./dosage.events.js";
 import { dspTabDosage, setButtonClass, setButtonState, initGraphMenu, dspGraphMenu } from "./dosage.ui.js";
@@ -104,6 +103,10 @@ async function initDosage(DS, canvas) {
                 /** Initialisation du dosage (dosage.js)  */
                 createLab(DS)
                 manageGraph()
+                dspTabEspeces(false)
+                dspTabDosage(true)
+                getEltID(MNU_ESPECES).removeClass('active')
+                getEltID(ESPECES).removeClass('active show')
                 
                 // Affichage
                 displayGraph()
@@ -229,32 +232,25 @@ function vidage(lab, DS ) {
     // Modifie la couleur du bécher en fonction du dosage
     lab.becher.setColor(getColor(0));
 
-    // si dosage pH
-    // définit le texte et actualise le graphe
-    if (G.test("etat", cts.ETAT_PHMETRE)) {
-        lab.phmetre.setText(G.sph);
-        C.changeData(C.data);
+    const etat = G.getMask("etat", cts.ETAT_COND + cts.ETAT_PHMETRE + cts.ETAT_POT)
+    switch (etat){
+        case cts.ETAT_PHMETRE:
+            lab.phmetre.setText(G.sph);
         
-        // Boutons
-        // Active les boutons si volume titrant supérieur à 5 mL
-        if (G.titrant.vol > 5 && G.titrant.vol < 6) {
-            setButtonState(false)
-            dspGraphMenu(true)
-        }
+            // Active les boutons si volume titrant supérieur à 5 mL
+            if (G.titrant.vol > cts.DOS_TITRANT_MIN) {
+                setButtonState(false)
+                dspGraphMenu(true)
+            }
+            break
+        case cts.ETAT_POT:
+            lab.potentiometre.setText(G.spot);
+            break
+        case cts.ETAT_COND:
+            lab.conductimetre.setText(G.scond);
     }
-    // dosage ox
-    else if (G.test("etat", cts.ETAT_COND)) {
-        lab.conductimetre.setText(G.scond);
-        C.changeData(C.data);
-    }
-
-    // dosage potentiomètrique
-    else if (G.test("etat", cts.ETAT_POT)) {
-        lab.potentiometre.setText(G.spot);
-        C.changeData(C.data);
-    }
-
-    localStorage.setItem("Graph",JSON.stringify(C, getCircularReplacer()))
+    //actualise le graphe
+    C.changeData(C.data);    
 }
 
 /** Récupère la couleur du bécher ou de la burette

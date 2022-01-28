@@ -5,8 +5,9 @@ import { getEltID } from "../modules/utils/html.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { cts } from "../environnement/constantes.js";
 import {Dialog, ListMenu} from "../modules/dom.js"
-import {activeDisplayGraph, removeGraphMenu} from "./dosage.graph.js"
+import {toggleDisplayGraph, removeGraphMenu} from "./dosage.graph.js"
 import { dgForm } from "./ui/html.js";
+import { DOS_TOOLTIP_OEIL, DOS_TOOLTIP_TRASH } from "./ui/lang_fr.js";
 
 
 /** Action à faire en cas de fermeture du dialogue "dspErrorMessage"
@@ -60,7 +61,7 @@ function setButtonState(clear = true) {
     if (_this.indiceTangentes[0] != 0 && _this.indiceTangentes[1] != 0)
         getEltID(ui.DOS_BT_PERP).prop("disabled", false);
 
-    if (G.titrant.vol > 5) {
+    if (G.titrant.vol > cts.DOS_TITRANT_MIN) {
         getEltID(ui.DOS_BT_DERIVEE).prop("disabled", false);
         getEltID(ui.DOS_BT_TAN1).prop("disabled", false);
         getEltID(ui.DOS_BT_SAVE_GRAPH).prop("disabled", false)
@@ -83,8 +84,11 @@ function closeDialog(){
  */
 function saveDialog(){
     // @ts-ignore
+    // Ajoute un item du graphe courant à la liste des graphes
     addGraphMenuItem($("#graphName").val(), gGraphs.activeChart)
-    gGraphMenu.menu.show()
+    // Affiche le menu
+    gGraphMenu.menu.displayMenu(gGraphMenu.idRootMenu, true)
+    // ferme le dialogue
     closeDialog();
 }
 
@@ -131,7 +135,15 @@ function initDialog(){
  * @file dialog.ui.js
  */
  function initGraphMenu(){
-    const prop = {label: gGraphMenu.label, id:gGraphMenu.idButton, idMenu: gGraphMenu.idMenu, width: gGraphMenu.width, enabled: false}
+    const prop = {
+        label: gGraphMenu.label, 
+        idBtMenu:gGraphMenu.idButton, 
+        idMenu: gGraphMenu.idMenu, 
+        idRootMenu:gGraphMenu.idRootMenu, 
+        width: gGraphMenu.width, 
+        enabled: false
+    }
+
     const rows = []
 
     gGraphMenu.menu = new ListMenu(prop, rows)
@@ -148,10 +160,27 @@ function initDialog(){
  */
 function addGraphMenuItem(label, idGraph){
     const row = []
-    row.push({type:'label', content: label})
-    row.push({type:'label', content: idGraph, width:1})
-    row.push({type:'img', content:[gGraphMenu.imgVisible, gGraphMenu.imgNoVisible], action: activeDisplayGraph, id: 'imgVisible_'+gGraphMenu.menu.rows.length, width: 1})
-    row.push({type:'img', content: gGraphMenu.imgTrash, action: removeGraphMenu, id: 'imgTrash_'+gGraphMenu.menu.rows.length, width:1})
+    row.push({type:'label', content: [label]})
+    row.push({type:'label', content: [idGraph], width:0, visible:false})
+    row.push({
+        type:'img', 
+        content:[gGraphMenu.imgVisible, gGraphMenu.imgNoVisible],
+        idx: 0, 
+        action: toggleDisplayGraph, 
+        id: 'imgVisible_'+gGraphMenu.menu.getRows().length, 
+        width: 2, 
+        tooltip:DOS_TOOLTIP_OEIL
+
+    })
+    row.push({
+        type:'img', 
+        content: [gGraphMenu.imgTrash], 
+        action: removeGraphMenu, 
+        id: 'imgTrash_'+gGraphMenu.menu.getRows().length, 
+        width:2, 
+        tooltip: DOS_TOOLTIP_TRASH
+    })
+    
     gGraphMenu.menu.addItem(row, true)
 }
 
@@ -160,9 +189,9 @@ function addGraphMenuItem(label, idGraph){
  */
 function dspGraphMenu(state = false){
     if (state)
-        $("#" + gGraphMenu.idButton).hide()
-    else
         $("#" + gGraphMenu.idButton).show()
+    else
+        $("#" + gGraphMenu.idButton).hide()
 }
 
 /** Bascule l'état de visibilité des boutons des courbes pH

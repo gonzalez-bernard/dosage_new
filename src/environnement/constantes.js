@@ -282,6 +282,8 @@ const cts = {
     DATA_GET_DOSAGE_OK: "getDosage_ok",
     DATA_GET_PROBLEM: "getProblem",
     DATA_GET_PROBLEM_OK: "getProblem_ok",
+
+    DOS_TITRANT_MIN: 1
 }
 
 export { cts }

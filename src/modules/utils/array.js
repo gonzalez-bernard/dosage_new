@@ -176,6 +176,11 @@ class uArray extends Array {
         return this.array
     }
 
+    /**
+     * 
+     * @param {*} condition 
+     */
+    getNumberElts(condition){}
 
 
     /** Extrapole pour trouver la valeur dans tab_y correpondante à x de tab_x 
@@ -201,6 +206,14 @@ class uArray extends Array {
     } else {
         return tab_y[indice] + (tab_y[indice] - tab_y[indice - 1]) * (x - tab_x[indice]) / (tab_x[indice] - tab_x[indice - 1])
     }
+    }
+
+    /** Convertit un tableau de nombres en chaines
+     * 
+     * @returns {string[]}
+     */
+    int2str(){
+        return this.val.map(e => e.toString())
     }
 
 }

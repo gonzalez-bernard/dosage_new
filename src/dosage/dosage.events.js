@@ -9,13 +9,13 @@ import * as e from "../modules/utils/errors.js"
 import { getEltID } from "../modules/utils/html.js";
 import { gDosages, gGraphMenu, gGraphs } from "../environnement/globals.js";
 import { isObject } from "../modules/utils/type.js";
-import { setPosFlacons, set_drag } from "./ui/initFlacon.js"
+import { setPosFlacons, set_drag } from "./ui/flacon.js"
 import { resetMesures } from "./dosage.datas.js"
 import { setButtonState, setButtonClass, dspTabDosage } from "./dosage.ui.js"
 import { vidage } from "./dosage.js"
 import { dspInfo, dspContextInfo } from "../infos/infos.js";
 import { dspTabEspeces, initDataInfo } from "../especes/especes.ui.js";
-import { updateAppareil } from "./ui/initAppareil.js";
+import { updateAppareil } from "./ui/appareil.js";
 import { getCircularReplacer } from "../modules/utils/object.js";
 import { Graphx } from "../dosage/graphx.js";
 
@@ -54,7 +54,6 @@ function setEvents() {
     }
 
  
-    
     /** bouton reset (réinitialise le dosage) */
     getEltID(ui.DOS_BT_RESET).on("click", function () {
         reset(false)
@@ -181,9 +180,6 @@ function setEvents() {
         // affiche la boite de dialogue pour choisir le nom de la courbe
         gGraphMenu.dialog.display()
 
-        // ajoute la courbe à la liste
-
-        // affiche la liste
     })
 }
 

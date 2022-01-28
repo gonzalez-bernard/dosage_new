@@ -1,0 +1,16 @@
+@startuml saveDialog  
+start
+  #CCCCCC:saveDialog]
+  Package dialog.ui {
+    :<b>addGraphMenuItem</b>
+    Ajoute un item du graphe courant à la liste des graphes;
+  }
+  package dom {
+    :<b>graphMenu.menu.displayManu</b>
+    Affiche le menu;
+  }
+  package dialog.ui {
+    :<b>closDialog</b>
+    ferme le dialogue;
+  }
+@enduml

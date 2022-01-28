@@ -7,22 +7,56 @@
  * ***export initPotentiometre***
 */
 
-import * as cPotentiometre from "./classes/potentiometre.js";
+import {Appareil} from "./appareil.js"
 import { POTENTIOMETRE } from "./interface.js";
 import {cts} from"../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
 import { displayGraph, manageGraph } from "../dosage.graph.js"
-import { updateAppareil } from "./initAppareil.js";
+import { updateAppareil } from "./appareil.js";
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
 /**
  * @typedef {import('../../../types/types').tLab} tLab
  * @typedef {import('../../../types/classes').Dosage} Dosage
- * @typedef {import('../../../types/classes').Potentiometre} Potentiometre
+ * @typedef {import('../../../types/classes').Canvas} Canvas 
+ * @typedef {import('../../../types/types').tAPPAREIL} tAPPAREIL 
+ * @typedef {import('../../../types/interfaces').iCanvasText} iCanvasText
  * 
  */
+
+ /**  Création potentiomètre
+  *
+  * @class potentiometre
+  * 
+ */
+ class Potentiometre extends Appareil{
+   
+   /**
+    * 
+    * @param {tAPPAREIL} app 
+    * @param {Canvas} canvas 
+    * @param {number} etat 
+    * @param {string} unite 
+    */
+   constructor(app, canvas, etat, unite){
+     super(app, canvas, etat, unite)
+ 
+     /** @type {iCanvasText} */
+     this.value = canvas.display.text({
+       x: app.w/2+10,
+       y: app.h/2-23,
+       size: app.w/8,
+       text: app.value,
+       fill: "#0",
+       origin: {x:"center",y:"center"}
+     })
+ 
+     this.fond.addChild(this.value)
+   }
+ }
+ 
 
 /** Crée le potentiomètre
  *
@@ -38,7 +72,7 @@ function initPotentiometre(lab, G) {
     if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
 
     // Crée potentiometre
-    var potentiometre = new cPotentiometre.Potentiometre(
+    var potentiometre = new Potentiometre(
         POTENTIOMETRE, lab.canvas, cts.ETAT_POT, "V"
     );
     lab.canvas.addChild(potentiometre.fond);

@@ -1,3 +1,43 @@
+import {Appareil} from "./appareil.js"
+import {cts} from"../../environnement/constantes.js";
+import * as txt from "./lang_fr.js";
+import * as e from "../../modules/utils/errors.js";
+import { isObject } from "../../modules/utils/type.js";
+import { CONDUCTIMETRE } from "./interface.js";
+import { displayGraph, manageGraph } from "../dosage.graph.js"
+import { updateAppareil } from "./appareil.js";
+import { setButtonState, setButtonVisible } from "../dosage.ui.js";
+
+/**
+ * @typedef {import ('../../../types/classes').Canvas} Canvas
+ * @typedef {import ('../../../types/types').tAPPAREIL} tAPPAREIL
+ * @typedef { import ("../../../types/types").tLab} tLab
+ * @typedef { import ( '../../../types/classes' ).Dosage } Dosage  
+ */
+
+
+/**  Création conductimètre
+ *
+ * @class Conductimetre
+ * 
+*/
+class Conductimetre extends Appareil{
+
+  /**
+   * Construit objet conductimetre
+   * @param {tAPPAREIL} app structure
+   * @param {Canvas} canvas 
+   * @param {number} etat 
+   * @param {string} unite 
+   */
+  constructor(app, canvas, etat, unite){
+    super(app, canvas, etat, unite)
+
+    this.fond.addChild(this.value)
+  }
+}
+
+
 /** initConductimetre.js 
  * 
  * @module dosage/ui/initConductimetre
@@ -8,22 +48,6 @@
  * ***export initConductimetre***
 */
 
-import * as cConductimetre from "./classes/conductimetre.js";
-import {cts} from"../../environnement/constantes.js";
-import * as txt from "./lang_fr.js";
-import * as e from "../../modules/utils/errors.js";
-import { isObject } from "../../modules/utils/type.js";
-import { CONDUCTIMETRE } from "./interface.js";
-import { displayGraph, manageGraph } from "../dosage.graph.js"
-import { updateAppareil } from "./initAppareil.js";
-import { setButtonState, setButtonVisible } from "../dosage.ui.js";
-
-/**
- * @typedef { import ("../../../types/types").tLab} tLab
- * @typedef { import ( '../../../types/classes' ).Dosage } Dosage  
- * @typedef { import ( '../../../types/classes' ).Conductimetre } Conductimetre  
- */
-
 /** Crée le conductimètre
  *
  * Définit les events
@@ -31,14 +55,13 @@ import { setButtonState, setButtonVisible } from "../dosage.ui.js";
  * @param {Dosage} G
  * @returns {Conductimetre} Conductimetre
  * @use updGraph, displayGraph
- * @public
- * @file initConductimetre
+ * @file Conductimetre
  */
 function initConductimetre(lab, G) {
     if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
 
     // Crée conductimetre
-    var conductimetre = new cConductimetre.Conductimetre(CONDUCTIMETRE, lab.canvas, cts.ETAT_COND, "mS");
+    var conductimetre = new Conductimetre(CONDUCTIMETRE, lab.canvas, cts.ETAT_COND, "mS");
     lab.canvas.addChild(conductimetre.fond);
 
     // survol conductimetre

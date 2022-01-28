@@ -1,10 +1,19 @@
 .menu-item{
   display: table-cell;
-  vertical-align: middle;
+  padding: 0px 2px !important;
+  margin: 0px 0px !important;
+}
+
+.menu-item_label{
+  padding: 0px 4px
+}
+
+.menu-item-nodisplay{
+  display: none
 }
 
 .menu-item-row{
-  line-height: 2.8em;
+  line-height: 2.0em;
   background-color: rgb(245, 246, 248);
 }
 
@@ -13,9 +22,10 @@
 }
 
 .menu-icone{
-  width:50%;
-  height:50%;
-  margin: 10% auto;
+  width: 62%;
+  /* height: 86%; */
+  margin: 2%;
+  display: list-item;
 }
 
 .menu{

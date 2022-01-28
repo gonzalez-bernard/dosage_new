@@ -1,33 +1,34 @@
-.stooltip {
+.mtooltip {
     text-decoration: none;
     position: relative;
 }
 
-.stooltip span {
+.mtooltip span {
     display: none;
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
     border-radius: 6px;
     color: black;
     background: white;
+    
 }
 
-.stooltip span img {
+.mtooltip span img {
     float: left;
     margin: 0px 8px 8px 0;
 }
 
-.stooltip:hover span {
+.mtooltip:hover span {
     display: block;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1000;
-    /* min-width: 200px;
-    min-height: 128px; */
     border: 1px solid black;
-    margin-top: 2px;
-    margin-left: 32px;
     overflow: hidden;
     padding: 2px;
+    width:max-content;
+    margin-top: 2em;
+    font-size: 80%;
+    line-height: 140%
 }

@@ -1,0 +1,19 @@
+@startuml createLab
+start
+  :get current dosage;
+  package Canvas.domReady {
+    :crée Canvas;
+    :crée éléments; 
+    if (GLab objet ?) then (OK)
+      :définit texte phmetre;
+      :<b>setEvents</b>
+      définit événements;
+      :<b>dspContextInfo</b>
+      Affiche info;
+    else
+      :cache le graphe;
+    endif
+  }
+  
+stop
+@enduml

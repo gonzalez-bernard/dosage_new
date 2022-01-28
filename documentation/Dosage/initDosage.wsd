@@ -1,0 +1,39 @@
+@startuml initDosage
+start
+:get current dosage;
+:get graphe courant;
+:run getDosage;
+note right
+  lance calcul du dosage
+  quand calcul terminé on récupère données (data)
+end note
+if (data?) then (impossible)
+  :Affiche message erreur;
+  end
+else (ok)
+  package dosage.datas.js {
+    :<b>setDosageValues</b>
+    initialise constante dosage;
+  }
+  :affiche page html;
+
+  package dialog.ui.js {
+    :<b>initGraphmenu</b>
+    initialise le menu graphe;
+  }
+  :gère l'affichage de la page;
+  :<b>creaLab</b>
+  construit le labo;
+  package  dosage.graph.js {
+      :<b>manageGraph</b>
+      A completer;
+    
+    :<b>displayGraph</b>
+    affiche le graphe;
+  }
+  :met à jour la constante dosage;
+  :désactive les boutons;
+  :active le déplacement des flacons;
+
+stop
+@enduml

@@ -49,18 +49,16 @@ class Graphx extends ChartX {
      * @param {object} other 
      * @param {object} options  
      */
-    init(label, data, yAxe, other, options){
-        this.data = data
-        let dataset = this.setDataset(label, data, yAxe, other);
-        this.createChart("scatter", dataset, options);
+    init(_dtset){
+        this.data = _dtset.data
+        let dataset = this.setDataset(_dtset.label, _dtset.data, _dtset.yAxe, _dtset.other);
+        this.createChart("scatter", dataset, _dtset.options);
     }
 
     setType(type) {
         if (!isNumeric(type)) throw new TypeError(e.ERROR_NUM)
         this.type = type
     }
-
-    /********************************************************** */
 
     /** Définit les options en fonction du type
      *  Calcule la valeur max de l'ordonnée
@@ -80,8 +78,6 @@ class Graphx extends ChartX {
         }
     }
 
-    /********************************************************** */
-
     /** Enregistre les données dans data et appel la méthode changeData
      *
      * @param {object[]} data tableau des données
@@ -94,8 +90,6 @@ class Graphx extends ChartX {
         this.data = data;
         this.changeData(data);
     }
-
-    /********************************************************** */
 
     /** Initialise données théorique graphe
      *
@@ -118,8 +112,6 @@ class Graphx extends ChartX {
         }
     }
 
-    /********************************************************** */
-
     /** Affiche le graphe ou le cache
      *
      * Affiche ou cache le graphe en fonction de ETAT_GRAPH_dsp
@@ -132,8 +124,6 @@ class Graphx extends ChartX {
             $(this.canvas).show();
         }
     }
-
-    /********************************************************** */
 
     /** Ajoute et affiche une tangente, affiche la pente
      *
@@ -163,8 +153,6 @@ class Graphx extends ChartX {
         this.addTangente(idTangente, pts);
         dspContextInfo("pente", this.pentes);
     }
-
-    /********************************************************** */
 
     /** Ajoute une tangente
      *
@@ -201,8 +189,6 @@ class Graphx extends ChartX {
         this.chart.update();
     }
 
-    /********************************************************** */
-
     /** Efface la tangente
      *
      * @param {number} index indice de la tangente, peut-etre différent
@@ -220,8 +206,6 @@ class Graphx extends ChartX {
         }
 
     }
-
-    /********************************************************** */
 
     /** Déplace les tangentes
      *
@@ -272,8 +256,6 @@ class Graphx extends ChartX {
 
     }
 
-    /********************************************************** */
-
     /** Affiche ou cache la courbe dérivée
      *
      * @file graphx.js
@@ -308,8 +290,6 @@ class Graphx extends ChartX {
         this.chart.update();
     }
 
-    /********************************************************** */
-
     /** Affiche la courbe théorique
      *
      * @param {number} etat 0 = affiche la courbe sinon on efface
@@ -329,8 +309,6 @@ class Graphx extends ChartX {
                 this.removeData(idx);
         }
     }
-
-    /********************************************************** */
 
     /** Affiche la perpendiculaire
      *
@@ -392,9 +370,6 @@ class Graphx extends ChartX {
         return 1
     }
 
-    /********************************************************** */
-
-
     /**
     *
     * @param {object[]} data tableau des valeurs volumes et pH
@@ -435,9 +410,6 @@ class Graphx extends ChartX {
         }};
         return option;
     }
-
-
-    /********************************************************** */
 
     /** Calcule les coordonnées de la perpendiculaire
      * 
@@ -482,8 +454,6 @@ class Graphx extends ChartX {
             d: d,
         };
     }
-
-    /********************************************************** */
 
     /** Retourne la pente
      *

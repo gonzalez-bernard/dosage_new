@@ -1,4 +1,4 @@
-/** DOM - dom.js 
+Image/** DOM - dom.js 
  * @module modules/DOM
  * @description Ensemble des classes permettant la gestion des pages html
  * ***
@@ -6,11 +6,11 @@
  * ***
  */
 
-import { uString } from "./utils/string.js"
+import { insertDiese, uString } from "./utils/string.js"
 import { uArray } from "./utils/array.js"
 import { getEltID } from "./utils/html.js"
 import { isArray, isObject} from "./utils/type.js"
-import {initListMenu} from "./listmenu.js"
+import { getFileName } from "./utils/file.js"
 
 /** classe Element */
 /**
@@ -40,7 +40,7 @@ class Element {
      * 
      */
     constructor(elt, o = null) {
-        const local = ['text', 'parent', 'tabindex', 'ext', 'feedback', 'role', 'width']
+        const local = ['text', 'parent', 'tabindex', 'ext', 'feedback', 'role', 'width', 'options']
         const valid = ['name', 'id', 'style', 'class'] 
         this._elt = elt
         this._div = null    // div englobante utilisée par exemeple pour alert
@@ -400,22 +400,49 @@ class Element {
  * @classdesc Gènère un menu déroulant 
  * Ce menu peut contenir jusqu'à 4 items
  * 
+ * La structure du menu est la suivante :
+ * <div id='root menu'>  // structure externe présente dans le fichier HTML
+ *    <div class = 'container-fluid' id = 'nom menu'>   // id = this._idMenu, div = this._menu
+ *      <div class = 'row'>  
+ *        <button id = 'btMenu'>   // identifié par this._idBtMenu
+ *        </button> 
+ *      </div> 
+ *      <div class = 'container-fluid menu-list' id = 'nom menu_lstMenu'> // id = this.idLstmenu, div = this.*      lstmenu
+ *          <div class = 'row menu-item-row>...</div>
+ *          ...........
+ *      </div>
+ *    </div>
+ * </div>
+ * 
+ * 
  * La structure nécessaire est :
  *  - un objet (prop) contenant :
  *      - un label (label) affiché sur le bouton
  *      - l'id (id) du bouton
  *      - l'id (idMenu) du menu
+ *      - l'id (idRootMenu) du conteneur
  *      - la largeur (width)
+ *      - l'activation (enabled)
  * - l'objet (rows) contenant la structure :   
  *      - un tableau comportant l'ensemble des lignes
  *      - chaque ligne est constituée d'un tableau d'objets qui seront les items affichés
  *      - chaque item peut-etre:
  *          - un label sans lien
  *          - un texte avec lien et/ou action
- *      -    une image avec lien et/ou action
- * La structure d'un objet est :
- *  {type: label|link|img, content: text|text|[src,alt], 
- *  link: .|link|(link|.), class: (class|.), id: (id|.), action: function}
+ *          - une image avec lien et/ou action
+ * La structure d'un item est un objet :
+ *  {
+ *      type: label|link|img,    // type d'item 
+ *      content: [text1,...]|[text0,...]|[img0,...],    // contenu à afficher
+ *      idx : // indice du contenu
+ *      previousIdx: // indice précédent
+ *      link: .|link|(link|.),  // lien  
+ *      class: (class|.),   // classe
+ *      id: (id|.),     // ID
+ *      action: function,    // fonction
+ *      visible: true|false, // visibilité
+ *      tooltip: info   // message d'information
+ * }
  * 
  * Le fichier 'listmenu.js' est nécessaire pour initialiser les actions
  * l'appel se fait ainsi : initListMenu(prop, rows)
@@ -428,69 +455,135 @@ class ListMenu{
      * @param {Object[][]} struct 
      */
     constructor(prop, struct){
-        this.html = ""
-        this.prop = prop
-        this.label = prop.label
-        this.id = prop.id    // id du bouton
-        this.idMenu = prop.idMenu    // id du menu
-        this.width = prop.width || '16em'
-        this.active = prop.enabled || false
-        this.menu = new Div("container-fluid")
-        this.lstMenu = new Div("container-fluid menu-list", "lstmenu")
-        this.rows = []
-        this.elts = []  // enregistre les éléments
-        this.items = []
-        this.divmenu_c = []
-        this.divmenu_cr = []
-        this.divmenu_s = []
+        this._html = ""     // contient le code html à insérer
+        this._label = prop.label    // label du bouton
+        this._idBtMenu = prop.idBtMenu    // id du bouton
+        this._idRootMenu = prop.idRootMenu   // id du div container 
+        this._idMenu = prop.idMenu    // id du menu
+        this._idLstMenu = prop.idMenu+"_lstmenu"    // id du div contenant les items 
+        this._width = prop.width || '16em'      // largeur du menu
+        this._active = prop.enabled || true     // indique si le menu est actif
+        this._menu = new Div("container-fluid", this._idMenu)       // div englobant le menu
+        this._lstMenu = new Div("container-fluid menu-list", this._idLstMenu)   // div englobant les items
+        this._divButton = new Div("row")     // div contenant le bouton
+        this._rows = []     // Contient chaque ligne du menu
+        this._items = []    // contient chaque item
+        this._divmenu_c = []
+        this._divmenu_cr = []
         struct.forEach( (objArray) =>{
-            this.rows.push(objArray)
+            this._rows.push(objArray)
         })
+    }
+
+    getRows(){
+        return this._rows
     }
 
     /** Génère bouton principal
-     * 
+     * les paramètres sont :
+     * - le label
+     * - l'ID
      */
-    createLabel(){
-        const elt = new Button(this.label, {id: this.id, class: "btn btn-success"})
-        this.divmenu_s.push(new Div("row").addChild(elt))
-        /*
-        if (!this.active)
-            elt.setAttrs('disabled')
-        */
+    createButton(){
+        const elt = new Button(this._label, {id: this._idBtMenu, class: "btn btn-success float-left"})
+        this._divButton.addChild(elt)
     }
 
     /** Génère les items
-     * 
+     * Remplit le tableau _items à partir du tableau _rows avec les éléments
+     * @use _createElements
      */
     createElements(){
-        this.items = []
+        this._items = []
         let elts
-        this.rows.forEach( (row) => {
+        this._rows.forEach( (row) => {
             elts = this._createElements(row)      
-            this.items.push(elts)
+            this._items.push(elts)
         })
     }
 
+    /** Crée chaque élement présent dans une ligne de menu
+     * 
+     * @param {object[]} row 
+     * @returns {any[]}
+     */
+     _createElements(row){
+        const elts = []
+        row.forEach((item) => {
+            
+            const link = item.link ? item.link : "#"
+            const id = item.id ? item.id : undefined
+            const _class = item.class || ''
+            const _width = item.width >= 0 ? item.width : undefined
+            const _visible = item.visible == undefined ? true : item.visible
+            const _tooltip = item.tooltip || undefined
+            const _idx = item.idx || 0
+
+            let classe, data, o, style
+            style = ! _visible ? "visibility:hidden" : ""
+
+            switch (item.type){
+                case 'label':
+                    classe = 'no-marge ' + _class
+                    o = id ? {id: id, class: classe, data: item.content, width: _width, tooltip: _tooltip} : {class: classe, width: _width, tooltip: _tooltip} 
+                    elts.push(new Label(item.content[_idx],o).setStyle(style))
+                    break;
+                case 'link':
+                    classe = 'no-marge ' + _class
+                    o = id ? {id: id, class: classe, text: item.content[_idx], width: _width, tooltip: _tooltip} : {class: classe, text: item.content[_idx], width: _width, tooltip: _tooltip} 
+                    elts.push(new Link(link, o).setStyle(style))
+                    break;
+                case 'img':
+                    classe = 'menu-icone ' + _class
+                    //data =  isArray(item.content) ? item.content : [item.content, undefined]
+                    o = id ? {id: id, class: classe, data: item.content, width: _width, tooltip: _tooltip, options:{idx:_idx, prev_idx: _idx}} : {class: classe, data: item.content, width: _width, tooltip: _tooltip, options:{idx:_idx, prev_idx: _idx}} 
+                    elts.push(new Img(item.content[_idx], o).setStyle(style))
+                    break;
+            }
+            
+        })
+        return elts
+    }
+
+    /** Calcule la largeur des colonnes
+     * 
+     * @param {object[]} items 
+     * @returns {number[]}
+     */
     _calcWidthRow(items){
         let width = 0  // largeur (nombre de colonnes) défini dans items.width
         let nbFull = 0 // nombre d'items ayant une largeur défini dans items.width
         const sizes = []
         items.forEach( (item) => {
-            if (item._width) {
+            if (item._width >= 0) {
                 nbFull += 1
                 width += parseInt(item._width)
                 sizes.push(item._width)
             } else
-                sizes.push(0)
+                sizes.push(-1)
         })
         // nombre de cases restantes
         const nbEmpty = items.length - nbFull
         const w = (12 - width)/nbEmpty
 
         // initialise les largeurs nulles
-        let res = sizes.map( x => { return (x == 0) ? w : x})
+        let res = sizes.map( x => { return (x == -1) ? w : x})
         return res
+    }
+
+    /** Retourne un tableau précisant les classes en tenant compte de la taille
+     * 
+     * @param {number[]} colWidths tableau des largeurs des colonnes 
+     * @return {string[]}
+     */
+    _getClasses(colWidths){
+        let classes = new uArray(this._calcWidthRow(colWidths)).int2str()
+        classes = classes.map((x, index) => {
+            if (parseInt(x) == 0)
+                return " menu-item-nodisplay"
+            else
+                return "col-"+ x +" menu-item"})
+        return classes
     }
 
     /** Ajoute une ligne de menu
@@ -500,86 +593,57 @@ class ListMenu{
      */
     insertItems(row){
         const items = this._createElements(row)
-        // calcule la largeur de chaque item dans la ligne
-        let classes = this._calcWidthRow(items)
-        // const size = this.items.length > 0 ? 12/this.items[0].length : 12/items.length
-
-        classes = classes.map((x) => {return "col-"+ x +" menu-item"})
-        this.rows.push(row)
-        this.items.push(items)
         let elt
+        
+        // calcule la classe en fonction de la largeur de chaque item dans la ligne
+        let classes = this._getClasses(items)
+        this._rows.push(row)
+        this._items.push(items)
         elt = this._createColItems(items,classes)
-        this.divmenu_c.push(elt)
+        this._divmenu_c.push(elt)
         elt = this._createRowItems(elt, "row menu-item-row")
-        this.divmenu_cr.push(elt)
-        this.lstMenu.addChild(elt)
-    }
-
-    /** Crée chaque élement présent dans une ligne de menu
-     * 
-     * @param {object[]} row 
-     * @returns {any[]}
-     */
-    _createElements(row){
-        const elts = []
-        row.forEach((item) => {
-            
-            const link = item.link ? item.link : "#"
-            const id = item.id ? item.id : undefined
-            const _class = item.class || ''
-            const _width = item.width || undefined
-            let classe, data, o
-            switch (item.type){
-                case 'label':
-                    classe = 'no-marge ' + _class
-                    o = id ? {id: id, class: classe, width: _width} : {class: classe, width: _width} 
-                    elts.push(new Label(item.content,o))
-                    break;
-                case 'link':
-                    classe = 'no-marge ' + _class
-                    o = id ? {id: id, class: classe, text: item.content, width: _width} : {class: classe, text: item.content, width: _width} 
-                    elts.push(new Link(link, o))
-                    break;
-                case 'img':
-                    classe = 'menu-icone ' + _class
-                    data =  isArray(item.content) ? item.content : [item.content, undefined]
-                    o = id ? {id: id, class: classe, data: data, width: _width} : {class: classe, data: data, width: _width} 
-                    elts.push(new Img(data[0], o))
-                    break;
-            }
-        })
-        return elts
+        this._divmenu_cr.push(elt)
+        this._lstMenu.addChild(elt)
     }
 
     /** Génère les colonnes abritant les items
+     * 
+     * @param {number|undefined} width largeur 
      * @use _createColItems
      */
     createColItems(width = undefined){
-        if (!width && this.items.length == 0 ) return
-        const size = width ? 12/width : 12/this.items[0].length 
-        const classe = "col-"+size+" menu-item"
+        if (!width && this._items.length == 0 ) return
+        const size = width ? 12/width : 12/this._items[0].length 
+        const classe = ["col-"+size+" menu-item"]
         
-        this.items.forEach(items => {
-            this.divmenu_c.push(this._createColItems(items, classe))
+        this._items.forEach(items => {
+            this._divmenu_c.push(this._createColItems(items, classe))
         })
     }
 
     /** Crée les éléments présents dans une ligne
      * 
      * @param {object[]} items 
-     * @param {string|string[]} classe 
+     * @param {string[]} classe 
      * @returns {any[]}
      */
     _createColItems(items, classe){
         const row = []
-        if (isArray(classe)){
+        if (classe.length > 1){
             for (let i = 0; i<items.length; i++){
+                if (items[i].tooltip){
+                    row.push(new Div(classe[i]+" mtooltip").addChild(items[i], new Span(items[i].tooltip)))    
+                } else
                 row.push(new Div(classe[i]).addChild(items[i]))    
             }
         } else {
         items.forEach(item =>{
             // @ts-ignore
-            row.push(new Div(classe).addChild(item))
+            if (item.tooltip){
+                row.push(new Div(classe[0]+" mtooltip").addChild(item, new Span(item.tooltip)))    
+            } else
+                // @ts-ignore
+                row.push(new Div(classe[0]).addChild(item))
         })
     }
         return row
@@ -593,16 +657,16 @@ class ListMenu{
     createRowItems(){
         const classe = "row menu-item-row"
         let elt
-        this.divmenu_c.forEach(row => {
+        this._divmenu_c.forEach(row => {
             elt = this._createRowItems(row, classe)
-            this.divmenu_cr.push(elt)
+            this._divmenu_cr.push(elt)
         } )
         // création div groupe
         
-        this.divmenu_cr.forEach(item =>{
-            this.lstMenu.addChild(item)
+        
+        this._divmenu_cr.forEach(item =>{
+            this._lstMenu.addChild(item)
         })
-        this.divmenu_s.push(this.lstMenu)
     }
 
     /**
@@ -624,34 +688,39 @@ class ListMenu{
      * @returns {string}
      */
     createMenu(){
-        this.createLabel()
+        this.createButton()
         this.createElements()
         this.createColItems()
         this.createRowItems()
-        return this._createMenu()
+        return this.getHtmlMenu()
     }
 
-    _createMenu(){
-        let style = "position:absolute; top:0; left: 1em; width: "+this.width
-        if (this.divmenu_c.length == 0)
+    /** Retourne le contenu HTML du menu
+     * 
+     * @returns {string} contenu html 
+     */
+    getHtmlMenu(){
+        let style = "position:absolute; top:0; left: 1em; width: "+this._width
+        if (this._divmenu_c.length == 0)
             style += "; display:none"
         else
             style.replace("display:none","display:block")
 
-        this.menu = new Div("container-fluid")
-        this.menu_fond = new Div("menu-content", this.idMenu).addChild(this.divmenu_s[1])
-        this.menu = this.menu.addChild(this.divmenu_s[0],this.menu_fond).setStyle(style) 
-        this.html = this.menu.getHTML()
-        return this.html
+        //this._menu = new Div("container-fluid")
+        //this._menu_fond = new Div("menu-content", this._idMenu).addChild(this.divmenu_s[1])
+        //this._lstMenu.addChild(this.divmenu_s[1])
+        this._menu.addChild(this._divButton,this._lstMenu).setStyle(style) 
+        this._html = this._menu.getHTML()
+        return this._html
     }
 
-    /** Recalcule la page html à partir de this.html
+    /** Recalcule la page html à partir de this._html
      * 
-     * @returns {string}
+     * @returns {string} menu HTML
      */
     updateMenu(){
-        this.html = this.menu.getHTML()
-        return this.html   
+        this._html = this._menu.getHTML()
+        return this._html   
     }
 
     /** Affiche le menu et initialise les events
@@ -661,10 +730,82 @@ class ListMenu{
      * @file dom.js
      */
     displayMenu(id, display = false){
-        $(id).html(this.html)
-        initListMenu(this.prop, this.rows)
+        $(insertDiese(this._idRootMenu)).html(this._html)
+        this.initEvents()
+        this.initChangeIcon()
+        this.initAction()
         if (display)
-            $("#"+this.idMenu).show()
+            $(insertDiese(this._idMenu)).show()
+    }
+
+    /** Initialise les listeners dans les items du menu
+     * 
+     */
+    initAction(){
+        this._rows.forEach((row) => {
+            row.forEach((elt ) => {
+              if (elt.id && elt.action){
+                $(insertDiese(elt.id)).on("click", elt.action)
+              }
+            })
+        })
+    }
+
+    /** Gère le changement d'icone sur clic dans menu
+     * Le clic sur l'icone lance l'action définie dans 'action'
+     * Celle-ci peut modifier l'index de l'icone, on l'utilise pour actualiser l'icone
+     * Si l'action ne gère pas l'index, dans ce cas l'index est identique au précédent
+     * Dans ce cas, on incrémente l'index de façon à boucler sur le nombre d'images présentes dans 'content' 
+     * 
+     */
+    initChangeIcon() {
+        $('.menu-icone').on("click", (e) => {
+            const img = e.currentTarget
+            const pos = this.getPos(img)
+            this.changeIcon(pos)
+             
+        })
+    }
+
+
+    /** Modifie l'icône
+     * 
+     * @param {number[]} pos N° de l'item et position de l'icone dans l'item      
+     */
+    changeIcon(pos){
+        const imgItem = this._items[pos[0]][pos[1]]
+        if (imgItem.options.idx == imgItem.options.prev_idx)
+            imgItem.options.idx = (imgItem.options.idx + 1) % imgItem.data.length
+            // modifie l'image dans le menu
+        const url = imgItem.data[imgItem.options.idx]
+        this._items[pos[0]][pos[1]].src = url
+            
+        if ('src' in imgItem)
+            // @ts-ignore modifie l'image sur l'objet affiché 
+            imgItem.src = url
+        // @ts-ignore
+        $("#"+img.id)[0].src = url 
+    }
+
+    /** Définit les listeners qui affichent ou cachent le menu
+     * 
+     */
+    initEvents(){
+        const lst = insertDiese(this._idLstMenu) 
+        const bt = insertDiese(this._idBtMenu)
+        const menu = insertDiese(this._idMenu)
+
+        $(lst).on('mouseleave', function (e) {
+            $(lst).hide()
+        })
+
+        $(bt).on('mouseenter', function (e) {
+            $(lst).show()
+        })
+
+        $(menu).on('mouseleave', function (e) {
+            $(lst).hide()
+        })
     }
 
     /** Ajoute une ligne et affiche le menu
@@ -675,10 +816,16 @@ class ListMenu{
     addItem(row, display = false){
         this.insertItems(row)
         this.updateMenu()
-        this.displayMenu(this.idMenu, display)
+        this.displayMenu(this._idMenu, display)
     }
 
-    getIndex(elt){
+    /** Retourne les coordonnées d'un élement du listMenu
+     * 
+     * @param {object} elt JQuery Element  
+     * @returns {number[]} tableau indiquant la ligne et la colonne dans le menu
+     */
+    getPos(elt){
+        const BreakException = {}
         let index = 1
         let menu = elt.parentElement.parentElement.parentElement
         const nbElt = menu.childElementCount
@@ -688,21 +835,37 @@ class ListMenu{
             elem = elem.nextSibling
             index +=1 
         }
-        return nbElt - index
+        const idx = nbElt - index
+        const item = this._items[idx]
+        let pos = -1
+        try {
+            item.forEach(e => {
+                pos++
+                if (e.id == elt.id)
+                    throw BreakException
+            })
+        } catch(e) {
+            if (e == BreakException){
+                return [idx, pos]
+            }
+        }
+        return [idx, -1]
+                    
+        return [idx, -1]
     }
 
     removeItem(elt, display = false){
-        const index = this.getIndex(elt)
-        this.rows.splice(index)
-        this.items.splice(index)
-        this.lstMenu = new Div("container-fluid menu-list", "lstmenu")
-        this.menu = new Div("container-fluid")
-        this.divmenu_c = []
-        this.divmenu_cr = []
+        const index = this.getPos(elt)
+        this._rows.splice(index[0])
+        this._items.splice(index[0])
+        this._lstMenu = new Div("container-fluid menu-list", "lstmenu")
+        this._menu = new Div("container-fluid")
+        this._divmenu_c = []
+        this._divmenu_cr = []
         this.divmenu_s = [this.divmenu_s[0]]
         this.createColItems()
         this.createRowItems()
-        this._createMenu()
+        this.getHtmlMenu()
         this.displayMenu("#menu", display)
     }
 }
@@ -1109,6 +1272,14 @@ class P extends Element {
     }
 }
 
+class Span extends Element{
+
+    constructor(text, o=null) {
+        super("span",o)
+        this._text = text
+    }
+}
+
 /************************************************** */
 
 /**
@@ -1172,7 +1343,7 @@ class Img extends Element {
     }
 
     setWidth(w) {
-        this.width = w
+        this._width = w
         return this
     }
 

@@ -67,8 +67,9 @@ class Especes {
 const gGraphMenu = {
     label: DOS_DSP_LST_GRAPH,
     idButton:  DOS_BT_DSP_GRAPH,
-    idMenu: "menu",
-    width: "300px",
+    idRootMenu: "menu",     // id du div présent dans HTML qui va contenir le menu
+    idMenu: "menu_graphe",  // id du menu
+    width: "auto",
     imgVisible: '../static/resources/img/oeil_ouvert.png',
     imgNoVisible: '../static/resources/img/oeil_ferme.png',
     imgTrash: '../static/resources/img/poubelle.png',
@@ -165,6 +166,14 @@ class Graphs{
     /** Modifie la visibilité d'un graphe */
     setVisibility(id, visible){
         this.charts.filter(c => c.id == id)[0].visible = visible
+    }
+
+    isVisible(index){
+        return this.charts[index].visible
+    }
+
+    isSave(index){
+        return this.charts[index].save
     }
 }
 
@@ -297,6 +306,18 @@ class Dosage {
         if ( !isNumeric( value ) ) throw new TypeError( e.ERROR_NUM )
         let a = this.get(name)
         return ( ( this.get(name) & value ) == value )
+    }
+
+    /** Retourne le résultat du ET entre this.name et value
+     * 
+     * @param {string} name nom propriété
+     * @param {number} value valeur
+     * @returns {number} résultat du masque entre this.name et value
+     */
+    getMask (name, value){
+        if ( !isString( name ) ) throw new TypeError( e.ERROR_STR )
+        if ( !isNumeric( value ) ) throw new TypeError( e.ERROR_NUM )
+        return this.get(name) & value
     }
 
     

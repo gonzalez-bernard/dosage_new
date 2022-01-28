@@ -1,0 +1,45 @@
+@startuml vidage
+start
+  #CCCCCC:vidage]
+  :get current dosage;
+  :get current graph;
+  :vidage burette;
+  note 
+    change état burette
+    vidage
+    mise à jour
+  end note
+  :change couleur becher;
+  if (conductimetre) then (OK)
+    :change text;
+    package #11EEAA dosage.graphs {
+      :<b>changeData</b>
+      change données courbe;
+    }
+  elseif (phmetre ?) then (ok)
+    :change text;
+    package #11EEAA dosage.graphs {
+      :<b>changeData</b>
+      change données courbe;
+    }
+    if (titrant volume suffisant ?) then (OK)
+      package  #EEEEEE dosage.ui {
+        :<b>setButtonState</b>
+        actualise boutons;
+      }
+      package #11EEAA dosage.graph {
+        :<b>dspGraphMenu</b>
+        affiche menu graphe;
+      }
+    endif
+  
+  elseif (potentiometre) then (OK)
+    :change text;
+    package #11EEAA dosage.graphs {
+      :<b>changeData</b>
+      change données courbe;
+    }
+  endif
+  
+stop
+@enduml

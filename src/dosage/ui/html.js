@@ -30,34 +30,11 @@ divs.buttons_col = new Div( 'col-md-6', 'buttons_col' ).addChild( buttons.reset,
 
 
 
-buttons.saveGraph = new Button( txt.DOS_SAVE_GRAPH, {id: ui.DOS_BT_SAVE_GRAPH, class: 'btn btn-success col-md-12'}).setAttrs('disabled')
-//buttons.dspGraph = new Button( txt.DOS_DSP_LST_GRAPH, {id: ui.DOS_BT_DSP_GRAPH, class: 'btn btn-success'}).setAction("onmouseover","$('#fond').show()").setStyle("margin-bottom:1px").setAttrs('disabled') 
+buttons.saveGraph = new Button( txt.DOS_SAVE_GRAPH, {id: ui.DOS_BT_SAVE_GRAPH, class: 'btn btn-success float-left'}).setAttrs('disabled')
 
 /***************************************************
  * Liste des graphes
  ***************************************************/
-// items
-/*
-elts.menu1 = new Link("#", {text:'test'})
-elts.menu2 = new Label("titre",{class:'no-marge'})
-elts.menu3 = new Link("#",{id:'icon_1'}).addChild(new Img("../../static/resources/img/oeil_ouvert.png", {class: 'menu-icone'}))
-elts.menu4 = new Link("#",{id:'icon_2'}).addChild(new Img("../../static/resources/img/oeil_ferme.png",{class: 'menu-icone'}))
-
-// columns items
-divs.menu_c11 = new Div("col-4 menu-item").addChild(elts.menu2)
-divs.menu_c12 = new Div("col-4 menu-item").addChild(elts.menu1)
-divs.menu_c13 = new Div("col-4 menu-item").addChild(elts.menu3)
-
-divs.menu_c21 = new Div("col-4 menu-item").addChild(elts.menu2)
-divs.menu_c22 = new Div("col-4 menu-item").addChild(elts.menu1)
-divs.menu_c23 = new Div("col-4 menu-item").addChild(elts.menu4)
-
-// rows item
-//divs.menu_cr0 = new Div("row").addChild(buttons.dspGraph)
-divs.menu_cr1 = new Div("row menu-item-row").addChild(divs.menu_c11, divs.menu_c12, divs.menu_c13)
-divs.menu_cr2 = new Div("row menu-item-row").addChild(divs.menu_c21, divs.menu_c22, divs.menu_c23)
-divs.menu_crg = new Div("container-fluid menu-list","lstmenu").addChild(divs.menu_cr1, divs.menu_cr2)
-*/
 divs.menu = new Div("", 'menu') 
 
 divs.menu_bt1 = new Div( 'col-md-6', 'menu_bt1' ).addChild(buttons.saveGraph)
@@ -104,7 +81,7 @@ divs.info_labo = new Div( 'col' ).setStyle( "width:600px" ).addChild( divs.info,
 /************************************************** */
 
 imgs.labo = new Img( './static/resources/img/labo.png', { class: 'image-fluid img-labo', width: '100%' } ).setStyle( 'max-height:500px' )
-divs.image = new Div( 'col-md-6'  ).addChild( imgs.labo ).setID( ui.DOS_IMG ).setStyle( "max-width:600px; min-width:500px" )
+divs.image = new Div( 'col-md-6'  ).addChild( imgs.labo ).setID( ui.DOS_IMG ).setStyle( "min-width:500px" )
 
 // boutons graph
 buttons.derivee = new Button( '', { id: ui.DOS_BT_DERIVEE, class: 'btn btn-dosage btn-image bt-derivee' } ).setAttrs( 'disabled' ).setData( 'toogle', 'tooltip' ).setData( 'placement', 'top' ).setData( 'html', 'true' ).setTitle( txt.DO_BT_DERIVEE )
@@ -131,7 +108,7 @@ divs.bts = new Div( 'row', 'btChart' ).addChild( buttons.derivee, buttons.tan1, 
 elts.chart = new Element( 'canvas', { class:'canvas', id: ui.DOS_CHART } )
 
 // contient le canvas
-divs.graph = new Div( 'row' ).addChild( elts.chart ).setID( ui.DOS_GRAPHE ).setStyle( "max-width:600px; min-width:500px" )
+divs.graph = new Div( 'row' ).addChild( elts.chart ).setID( ui.DOS_GRAPHE ).setStyle( "min-width:500px" )
 
 // conteneur boutons et graph
 divs.div_graph = new Div( 'col-md-6' ).addChild( divs.bts, divs.graph).setStyle( 'display: none ' ).setID( ui.DOS_DIV_GRAPH )

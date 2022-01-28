@@ -249,7 +249,7 @@ var dspHtmlLatex = function (html, target) {
 /** Insère symbole "#"
  * 
  * @param {string} str chaine où inserer un dièse si non présent
- * @returns {uString | string}
+ * @returns {string}
  * @file 'modules/utils/string.js'
  */
 function insertDiese(str){
@@ -258,6 +258,18 @@ function insertDiese(str){
   return new uString(str).insertMotif('#').getVal()
 }
 
+/**
+ * 
+ * @param {string} str chaîne à modifier
+ * @param {string} char caractère ou suite de caractères à ajouter
+ * @param {number} pos pos = 0 en début sinon en fin de chaîne
+ * @returns str
+ */
+function insertChar(str, char, pos = 0){
+  if (str.indexOf(char) == 0) return str
+  return new uString(str).insertMotif(char, pos).getVal()
+}
 
 
-export {dspHtmlLatex, insertDiese, uString }
+
+export {dspHtmlLatex, insertDiese, insertChar, uString }

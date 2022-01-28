@@ -1,7 +1,7 @@
 {
 
   // Change this to match your project
-  "include": ["node_modules/ocanvas/*", "types/**/*", "src/**/*", "node_modules/chart.js/*", "node_modules/moment/*"],
+  "include": ["node_modules/ocanvas/*", "types/**/*", "src/**/*", "node_modules/chart.js/*", "node_modules/moment/*", "archives/conductimetre.js", "archives/potentiometre.js", "archives/appareil.js", "archives/tooltip.js", "archives/flacon.js", "archives/becher.js", "archives/agitateur.js"],
   "exclude": ["dist"],
   "moduleResolution": "node",
   "compilerOptions": {

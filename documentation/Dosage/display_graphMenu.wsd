@@ -1,0 +1,15 @@
+@startuml display_graphMenu
+start
+  #CCCCCC:display_graphMenu]
+  :insère code HTML dans idRootMenu;
+  :<b>initEvents</b> Initialise les événements d'affichage du menu;
+  :<b>initChangeIcon</b> Initialise le toggle des icones;
+  :<b>initAction</b> Initialise les événements sur les éléments cliquables;
+  note
+    graphMenu est initialisé dans <b>dosage.ui</b>initGraphMenu
+  end note
+  if (display ?) then (OK)
+    :affiche idMenu;
+  endif 
+end
+@enduml
