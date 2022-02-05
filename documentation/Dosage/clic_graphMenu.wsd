@@ -6,8 +6,8 @@ package globals {
 }
 package dom {
   :<b>graphMenu.dialog.display</b>
-   affiche la boite de dialogue pour choisir le nom de la courbe;
-   note
+  affiche la boite de dialogue pour choisir le nom de la courbe;
+  note
     graphMenu est construit dans dosage.
     La validation du nom déclenche l'enregistrement de la courbe
   end note

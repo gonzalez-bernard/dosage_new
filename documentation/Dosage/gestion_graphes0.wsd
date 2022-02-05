@@ -1,0 +1,93 @@
+@startuml gestion_graphe
+start
+  :action sur un appareil;
+  #FF9900:actualise l'appareil> 
+    note left
+      updateAppareil()
+    end note
+  #FF9900:actualise ETAT_GRAPH_xxx>
+
+  ' Gestion des graphes
+
+  group manageGraph
+
+    ' Appareil actif
+    if (appareil actif) then (OK)   
+    
+      if (graph du même type actif) then (OK)
+        
+        ' Affichage du graphe
+        :on réaffiche le graphe;
+        note left
+          gGraphs.setVisibility()
+        end note
+
+        ' Modification icone si courbe mémorisée
+        if (graph enregistré) then (OK)
+          :setVisibilité = true;
+          :modifie icone;
+          note left
+            gGraphMenu.changeIcon()
+          end note
+        endif
+
+         ' Activation de la courbe si seule courbe du même type
+        if (courbe unique du même type) then (OK)
+          :on initialise currentGraph>
+          note right
+            gGraphs.currentChart
+            gGraphs.idCurrentChart
+          end note
+        endif
+
+        :return index>
+      
+      else (NO)
+        :on crée un nouveau graphe;
+        note right
+          createGraph
+        end note
+        :on l'affiche;
+        note right 
+          gGraphs.setVisibility()
+        end note
+        :return index>
+      endif
+
+    ' Appareil inactif
+    else (NO)
+      if (graph du même type actif) then (OK)
+        if (graphe enregistré && graphe visible) then (OK)
+          :on conserve le graphe;
+          :return index>
+        else (NO)
+          :on le cache;
+          note right
+            gGraphs.setVisibility()
+          end note
+          :currentGraph est nul>
+          note right
+            gGraphs.currentChart
+            gGraphs.idCurrentChart
+          end note
+          :return index>
+        endif
+      else
+        :return index> 
+      endif
+    endif
+
+  ' Sortie de manageGraph
+  end group
+
+  :Active les graphes visibles>
+  note right
+    displayGraphs
+  end note
+
+  :Affiche ou cache les graphes>
+  note right
+    showGraphs
+  end note
+stop
+@enduml

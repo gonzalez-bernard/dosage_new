@@ -6,7 +6,7 @@ import {cts} from "../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import { isObject } from "../../modules/utils/type.js";
 import * as e from "../../modules/utils/errors.js";
-import {displayGraph, displayGraphs, manageGraph} from "../dosage.graph.js"
+import {showGraph, displayGraphs, manageGraph} from "../dosage.graph.js"
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 import {updateAppareil} from "./appareil.js"
 import { gGraphMenu, gGraphs } from "../../environnement/globals.js";
@@ -113,18 +113,14 @@ function initPhmetre( lab, G ) {
         const index = manageGraph(cts.ETAT_PHMETRE)
 
         displayGraphs()
-        displayGraph()
+        showGraph()
             
         // actualise les boutons
         setButtonVisible(true)
         setButtonState(true)
 
-          // Actualise le menu (change l'icone oeil)
-          //if (index >= 0)
-          //  gGraphMenu.menu.changeIcon(index, 2)
-
-          return false
-        }
+        return false
+      }
     })
 
     return phmetre

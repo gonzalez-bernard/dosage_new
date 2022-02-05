@@ -149,6 +149,12 @@ function display(app){
   getEltID(DOS_CHART ).show();
 }
 
+/** Change l'état de l'appareil et le positionne
+ * 
+ * @param {Phmetre|Conductimetre|Potentiometre} app Objet décrivant l'appareil 
+ * @param {Becher} becher 
+ * @returns {boolean}
+ */
 function updateAppareil(app, becher){
   const G = gDosages.getCurrentDosage()
   const etats = [cts.ETAT_PHMETRE, cts.ETAT_COND, cts.ETAT_POT]

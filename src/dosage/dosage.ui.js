@@ -37,7 +37,7 @@ function displayEspece() {
  */
 function setButtonState(clear = true) {
     const G = gDosages.getCurrentDosage()
-    const C = gGraphs.currentGraph
+    const C = gGraphs.currentChart
 
     let bts = [ui.DOS_BT_COTH, ui.DOS_BT_DERIVEE, ui.DOS_BT_TAN1, ui.DOS_BT_TAN2, ui.DOS_BT_PERP, ui.DOS_BT_SAVE_GRAPH]
     let _this = C
@@ -85,7 +85,7 @@ function closeDialog(){
 function saveDialog(){
     // @ts-ignore
     // Ajoute un item du graphe courant à la liste des graphes
-    addGraphMenuItem($("#graphName").val(), gGraphs.activeChart)
+    addGraphMenuItem($("#graphName").val(), gGraphs.idCurrentChart)
     // Affiche le menu
     gGraphMenu.menu.displayMenu(gGraphMenu.idRootMenu, true)
     // ferme le dialogue
@@ -153,15 +153,16 @@ function initDialog(){
 }
 
 /** Ajoute une courbe à la liste
- * 
+ * La fonction vérifie que l'idGraph est unique
  * @param {string} label nom de la courbe
  * @param {string} idGraph ID de la courbe
  * @file dialog.ui.js
  */
 function addGraphMenuItem(label, idGraph){
-    const row = []
-    row.push({type:'label', content: [label]})
+    if (gGraphMenu.menu.rows.findIndex(elt => elt.id === idGraph) == -1){
+        const row = []
     row.push({type:'label', content: [idGraph], width:0, visible:false})
+    row.push({type:'label', content: [label]})
     row.push({
         type:'img', 
         content:[gGraphMenu.imgVisible, gGraphMenu.imgNoVisible],
@@ -180,8 +181,8 @@ function addGraphMenuItem(label, idGraph){
         width:2, 
         tooltip: DOS_TOOLTIP_TRASH
     })
-    
     gGraphMenu.menu.addItem(row, true)
+    }
 }
 
 /** Active ou désactive l'affichage de menu graphe

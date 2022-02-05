@@ -427,24 +427,22 @@ class Element {
  *      - un tableau comportant l'ensemble des lignes
  *      - chaque ligne est constituée d'un tableau d'objets qui seront les items affichés
  *      - chaque item peut-etre:
- *          - un label sans lien
- *          - un texte avec lien et/ou action
+ *          - un texte avec éventuellement lien et/ou action
  *          - une image avec lien et/ou action
  * La structure d'un item est un objet :
  *  {
- *      type: label|link|img,    // type d'item 
- *      content: [text1,...]|[text0,...]|[img0,...],    // contenu à afficher
- *      idx : // indice du contenu
+ *      type: label|img,    // type d'item 
+ *      content: [text0,...]|[img0,...],    // contenu à afficher
+ *      idx : // indice du contenu en cours
  *      previousIdx: // indice précédent
- *      link: .|link|(link|.),  // lien  
  *      class: (class|.),   // classe
  *      id: (id|.),     // ID
  *      action: function,    // fonction
  *      visible: true|false, // visibilité
  *      tooltip: info   // message d'information
+ *      link: lien 
  * }
  * 
- * Le fichier 'listmenu.js' est nécessaire pour initialiser les actions
  * l'appel se fait ainsi : initListMenu(prop, rows)
  */
 class ListMenu{
@@ -477,6 +475,10 @@ class ListMenu{
 
     getRows(){
         return this._rows
+    }
+
+    getItems(){
+        return this._items
     }
 
     /** Génère bouton principal
@@ -522,25 +524,22 @@ class ListMenu{
             let classe, data, o, style
             style = ! _visible ? "visibility:hidden" : ""
 
-            switch (item.type){
-                case 'label':
-                    classe = 'no-marge ' + _class
-                    o = id ? {id: id, class: classe, data: item.content, width: _width, tooltip: _tooltip} : {class: classe, width: _width, tooltip: _tooltip} 
+            if (item.type == 'label'){
+                classe = 'no-marge ' + _class
+                o = id ? {
+                    id: id, class: classe, text: item.content[_idx], width: _width, tooltip: _tooltip}
+                    : {class: classe, text: item.content[_idx], width: _width, tooltip: _tooltip} 
+                if (item.link == "#")
                     elts.push(new Label(item.content[_idx],o).setStyle(style))
-                    break;
-                case 'link':
-                    classe = 'no-marge ' + _class
-                    o = id ? {id: id, class: classe, text: item.content[_idx], width: _width, tooltip: _tooltip} : {class: classe, text: item.content[_idx], width: _width, tooltip: _tooltip} 
+                else
                     elts.push(new Link(link, o).setStyle(style))
-                    break;
-                case 'img':
-                    classe = 'menu-icone ' + _class
-                    //data =  isArray(item.content) ? item.content : [item.content, undefined]
-                    o = id ? {id: id, class: classe, data: item.content, width: _width, tooltip: _tooltip, options:{idx:_idx, prev_idx: _idx}} : {class: classe, data: item.content, width: _width, tooltip: _tooltip, options:{idx:_idx, prev_idx: _idx}} 
-                    elts.push(new Img(item.content[_idx], o).setStyle(style))
-                    break;
+            } else {
+                classe = 'menu-icone ' + _class
+                o = id ? 
+                {id: id, class: classe, data: item.content, width: _width, tooltip: _tooltip, options:{idx:_idx, prev_idx: _idx}}
+                : {class: classe, data: item.content, width: _width, tooltip: _tooltip, options:{idx:_idx, prev_idx: _idx}} 
+                elts.push(new Img(item.content[_idx], o).setStyle(style))
             }
-            
         })
         return elts
     }
@@ -767,24 +766,46 @@ class ListMenu{
         })
     }
 
+    /** Retourne le numéro de la ligne contenant l'ID
+     * 
+     * @param {string} id ID unique
+     * @param {number} index position de l'ID (caché) dans l'item (en général 0)
+     * @returns {number} Numéro ligne
+     */
+    getPosByID(id, index = 0){
+        return this._items.findIndex(elt => elt[index]._text == id)
+    }
 
     /** Modifie l'icône
      * 
-     * @param {number[]} pos N° de l'item et position de l'icone dans l'item      
+     * @param {number[]} pos N° de l'item et position de l'icone dans l'item 
+     * @param {number|undefined} index index de l'icone à afficher dans une ligne de this._items 
+     * Si index n'est pas défini on prend l'icone suivante dans le tableau 'options'    
      */
-    changeIcon(pos){
+    changeIcon(pos, index = undefined){
+        // récupère item courant
         const imgItem = this._items[pos[0]][pos[1]]
-        if (imgItem.options.idx == imgItem.options.prev_idx)
-            imgItem.options.idx = (imgItem.options.idx + 1) % imgItem.data.length
-            // modifie l'image dans le menu
+
+        if (index !== undefined)
+            imgItem.options.idx = index
+        else {
+            // si les deux index sont identiques on incrémente modulo
+            if (imgItem.options.idx == imgItem.options.prev_idx)
+                imgItem.options.idx = (imgItem.options.idx + 1) % imgItem.data.length
+        }
+
+        // récupère la nouvelle url
         const url = imgItem.data[imgItem.options.idx]
-        this._items[pos[0]][pos[1]].src = url
-            
+
+        // modifie l'image dans la liste menu
         if ('src' in imgItem)
             // @ts-ignore modifie l'image sur l'objet affiché 
             imgItem.src = url
-        // @ts-ignore
-        $("#"+img.id)[0].src = url 
+
+        // @ts-ignore modifie l'icone dans menu
+        $("#"+imgItem.id)[0].src = url 
+
+        imgItem.options.prev_idx = imgItem.options.idx
     }
 
     /** Définit les listeners qui affichent ou cachent le menu
@@ -849,8 +870,6 @@ class ListMenu{
                 return [idx, pos]
             }
         }
-        return [idx, -1]
-                    
         return [idx, -1]
     }
 

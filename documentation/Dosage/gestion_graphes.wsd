@@ -1,0 +1,44 @@
+@startuml
+start
+fork
+  if (activation d'un appareil) then (OK)   
+    if (graph du même type actif) then (OK)
+      :on réaffiche le graphe;
+      if (graph enregistré) then (OK)
+        :setVisibilité = true;
+      endif
+    else (NO)
+      :on crée un nouveau graphe;
+    endif
+    :on initialise currentGraph>
+    :on initialise currentDosage>
+    
+  else (NO)
+    if (graphe enregistré) then (OK)
+      if (graphe visible) then (OK)
+        :on conserve le graphe;
+      else (NO)
+        :on le cache;
+        :currentGraph est nul>
+      endif
+    else (NO)
+      :on le cache;
+      :currentGraph est nul>
+    endif
+  endif
+fork again
+  if (coche graphe visible) then (OK)
+    :affiche graphe;
+    :on initialise currentGraph>
+    :on initialise currentDosage>
+  else (NO)
+    if (appareil actif) then (OK)
+      :désactive appareil;
+      :suppression currentGraph;
+    else (NO)
+      :cache graphe;
+    endif
+  endif
+end fork
+stop
+@enduml

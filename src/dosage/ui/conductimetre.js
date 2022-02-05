@@ -4,7 +4,7 @@ import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
 import { CONDUCTIMETRE } from "./interface.js";
-import { displayGraph, manageGraph } from "../dosage.graph.js"
+import { showGraph, manageGraph } from "../dosage.graph.js"
 import { updateAppareil } from "./appareil.js";
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
@@ -86,7 +86,7 @@ function initConductimetre(lab, G) {
         if (updateAppareil(conductimetre, lab.becher)) {
             // met à jour le graphe
             manageGraph(cts.ETAT_COND)
-            displayGraph()
+            showGraph()
             G.setState(cts.ETAT_GRAPH_CD, -1)
             // actualise les boutons
             setButtonState(false)

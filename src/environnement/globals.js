@@ -20,10 +20,10 @@ class Dosages {
 
     constructor() {
         this.saveGraphs = false
-        this.currentDosage = 0,   // indice du dosage courant
+        this.idCurrentDosage = 0,   // indice du dosage courant
 
             /** @type Dosage[] */
-            this.items = []           // tableau des dosages
+            this.dosages = []           // tableau des dosages
     }
 
     /** Retourne la variable Dosage globale
@@ -31,7 +31,7 @@ class Dosages {
      * @returns {Dosage} G
      */
     getCurrentDosage() {
-        return this.items[this.currentDosage]
+        return this.dosages[this.idCurrentDosage]
     }
 }
     
@@ -95,10 +95,10 @@ class Graphs{
         this.charts = []
         
         /** @type {string} ID de la courbe active  */
-        this.activeChart = ""
+        this.idCurrentChart = ""
 
         /** @type {Graphx} en cours */
-        this.currentGraph = new Graphx(canvas)
+        this.currentChart = new Graphx(canvas)
 
     }
 
@@ -155,7 +155,7 @@ class Graphs{
     /** Sauve la courbe courante dans le tableau 'charts'
      */
     saveCurrentGraph(){
-        this.charts.filter(c => c.id == this.activeChart)[0].save = true
+        this.charts.filter(c => c.id == this.idCurrentChart)[0].save = true
     }
 
     /** Supprime un graphe */
@@ -163,9 +163,16 @@ class Graphs{
         gGraphs.charts = gGraphs.charts.filter(v => v.id != id)
     }
 
-    /** Modifie la visibilité d'un graphe */
+    /** Modifie la visibilité d'un graphe 
+     * 
+     * @param {string} id ID du graphe
+     * @visible {boolean|-1} indique l'état de visibilité, si -1 on inverse l'état 
+    */
     setVisibility(id, visible){
-        this.charts.filter(c => c.id == id)[0].visible = visible
+        if (visible == -1)
+            this.charts.filter(c => c.id == id)[0].visible = ! this.charts.filter(c => c.id == id)[0].visible
+        else 
+            this.charts.filter(c => c.id == id)[0].visible = visible
     }
 
     isVisible(index){
@@ -352,7 +359,7 @@ const gEspeces = new Especes()
 const gDosages = new Dosages()
 const gGraphs = new Graphs(DOS_CHART)
 
-gDosages.items.push(gDosage)
+gDosages.dosages.push(gDosage)
 
 function getGlobal(){
     return gDosages.getCurrentDosage()

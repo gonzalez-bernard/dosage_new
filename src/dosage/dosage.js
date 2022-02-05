@@ -35,7 +35,7 @@ import { setEvents, setEventsClick, reset } from "./dosage.events.js";
 import { dspTabDosage, setButtonClass, setButtonState, initGraphMenu, dspGraphMenu } from "./dosage.ui.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { resetMesures, setDosageValues, updValues, getDosage } from "./dosage.datas.js";
-import { manageGraph, displayGraph } from "./dosage.graph.js";
+import { manageGraph, showGraph } from "./dosage.graph.js";
 import { html } from "./ui/html.js";
 import {ES_MSG_DOSAGE_ERR, ES_MSG_INFO_ERR } from "../especes/lang_fr.js";
 
@@ -63,7 +63,7 @@ async function initDosage(DS, canvas) {
     try {
 
         const G = DS.getCurrentDosage()
-        const C = gGraphs[DS.currentDosage]
+        const C = gGraphs[DS.idCurrentDosage]
 
         // Lance calcul dosage
         getDosage(G.type).then(function (data) {
@@ -109,7 +109,7 @@ async function initDosage(DS, canvas) {
                 getEltID(ESPECES).removeClass('active show')
                 
                 // Affichage
-                displayGraph()
+                showGraph()
                 //createGraph()
 
                 reset( false )
@@ -189,7 +189,7 @@ async function createLab(DS) {
         // Modifie affichage pHmetre et graph
         G.lab.phmetre.setText(G.sph);
 
-        //DS.currentDosage += 1
+        //DS.idCurrentDosage += 1
 
         // définition des événements
         setEvents();
@@ -218,7 +218,7 @@ async function createLab(DS) {
 function vidage(lab, DS ) {
 
     const G = DS.getCurrentDosage()
-    const C = gGraphs.currentGraph
+    const C = gGraphs.currentChart
 
     // change état
     lab.burette.vidage = lab.burette.vidage == 0 ? 1 : 0;

@@ -28,7 +28,7 @@ import { Graphx } from "../dosage/graphx.js";
 function setEvents() {
 
     const G = gDosages.getCurrentDosage()
-    const C = gGraphs.currentGraph
+    const C = gGraphs.currentChart
 
     const lab = G.lab
     if (!isObject(lab.canvas)) throw new TypeError((e.ERROR_OBJ))
@@ -95,7 +95,7 @@ function setEvents() {
 
     /** bouton affichage dérivée */
     getEltID(ui.DOS_BT_DERIVEE).on("click", function () {
-        let C = gGraphs.currentGraph
+        let C = gGraphs.currentChart
         if (G.test('etat', cts.ETAT_DERIVEE)) {
             G.event = 0
             let idx = C.getChartByProp("id", "derivee")
@@ -126,7 +126,7 @@ function setEvents() {
     /** affichage perpendiculaire */
     getEltID(ui.DOS_BT_PERP).on("click", function () {
 
-        let C = gGraphs.currentGraph
+        let C = gGraphs.currentChart
         // si pas de perpendiculaire tracée
         if (G.test('etat', cts.ETAT_THEORIQUE)) {
             G.event = 0
@@ -145,7 +145,7 @@ function setEvents() {
 
     /** affiche graphe théorique */
     getEltID(ui.DOS_BT_COTH).on("click", function () {
-        let C = gGraphs.currentGraph
+        let C = gGraphs.currentChart
         // courbe théorique affichée
         if (G.test('etat', cts.ETAT_THEORIQUE)) {
             G.event = 0
@@ -195,10 +195,10 @@ function reset(all = false) {
 
     // @ts-ignore
     const G = gDosages.getCurrentDosage()
-    const C = gGraphs.currentGraph
+    const C = gGraphs.currentChart
 
 
-    gDosages.items.forEach((G) => {
+    gDosages.dosages.forEach((G) => {
 
         // réinitialise les constantes de dosage
         resetMesures(all);
@@ -224,8 +224,8 @@ function reset(all = false) {
 
         if (all) {
             // On remet à zéro le graphe courant
-            const idx = gGraphs.getChartIndexByID(gGraphs.activeChart)
-            gGraphs.currentGraph = new Graphx(ui.DOS_CHART)
+            const idx = gGraphs.getChartIndexByID(gGraphs.idCurrentChart)
+            gGraphs.currentChart = new Graphx(ui.DOS_CHART)
             // On efface les données dans le graphe mémorisé dans 'charts'
             gGraphs.charts = gGraphs.charts.slice(idx,0)
            
@@ -263,7 +263,7 @@ function reset(all = false) {
 function _setTangente(idTangente, ctsTangente, idBtTangente) {
 
     const G = gDosages.getCurrentDosage()
-    const C = gGraphs.currentGraph
+    const C = gGraphs.currentChart
 
     // si tan déjà affichée on l'efface
     if (G.test('etat', ctsTangente)) {
@@ -336,7 +336,7 @@ function setEventsClick(evt, elt = []) {
 
     let chartIndex, chartID, selectedPoint
     const G = gDosages.getCurrentDosage()
-    const C = gGraphs.currentGraph
+    const C = gGraphs.currentChart
 
     // On désactive tout
     if (elt.length != 0) {

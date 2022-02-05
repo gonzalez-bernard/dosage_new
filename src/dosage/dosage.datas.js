@@ -67,7 +67,7 @@ async function getDosage(type) {
 function updValues( burette ) {
 
     const G = gDosages.getCurrentDosage()
-    const C = gGraphs.currentGraph
+    const C = gGraphs.currentChart
 
     // vol = volume versé, on ne prend que les valeurs différentes
     var vol = roundDecimal( burette.vol_verse, 3 );

@@ -5,8 +5,8 @@ import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil, iCa
 
 declare class Dosages {
     saveGraphs: boolean;
-    currentDosage: number;
-    items: Dosage[];
+    idCurrentDosage: number;
+    dosages: Dosage[];
     getCurrentDosage: () => Dosage
 }
 

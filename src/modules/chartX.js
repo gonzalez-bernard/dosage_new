@@ -126,7 +126,7 @@ class ChartX {
      */
      addDataset(...arg) {
         if (isObject(arg[0]))
-            this._addDataset(arg[0].label, arg[0].data, arg[0].other, arg[0].options, arg[0].yAxe)
+            this._addDataset(arg[0].label, arg[0].data, arg[0].yAxe, arg[0].other, arg[0].options, )
         else
             this._addDataset(arg[0], arg[1], arg[2], arg[3], arg[4])
     }

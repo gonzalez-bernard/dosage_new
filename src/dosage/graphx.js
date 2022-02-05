@@ -41,13 +41,13 @@ class Graphx extends ChartX {
         this.tangente_point = 0
     }
 
-    /** Initialise 
+    /** Initialise et crée le graphe 
      * 
-    *  @param {string} label 
-     * @param {object[]} data 
-     * @param {string} yAxe
-     * @param {object} other 
-     * @param {object} options  
+    *  @param {object} _dtset object précisant les propriétés de la courbe
+    * - label : {string} nom de la courbe
+    * - data : {object} données
+    * - yAxe : {string} yAxe nom de l'axe
+    * _ other : {object} autres options 
      */
     init(_dtset){
         this.data = _dtset.data

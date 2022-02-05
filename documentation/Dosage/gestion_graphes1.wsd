@@ -1,0 +1,46 @@
+The text   if (activation d'un appareil) then (OK)   
+@startuml menuGraphe
+start
+if (coche graphe visible) then (OK)
+  : change icone;
+  note left
+    gGraphMenu.changeIcon()
+  end note
+  :affiche graphe;
+  note left
+    gGraphs.setVisibility()
+  end note 
+  :on initialise currentGraph>
+  note left
+    gGraphs.currentChart
+    gGraphs.idCurrentChart
+  end note
+  :on initialise currentDosage>
+  note left
+    gDosages.idCurrentDosage
+    gDosages.currentDosage
+  end note
+else (NO)
+  : change icone;
+  note right
+    gGraphMenu.changeIcon()
+  end note
+  if (appareil actif) then (OK)
+    :désactive appareil;
+    note right
+      gGraphs.setVisibility()
+    end note 
+    :suppression currentGraph;
+    note right
+      gGraphs.currentChart
+      gGraphs.idCurrentChart
+    end note
+  else (NO)
+    :cache graphe;
+    note right
+      gGraphs.setVisibility()
+    end note 
+  endif
+  endif
+stop
+@enduml
