@@ -51,6 +51,7 @@ class uArray extends Array {
 
         if (!isString(attr) || attr == "" || !isString(mode)) throw new TypeError(e.ERROR_STR)
         if (mode !== "min" && mode != "max") throw new RangeError(e.ERROR_RANGE)
+        
         if (mode == 'max')
             return Math.max(...this.val.map(o => o[attr]), 0);
         else
@@ -166,6 +167,7 @@ class uArray extends Array {
         if (isUndefined(elt)) throw new ReferenceError(e.ERROR_ABS)
         if (! isBoolean(copy)) throw new TypeError(e.ERROR_BOOL)
 
+
         let index = this.val.indexOf(elt);
         if (index == -1) throw new e.NotElementException()
         if (copy) {
@@ -174,6 +176,25 @@ class uArray extends Array {
         } else
             this.array = this.val.slice(0,index).concat(this.val.slice(index+1)); 
         return this.array
+    }
+
+    /** Recherche l'index de l'élément (objet) de tableau identifié par la clé et la valeur 
+     * 
+     * @param {string} key clé
+     * @param {any} value valeur
+     * @return {number} index ou -1 si échoue
+     * @file 'modules/utils/array.js'
+     */
+    getIndexObjectValue(key, value){
+
+        if ( !isString( key ) ) throw new TypeError( e.ERROR_STR )
+        if ( isUndefined( value) ) throw new ReferenceError( e.ERROR_OBJ )
+        
+        for (const [index, o] of this.val.entries()) {
+            if (o.hasOwnProperty(key) && o[key] == value)
+                return index
+        }
+        return -1
     }
 
     /**
@@ -192,7 +213,6 @@ class uArray extends Array {
      * @returns {number} la valeur de tab_y extrapolée 
      * @file 'modules/utils/array.js'
      */
-
     static extrapolate(x, indice, tab_x, tab_y ) {
 
 
@@ -211,6 +231,7 @@ class uArray extends Array {
     /** Convertit un tableau de nombres en chaines
      * 
      * @returns {string[]}
+     * @file 'modules/utils/array.js'
      */
     int2str(){
         return this.val.map(e => e.toString())

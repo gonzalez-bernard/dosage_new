@@ -1,0 +1,29 @@
+@startuml main
+start
+:index.html;
+:charge global.js;
+note right 
+  crée les variables globales 
+  - gDosage
+  - gDosages
+  - gGraphs
+  - gEspeces
+  - gGraphmenu
+end note
+:charge into.ui.js;
+#pink:clic sur bouton;
+:appel initEspeces;
+  note left
+    - affiche page html
+    - appel serveur pour récupérer les listes
+    - définit les événements
+  end note
+#pink: clic sur validation du formulaire;
+:lance eventValidation;
+note right
+  - appel serveur pour initialiser dosage (initDosage)
+  - affiche page
+  - crée labo (createLab)
+  - affiche graphe (showGraph)
+  - réinitialise les dosages et la courbe en cours (reset)
+end note

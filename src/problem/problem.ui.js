@@ -5,7 +5,7 @@
  */
 import * as txt from "./lang_fr.js"
 import * as ui from "./html_cts.js"
-import {G} from "../environnement/globals.js"
+import {gDosages} from "../environnement/globals.js"
 import { getHtml } from "./html.js";
 import { getEltID, getValueID} from "../modules/utils/html.js";
 
@@ -13,11 +13,14 @@ import { mathArrondir } from "../modules/utils/number.js";
 import { uString, dspHtmlLatex } from "../modules/utils/string.js";
 import { cts } from "../environnement/constantes.js";
 import {dspMessage as displayMessage} from "../modules/dom.js"
-import { updEspeces, resetForm, dspTabEspeces } from "../especes/especes.ui.js";
+import { updEspeces, resetForm, dspTabEspeces } from "../especes/interface.js";
 import { getProblem} from "./problem.data.js";
 import {setEvents} from "./problem.events.js"
 import { isEvent } from "../modules/utils/type.js";
 
+/**
+ * @typedef {import("../../types/types.js").tEvent} tEvent
+ */
 
 var numEssais = 0 // nombre d'essais
 var nbEssais = 3 
@@ -33,31 +36,32 @@ function initPage(data){
  * 
  * Appel python 
  * arg est soit un event soit un objet du type {G:G, data:{indice:...}}
- * @param {event|object} arg 
+ * @param {tEvent|object} arg 
  * @return {void}
  */
 function initProblem(arg){
+    const dosage = gDosages.getCurrentDosage()
     const data = isEvent(arg) ? arg.data : arg
 
     getProblem(data.data).then(function(data){
     data.inconnu.label = new uString(data.inconnu.label).convertExpoIndice().html
     data.inconnu.value = data.inconnu.field[0].value
-    G.type = data.type
+    dosage.type = data.type
     
     // Crée la page HTML
     initPage(data)
 
-    G.setState(cts.ETAT_PROBLEM,1)
-    G.inconnu = data.inconnu
+    dosage.setState('PROBLEM',1)
+    dosage.inconnu = data.inconnu
     
     // Définition des événements
-    setEvents(G, data)
+    setEvents(dosage, data)
   })
 }
 
 /** Active le zoom
  * 
- * @param {event} event
+ * @param {tEvent} event
  */
 function zoomIn(event) {
   // @ts-ignore
@@ -130,11 +134,13 @@ function dspMessage( result, mode = 0 ) {
  */
  function validProblem() {
 
+  const dosage = gDosages.getCurrentDosage()
+
   // On arrondit la valeur en tenant compte du nombre de CS (precision)
-  let roundValue = parseFloat(mathArrondir( G.inconnu.field[0].value, 10 ))
+  let roundValue = parseFloat(mathArrondir( dosage.inconnu.field[0].value, 10 ))
   let reponse = getValueID( ui.PB_PROBLEM_REPONSE,'float')
   let r = Math.abs( 1 - reponse/roundValue )
-  let prec = new uString(G.inconnu.field[0].precision).strListToArray().array
+  let prec = new uString(dosage.inconnu.field[0].precision).strListToArray().array
   if ( r < parseFloat(prec[0]) ) {
     dspMessage( true )
   } else if ( r < parseFloat(prec[1]) )
@@ -164,7 +170,7 @@ function dspMessage( result, mode = 0 ) {
 
 /** Annule les actions sur les champs
  * 
- * @param {event} e event
+ * @param {tEvent} e event
  * @private
  * @file problem.ui.js
  */
@@ -176,18 +182,19 @@ function cancelProblem(e) {
 
 /** Initialise les champs du formulaire espèce
  * 
- * @param {event} e event
+ * @param {tEvent} e event
  * @use updEspeces, dspTabProblem
  * @private
  * @file problem.ui.js
  */
 function experiment(e){
-  updEspeces(G)
+  const dosage = gDosages.getCurrentDosage()
+  updEspeces(dosage)
   dspTabProblem(false)
   dspTabEspeces(true)
 }
 
-const data = {G: G, data: { 'indice': 1 }}
+const data = {G: gDosages.getCurrentDosage(), data: { 'indice': 1 }}
 
 initProblem(data)
 

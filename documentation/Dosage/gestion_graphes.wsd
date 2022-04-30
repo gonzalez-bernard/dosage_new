@@ -1,6 +1,34 @@
-@startuml
+@startuml manageGraph
 start
 fork
+  :event dbClic sur appareil
+  phmetre.js, ...;
+  :updateAppareil;
+    note left
+      positionne l'appareil
+      file : appareil.js
+    end note
+  if(update ?) then
+    :setState;
+    note left
+      actualise état
+      ETAT_GRAPH_PH,...
+    end note 
+    :manageGraphs;
+    note left
+      gestion des graphes
+      file : dosage.graphs.js
+    end note
+    :displayGraphs;
+    note right
+      affiche les graphes qui ont la propriété
+      visible à true
+    end note
+    :showGraph;
+    :setButtonVisible;
+    :setButtonState;
+  endif
+
   if (activation d'un appareil) then (OK)   
     if (graph du même type actif) then (OK)
       :on réaffiche le graphe;

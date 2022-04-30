@@ -90,23 +90,13 @@ function setEvents( G ) {
 
     /**  Validation        */
     getEltID( ui.ES_BT_VALID ).on( 'click', function() {
-        eventValidation( gEspeces)
+        eventValidation( gDosages.getCurrentDosage(), gEspeces)
     } )
 
     /** Affichage de l'aide */
     getEltID( ui.ES_BT_dspINFO_AC ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
     getEltID( ui.ES_BT_dspINFO_OX ).on( "click", null, { 'arg': G, fct: initDataInfo }, dspInfo );
 
-    /*
-        getElt( 'a[data-toggle="tab"]' ).on( 'shown.bs.tab', function( e ) {
-            if ( $( e.target ).attr( "href" ) == "#especes" )
-                $( '.title' ).text( 'Espèces' );
-            else if ( isDefined( G ) )
-                $( '.title' ).html( G.title );
-            else
-                $( '.title' ).html( new uString( $( e.target ).attr( "href" ).substring( 1 ) ).capitalize().val );
-        } );
-    */
 }
 
 export { setEvents}

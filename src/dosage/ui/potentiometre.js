@@ -13,12 +13,12 @@ import {cts} from"../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
-import { showGraph, manageGraph } from "../dosage.graph.js"
+import { showGraph, manageGraph, displayGraphs    } from "../dosage.graph.js"
 import { updateAppareil } from "./appareil.js";
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
 /**
- * @typedef {import('../../../types/types').tLab} tLab
+ * @typedef {import('../../../types/classes').Lab} Lab
  * @typedef {import('../../../types/classes').Dosage} Dosage
  * @typedef {import('../../../types/classes').Canvas} Canvas 
  * @typedef {import('../../../types/types').tAPPAREIL} tAPPAREIL 
@@ -37,11 +37,10 @@ import { setButtonState, setButtonVisible } from "../dosage.ui.js";
     * 
     * @param {tAPPAREIL} app 
     * @param {Canvas} canvas 
-    * @param {number} etat 
     * @param {string} unite 
     */
-   constructor(app, canvas, etat, unite){
-     super(app, canvas, etat, unite)
+   constructor(app, canvas, unite){
+     super(app, canvas, unite)
  
      /** @type {iCanvasText} */
      this.value = canvas.display.text({
@@ -61,25 +60,23 @@ import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 /** Crée le potentiomètre
  *
  * Définit les events
- * @param {tLab} lab
+ * @param {Lab} lab
  * @param {Dosage} G
  * @returns {Potentiometre} Conductimetre
  * @use updGraph, displayGraph
  * @public
  * @file initPotentiometre.js
  */
-function initPotentiometre(lab, G) {
+function initPotentiometre(G, lab) {
     if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
 
     // Crée potentiometre
-    var potentiometre = new Potentiometre(
-        POTENTIOMETRE, lab.canvas, cts.ETAT_POT, "V"
-    );
+    var potentiometre = new Potentiometre(POTENTIOMETRE, lab.canvas, "V");
     lab.canvas.addChild(potentiometre.fond);
 
     // survol potentiometre
     potentiometre.fond.bind("mouseenter", function () {
-        if (G.type == cts.TYPE_OXYDO && G.test('mesure', 4)) {
+        if (G.type == cts.TYPE_OXYDO && (G.mesure & 4)) {
             lab.canvas.mouse.cursor("pointer");
             lab.tooltip.dspText(txt.DO_POTENTIOMETRE);
         } else
@@ -97,10 +94,14 @@ function initPotentiometre(lab, G) {
     potentiometre.fond.bind("dblclick", function () {
         
         if (updateAppareil(potentiometre, lab.becher)) {
+            
+            G.setState('GRAPH_TYPE', -1, G.getState('APPAREIL_ON'))
+
             // met à jour le graphe
-            manageGraph(cts.ETAT_POT)
+            manageGraph(G.getState('GRAPH_TYPE'), -1)
+            displayGraphs()
             showGraph();
-            G.setState(cts.ETAT_GRAPH_PT, -1)
+            
             // actualise les boutons
             setButtonState(false)
             setButtonVisible(false)

@@ -73,6 +73,8 @@ import * as e from "../../modules/utils/errors.js"
      this.vidage = 0
      /** @type {number} */
      this.angle = 0
+     /** @type {number} */
+     this.max = 0;
      
  
      // construit flacon
@@ -318,7 +320,7 @@ function initFlacon(G, canvas, tooltip, becher, sFlacon) {
                 else if (flacons[i].vidage == 2 ) {
                     flacons[i].vidange(becher);
                     // positionne indicateur
-                    G.etat = G.etat | cts.ETAT_INDIC
+                    G.setState('INDIC',1)
                     G.indic = i;
               
                     // initialise couleurs

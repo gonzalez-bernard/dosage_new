@@ -122,6 +122,7 @@ const isEvent = function(arg){
  * @file 'modules/utils/type.js'
  */
 const isObject = function(arg){
+  if (arg === null) return false
   return (typeof arg === "object")
 }
 
@@ -131,7 +132,7 @@ const isObject = function(arg){
  * @file 'modules/utils/type.js'
  */
 const isStrNum = function(arg){
-  if ( isString(arg) || !isNumeric(arg)) return true
+  if ( isString(arg) || isNumeric(arg)) return true
   return false
 }
 

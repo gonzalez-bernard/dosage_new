@@ -8,7 +8,6 @@
  * @property {boolean} stderrParser
  */
 
-
 const ES_CALLBACK = "./especes/py/get_especes.py"
 const DOS_CALLBACK = "./dosage/py/get_values.py"
 const DER_TITLE = "calcDerivee"
@@ -25,10 +24,10 @@ const DATA_GET_PROBLEM_OK = "getProblem_ok"
 
 // @ts-nocheck
 var { PythonShell } = require( "python-shell" );
+//var {dateformat} = require('dateformat')
 
 // eslint-disable-next-line no-undef
-// @ts-ignore
-dispatcher = function( io ) {
+var dispatcher = function( io ) {
 
     let options = {
         scriptPath: "./src/",
@@ -109,7 +108,13 @@ dispatcher = function( io ) {
             } );
         } );
 
+        // Affichage des messages d'erreurs sur le seveur et dans le fichier debug.log
+        socket.on("serverError",(msg) => {
+            console.log(new Date().toLocaleString('fr-FR'))
+            console.log(msg)
+          })
+
     } );
 }
 
-//export {dispatcher}
+module.exports = dispatcher

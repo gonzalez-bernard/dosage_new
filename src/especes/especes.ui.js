@@ -78,7 +78,7 @@ function initDataInfo( G ) {
         latex: true,
     }
 
-    if (G.etat & cts.ETAT_DOS){
+    if (G.getSate('ESPECES_INIT')){
         initDataInfo.idcontainer = DOS_DIV_INFO
         initDataInfo.idmodal = "id_dos_modal"
     }
@@ -265,7 +265,6 @@ function inputValidSaisie( obj ) {
 /** Initialise le formulaire
   
   Récupère les listes d'espèces à partir du fichier
-  @param {HTMLElement|String} html
   @param {Dosage} G variable global
   @use _setListAcidebase, _setListOxydo, initLists
   @file especes.ui.js
@@ -291,7 +290,7 @@ function initEspeces( G ) {
 
                 // récupération impossible
                 if (data == "Error"){
-                    dspMessage(ES_)
+                    dspMessage(ui.ES_)
                 }
                 // enregistre les listes
                 gEspeces.initLists( data )
@@ -317,7 +316,7 @@ function initEspeces( G ) {
     }
     
     // initialise en mode acide-base
-    G.setState( cts.TYPE_ACIDEBASE, 1 )
+    G.type = 1
 
 }
 

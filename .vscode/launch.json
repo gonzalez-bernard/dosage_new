@@ -2,6 +2,8 @@
   "version": "0.2.0",
   "configurations": [
   
+
+  
     {
       "name": "Python : Fichier actuel",
       "type": "python",
@@ -23,7 +25,7 @@
       "type": "node",
       "request": "launch",
       "name": "Launch",
-      "program": "${workspaceFolder}/app.js",
+      "program": "${workspaceFolder}/bin/www",
       "skipFiles": [
         "<node_internals>/**"
       ],

@@ -176,7 +176,7 @@ import {ERROR_COLOR, ERROR_NUM, ERROR_RANGE} from "../../modules/utils/errors.js
  * @param {Dosage} G
  * @param {Canvas} canvas 
  * @param {tBECHER} sBECHER
- * @returns {Becher}
+ * @returns {Becher} becher
  * @public
  * @file initBecher.js
  */

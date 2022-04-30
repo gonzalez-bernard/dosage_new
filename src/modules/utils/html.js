@@ -21,28 +21,30 @@ function getValue(id, { sym = "", type = null } = {}) {
 
     if (!isString(id)) throw new TypeError(e.ERROR_STR)
 
+    const s = $(sym + id).val()
     if (!type)
-        return $(sym + id).val()
+        return s
     else if (type == "int") {
-        return parseInt(String($(sym + id).val()))
+        return parseInt(String(s))
     }
     else if (type == "float") {
-        return parseFloat(String($(sym + id).val()))
+        return parseFloat(String(s))
     }
     else if (type == "str") {
-        return String($(sym + id).val())
+        return String(s)
     }
 }
 
 /** Retourne la valeur d'un champ identifié par son ID
  * 
  * @param {string} id ID du champ
- * @param {string} type 'int|float|string' 
+ * @param {string|null} type 'int|float|string' 
  * @returns {any}
  * @file 'modules/utils/html.js'
  */
 function getValueID(id, type = null) {
     if (!isString(id)) throw new TypeError(e.ERROR_STR)
+
     return getValue(id, { sym: "#", type: type })
 }
 
@@ -54,6 +56,9 @@ function getValueID(id, type = null) {
  * @file 'modules/utils/html.js'
  */
 function setValueID(id, val) {
+    if (!isString(id)) throw new TypeError(e.ERROR_STR)
+    if (!isString(val) && !isNumeric(val)) throw new TypeError(e.ERROR_STRNUM)
+
     return setValue(id, "#", val)
 }
 
@@ -82,6 +87,7 @@ function setValue(id, sym, val) {
 */
 function getElt(id, { sym = "", opt = null } = {}) {
     if (!isString(id)) throw new TypeError(e.ERROR_STR)
+
     if (!opt)
         return $(sym + id)
     else
@@ -91,11 +97,14 @@ function getElt(id, { sym = "", opt = null } = {}) {
 /** Retourne l'élément JQuery identifié par id
  * 
  * @param {string} id 
- * @param {string} opt options de recherche
+ * @param {string|null} opt options de recherche
  * @return {JQuery}
  * @file 'modules/utils/html.js'
  */
 function getEltID(id, opt = null) {
+    if (!isString(id)) throw new TypeError(e.ERROR_STR)
+    if (!isString(opt) && opt !== null) throw new TypeError(e.ERRORTYPE)
+    
     let symbol = id.indexOf("#") == 0 ? "" : "#"
     return getElt(id, { sym: symbol, opt: opt })
 }

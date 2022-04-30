@@ -4,7 +4,9 @@ import { gDosages, gGraphs, gGraphMenu } from "../environnement/globals.js";
 import { getEltID } from "../modules/utils/html.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { cts } from "../environnement/constantes.js";
-import {Dialog, ListMenu} from "../modules/dom.js"
+import {Dialog} from "../modules/dom.js"
+import {ListMenu} from "../modules/listmenu.js"
+
 import {toggleDisplayGraph, removeGraphMenu} from "./dosage.graph.js"
 import { dgForm } from "./ui/html.js";
 import { DOS_TOOLTIP_OEIL, DOS_TOOLTIP_TRASH } from "./ui/lang_fr.js";
@@ -50,7 +52,7 @@ function setButtonState(clear = true) {
     }
 
     // activation de graphe théorique
-    getEltID(ui.DOS_BT_COTH).prop("disabled", !G.test("etat", cts.ETAT_PHMETRE))
+    getEltID(ui.DOS_BT_COTH).prop("disabled", G.getState('APPAREIL_ON') != 1)
 
 
     // on active tan2 si tan1 existe ou tan2 déjà tracée
@@ -159,11 +161,11 @@ function initDialog(){
  * @file dialog.ui.js
  */
 function addGraphMenuItem(label, idGraph){
-    if (gGraphMenu.menu.rows.findIndex(elt => elt.id === idGraph) == -1){
+    if (gGraphMenu.menu.getPosByID(idGraph) == -1){
         const row = []
-    row.push({type:'label', content: [idGraph], width:0, visible:false})
-    row.push({type:'label', content: [label]})
-    row.push({
+        row.push({type:'label', content: [idGraph], width:0, visible:false})
+        row.push({type:'label', content: [label], class:'text-overflow'})
+        row.push({
         type:'img', 
         content:[gGraphMenu.imgVisible, gGraphMenu.imgNoVisible],
         idx: 0, 
@@ -173,7 +175,7 @@ function addGraphMenuItem(label, idGraph){
         tooltip:DOS_TOOLTIP_OEIL
 
     })
-    row.push({
+        row.push({
         type:'img', 
         content: [gGraphMenu.imgTrash], 
         action: removeGraphMenu, 
@@ -181,7 +183,7 @@ function addGraphMenuItem(label, idGraph){
         width:2, 
         tooltip: DOS_TOOLTIP_TRASH
     })
-    gGraphMenu.menu.addItem(row, true)
+        gGraphMenu.menu.addItem(row, true)
     }
 }
 

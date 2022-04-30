@@ -4,14 +4,14 @@ import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
 import { CONDUCTIMETRE } from "./interface.js";
-import { showGraph, manageGraph } from "../dosage.graph.js"
+import { showGraph, manageGraph, displayGraphs} from "../dosage.graph.js"
 import { updateAppareil } from "./appareil.js";
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
 /**
  * @typedef {import ('../../../types/classes').Canvas} Canvas
  * @typedef {import ('../../../types/types').tAPPAREIL} tAPPAREIL
- * @typedef { import ("../../../types/types").tLab} tLab
+ * @typedef { import ("../../../types/classes").Lab} Lab
  * @typedef { import ( '../../../types/classes' ).Dosage } Dosage  
  */
 
@@ -27,11 +27,10 @@ class Conductimetre extends Appareil{
    * Construit objet conductimetre
    * @param {tAPPAREIL} app structure
    * @param {Canvas} canvas 
-   * @param {number} etat 
    * @param {string} unite 
    */
-  constructor(app, canvas, etat, unite){
-    super(app, canvas, etat, unite)
+  constructor(app, canvas, unite){
+    super(app, canvas,  unite)
 
     this.fond.addChild(this.value)
   }
@@ -51,22 +50,22 @@ class Conductimetre extends Appareil{
 /** Crée le conductimètre
  *
  * Définit les events
- * @param {tLab} lab structure labo
+ * @param {Lab} lab structure labo
  * @param {Dosage} G
  * @returns {Conductimetre} Conductimetre
  * @use updGraph, displayGraph
  * @file Conductimetre
  */
-function initConductimetre(lab, G) {
+function initConductimetre(G, lab) {
     if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
 
     // Crée conductimetre
-    var conductimetre = new Conductimetre(CONDUCTIMETRE, lab.canvas, cts.ETAT_COND, "mS");
+    var conductimetre = new Conductimetre(CONDUCTIMETRE, lab.canvas, "mS");
     lab.canvas.addChild(conductimetre.fond);
 
     // survol conductimetre
     conductimetre.fond.bind("mouseenter", function () {
-        if (G.test('mesure', 2)) {
+        if (G.mesure & 2) {
             lab.canvas.mouse.cursor("pointer");
             lab.tooltip.dspText(txt.DO_CONDUCTIMETRE);
         } else {
@@ -84,10 +83,15 @@ function initConductimetre(lab, G) {
     Gère la création et l'affichage de la courbe */
     conductimetre.fond.bind("dblclick", function () {
         if (updateAppareil(conductimetre, lab.becher)) {
+            
+            // Change l'état d'affichage du graphe
+            G.setState('GRAPH_TYPE', -1, G.getState('APPAREIL_ON'))
+
             // met à jour le graphe
-            manageGraph(cts.ETAT_COND)
+            manageGraph(G.getState('GRAPH_TYPE'), -1)
+            displayGraphs()
             showGraph()
-            G.setState(cts.ETAT_GRAPH_CD, -1)
+            
             // actualise les boutons
             setButtonState(false)
             setButtonVisible(false)

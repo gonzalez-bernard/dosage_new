@@ -9,7 +9,6 @@ import * as e from "../../modules/utils/errors.js";
 import {showGraph, displayGraphs, manageGraph} from "../dosage.graph.js"
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 import {updateAppareil} from "./appareil.js"
-import { gGraphMenu, gGraphs } from "../../environnement/globals.js";
 
 /**
  * @typedef {import ('../../../types/types').tAPPAREIL} tAPPAREIL
@@ -26,12 +25,11 @@ class Phmetre extends Appareil{
    * 
    * @param {tAPPAREIL} app 
    * @param {Canvas} canvas 
-   * @param {number} etat 
    * @param {string} unite 
    */
-  constructor(app, canvas, etat, unite){
+  constructor(app, canvas, unite){
 
-    super(app, canvas, etat, unite)
+    super(app, canvas, unite)
 
     /** @type {iCanvasText} */
     this.value = canvas.display.text({
@@ -58,7 +56,7 @@ class Phmetre extends Appareil{
 */
 
 /**
- * @typedef {import('../../../types/types').tLab} tLab
+ * @typedef {import('../../../types/classes').Lab} Lab
  * @typedef {import('../../../types/classes').Dosage} Dosage
  * @typedef {import('../../../types/classes').Becher} Becher
  * 
@@ -68,23 +66,23 @@ class Phmetre extends Appareil{
  * 
  * Définit les events
  * 
- * @param {tLab} lab Labo
+ * @param {Lab} lab Labo
  * @param {Dosage} G 
  * @returns {Phmetre} Phmetre
  * @use updGraph, displayGraph
  * @public
  * @file Phmetre.js
  */
-function initPhmetre( lab, G ) {
+function initPhmetre( G, lab ) {
     if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
 
     // Crée phmetre
-    var phmetre = new Phmetre( PHMETRE, lab.canvas, cts.ETAT_PHMETRE, "" );
+    var phmetre = new Phmetre( PHMETRE, lab.canvas, "" );
     lab.canvas.addChild( phmetre.fond );
 
     // survol pHmetre
     phmetre.fond.bind( "mouseenter", function( ) {
-        if (G.type & cts.TYPE_ACIDEBASE){
+        if (G.type & cts.TYPE_ACIDEBASE && G.mesure & 1){
             lab.canvas.mouse.cursor( "pointer" );
             lab.tooltip.dspText( txt.DO_PHMETRE );
         } else {
@@ -95,7 +93,7 @@ function initPhmetre( lab, G ) {
     // Quitte survol pHmetre
     phmetre.fond.bind( "mouseleave", function( ) {
         lab.canvas.mouse.cursor( "default" );
-        if (G.type & cts.TYPE_ACIDEBASE){
+        if (G.type & cts.TYPE_ACIDEBASE && G.mesure & 1){
             lab.tooltip.dspText();
         } 
     } );
@@ -104,13 +102,16 @@ function initPhmetre( lab, G ) {
       Gère la création et l'affichage de la courbe */
     phmetre.fond.bind( "dblclick", function(e) {
 
+      lab.phmetre.etat = 1 - lab.phmetre.etat
+      
       if (updateAppareil(phmetre, lab.becher)) {
           
         // actualise etat
-        G.setState(cts.ETAT_GRAPH_PH, -1)
-
+        G.setState('APPAREIL_TYPE',1)
+        
+        
         // gestion du graphe
-        const index = manageGraph(cts.ETAT_PHMETRE)
+        manageGraph(G.getState('APPAREIL_TYPE'), -1)
 
         displayGraphs()
         showGraph()
@@ -126,5 +127,4 @@ function initPhmetre( lab, G ) {
     return phmetre
 }
 
-export { initPhmetre }
-export {Phmetre}
+export { initPhmetre, Phmetre }

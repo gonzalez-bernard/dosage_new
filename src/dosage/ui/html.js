@@ -55,7 +55,7 @@ divs.dgName = new Div('form-group col').setStyle("margin-bottom:0.4em; margin-ri
 
 const label = new Label("Indiquez un nom pour la courbe").addClass("col col-form-label")
 const labelName = new Label("Nom :",{class:'col-md-4 col-form-label'})
-const input = new Input('text').setID("graphName").addClass("text ui-widget-content ui-corner-all")
+const input = new Input('text').setSize(20).setMaxLength(20).setID("graphName").addClass("text ui-widget-content ui-corner-all")
 divs.dgColname = new Div('col-md-8').addChild(input)
 divs.dgRow = new Div("row").addChild(labelName, divs.dgColname) 
 divs.dgName.addChild(divs.dgRow)
@@ -63,20 +63,20 @@ divs.dgName.addChild(divs.dgRow)
 const dgFieldset = new Element('fieldset').setStyle("margin-right:1em").addChild(label, divs.dgName)
 const dgForm = new Form().addChild(dgFieldset)
 
-divs.dialog = new Div("","dialog-form")
+divs.dialog = new Div("","dialog-form").addChild(dgForm)
 
 
 /************************************************** */
 
 // canvas labo
 elts.labo = new Element( 'canvas', { class: 'canvas', id: ui.DOS_CANVAS } )
-divs.labo = new Div( 'row', 'labo' ).addChild( elts.labo ).setStyle( "min-width:500px" )
+divs.labo = new Div( 'row', 'labo' ).addChild( elts.labo ).setStyle( "min-width:500px; margin-right:20px" )
 
 // info
 divs.info = new Div( 'row', 'dos_info' ).setText( 'Informations : ' ).setStyle( "width:500px; margin-top:1em; min-height:3em" )
 
 // div groupant info et labo
-divs.info_labo = new Div( 'col' ).setStyle( "width:600px" ).addChild( divs.info, divs.labo )
+divs.info_labo = new Div( 'col' ).setStyle( "width:530px; max-width:530px" ).addChild( divs.info, divs.labo )
 
 /************************************************** */
 
@@ -105,10 +105,10 @@ buttons.tanpp = new Button( '', { id: ui.DOS_BT_COTH, class: 'btn btn-dosage btn
 divs.bts = new Div( 'row', 'btChart' ).addChild( buttons.derivee, buttons.tan1, buttons.tan2, buttons.tanp, buttons.tanpp ).setStyle( "min-width: 400px" )
 
 // canvas graphe
-elts.chart = new Element( 'canvas', { class:'canvas', id: ui.DOS_CHART } )
+elts.chart = new Element( 'canvas', { class:'canvas', id: ui.DOS_CHART } ).setStyle("width: 500px; height:500px; display:block; box-sizing:border-box")
 
 // contient le canvas
-divs.graph = new Div( 'row' ).addChild( elts.chart ).setID( ui.DOS_GRAPHE ).setStyle( "min-width:500px" )
+divs.graph = new Div( 'row' ).addChild( elts.chart ).setID( ui.DOS_GRAPHE ).setStyle( "min-width:500px; max-width:80%; position: relative; height: 45vh; width: 45vw" )
 
 // conteneur boutons et graph
 divs.div_graph = new Div( 'col-md-6' ).addChild( divs.bts, divs.graph).setStyle( 'display: none ' ).setID( ui.DOS_DIV_GRAPH )

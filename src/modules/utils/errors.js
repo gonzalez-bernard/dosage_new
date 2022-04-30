@@ -6,6 +6,7 @@
  * ***
  * ***export NotElementException***
  */
+//import io from "socket.io-client"
 
 const ERRORTYPE = "Mauvais type de paramètre"
 const ERROR_STR = "Une chaine de caractère est attendue"
@@ -35,4 +36,12 @@ class NotElementException extends Error {
   } 
 }
 
-export {ERRORTYPE, ERROR_STR, ERROR_ABS, ERROR_BOOL, ERROR_NUM, ERROR_RANGE, ERROR_OBJ, ERROR_ARRAY, ERROR_EVT, ERROR_STRNUM, NotElementException, ERROR_ELT, ERROR_COLOR, ERROR_PRM, ERROR_RETURN, ERROR_FCT}
+class serverError extends Error{
+  constructor(err) {
+    super(err)
+    // @ts-ignore
+    socket.emit("serverError", err.stack)
+  }
+}
+
+export {ERRORTYPE, ERROR_STR, ERROR_ABS, ERROR_BOOL, ERROR_NUM, ERROR_RANGE, ERROR_OBJ, ERROR_ARRAY, ERROR_EVT, ERROR_STRNUM, NotElementException, ERROR_ELT, ERROR_COLOR, ERROR_PRM, ERROR_RETURN, ERROR_FCT, serverError}

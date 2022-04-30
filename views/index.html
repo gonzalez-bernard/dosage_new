@@ -13,6 +13,7 @@
     <link rel="stylesheet" type="text/css" href="static/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="node/jquery-ui/themes/custom/jquery-ui.css" type="text/css" />
     <link rel="stylesheet" href="static/dialog.css" type="text/css" />
+   
     <link rel="icon" type="image/png" href="./static/resources/img/favicon.png">
     <script type="text/javascript" src="node/ocanvas/build/dist/latest/ocanvas.js"></script>
     <script type="text/javascript" src="node/jquery/dist/jquery.js"></script>
@@ -24,14 +25,15 @@
     <script type="text/javascript" id="MathJax-script" async src="./static/mathjax/es5/tex-mml-chtml.js"></script>
     <script src="/socket.io/socket.io.js"></script>
 
-    
+
 </head>
 
 <body>
     <div class="container-fluid">
         <ul class='nav nav-tabs'>
             <li class='nav-item'>
-                <a id="mnu_introduction" class="nav-link active" data-toggle='tab' href=' #introduction'> Introduction</a>
+                <a id="mnu_introduction" class="nav-link active" data-toggle='tab' href=' #introduction'>
+                    Introduction</a>
             </li>
             <li class='nav-item'>
                 <a id="mnu_especes" class="nav-link" data-toggle='tab' href='#especes'> Espèces</a>
@@ -40,7 +42,8 @@
                 <a id="mnu_dosage" class="nav-link disabled disabledTab" data-toggle='tab' href='#dosage'> Dosage</a>
             </li>
             <li class='nav-item'>
-                <a id='mnu_problem' class="nav-link disabled disabledTab" data-toggle='tab' href='#problem'>Problèmes</a>
+                <a id='mnu_problem' class="nav-link disabled disabledTab" data-toggle='tab'
+                    href='#problem'>Problèmes</a>
             </li>
             <li class='nav-item'>
                 <a class="nav-link" data-toggle='tab' href='#aide'> Aide</a>
@@ -61,9 +64,8 @@
         <!-- Chargement des pages -->
         <script type="module" src='../src/environnement/globals.js'></script>
         <script type="module" src='../src/introduction/intro.ui.js'></script>
-        <script type="module" src='../src/aide/aide.ui.js'></script>
-
-        <script type="module" src='../src/especes/especes.ui.js'></script>
+        <!-- <script type="module" src='../src/aide/aide.ui.js'></script>
+        <script type="module" src='../src/especes/especes.ui.js'></script> -->
 
         <!-- <script type="module" src='../src/dosage/dosage.js'></script> -->
         <!-- <script type="module" src='../src/problem/problem.ui.js'></script> -->
@@ -72,10 +74,39 @@
 
 
         <script type="text/javascript">
-            window.onload = function() {
+            window.onload = function () {
 
                 var $ = window.jQuery
                 $('[data-toggle="tooltip"]').tooltip()
+
+                jQuery.event.special.touchstart = {
+                    setup: function (_, ns, handle) {
+                        if (ns.includes("noPreventDefault")) {
+                            this.addEventListener("touchstart", handle, { passive: false });
+                        } else {
+                            this.addEventListener("touchstart", handle, { passive: true });
+                        }
+                    }
+                };
+                jQuery.event.special.touchmove = {
+                    setup: function (_, ns, handle) {
+                        if (ns.includes("noPreventDefault")) {
+                            this.addEventListener("touchmove", handle, { passive: false });
+                        } else {
+                            this.addEventListener("touchmove", handle, { passive: true });
+                        }
+                    }
+                };
+                jQuery.event.special.wheel = {
+                    setup: function (_, ns, handle) {
+                        this.addEventListener("wheel", handle, { passive: true });
+                    }
+                };
+                jQuery.event.special.mousewheel = {
+                    setup: function (_, ns, handle) {
+                        this.addEventListener("mousewheel", handle, { passive: true });
+                    }
+                };
             }
         </script>
     </div>

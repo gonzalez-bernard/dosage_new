@@ -23,25 +23,23 @@ import { parseObjectType } from "../modules/utils/type.js";
  * @file especes.data
  * @external especes.events
  */
-function eventValidation( E, canvas ) {
+function eventValidation(dosage, E ) {
     
-    const G = gDosages.getCurrentDosage()
-        
     // type de dosage (acide/base ou autres)
-    G.type = getValue( "input[name='choice_type']:checked", { type: "int" } );
+    dosage.type = getValue( "input[name='choice_type']:checked", { type: "int" } );
 
     // initialise espèces et calcule les différents points (volume, pH,...)
-    if ( G.type == cts.TYPE_ACIDEBASE ) {
-        setDosageAcValues( G, E );
-        G.title = "Dosage " + G.titre.nomc + " par " + G.titrant.nomc;
+    if ( dosage.type == cts.TYPE_ACIDEBASE ) {
+        setDosageAcValues( dosage, E );
+        dosage.title = "Dosage " + dosage.titre.nomc + " par " + dosage.titrant.nomc;
     } else {
-        setDosageOxValues( G, E );
-        G.title = new uString( G.label ).convertExpoIndice().html;
+        setDosageOxValues( dosage, E );
+        dosage.title = new uString( dosage.label ).convertExpoIndice().html;
     }
-    initDosage( gDosages, canvas )
+    initDosage(dosage)
 
     // indique que les espèces ont été enregistrées
-    G.setState( cts.ETAT_ESPECES, 1 );
+    dosage.setState( 'ESPECES_INIT', 1 );
 
     // active l'onglet dosage
     getEltID( MNU_DOSAGE ).removeClass( "disabled disabledTab" );
@@ -49,81 +47,81 @@ function eventValidation( E, canvas ) {
 
 /** initialise les valeurs oxydo
  *
- * @param {Dosage} G global
+ * @param {Dosage} dosage dosage en cours
  * @returns void
  * @public
  * @file especes.data.js
  * @external especes.events
  */
-function setDosageOxValues( G, E ) {
+function setDosageOxValues( dosage, E ) {
     // volumes de la solution
-    G.titrant.vol = 0;
-    G.titre.vol = getValueID( ui.ES_TITRE_VOL, "float" );
-    G.eau.vol = getValueID( ui.ES_EAU_VOL, "float" );
-    G.reactif.vol = G.hasReactif ? getValueID( ui.ES_SUPP_VOL, "float" ) : 0;
-    G.exc.vol =
-        G.hasExc != null && G.hasExc != 0 ? ( G.exc.vol = getValueID( ui.ES_EXC_VOL, "float" ) ) : 0;
-    G.solution.vol = G.titre.vol + G.eau.vol + G.reactif.vol + G.exc.vol;
+    dosage.titrant.vol = 0;
+    dosage.titre.vol = getValueID( ui.ES_TITRE_VOL, "float" );
+    dosage.eau.vol = getValueID( ui.ES_EAU_VOL, "float" );
+    dosage.reactif.vol = dosage.hasReactif ? getValueID( ui.ES_SUPP_VOL, "float" ) : 0;
+    dosage.exc.vol =
+        dosage.hasExc != null && dosage.hasExc != 0 ? ( dosage.exc.vol = getValueID( ui.ES_EXC_VOL, "float" ) ) : 0;
+    dosage.solution.vol = dosage.titre.vol + dosage.eau.vol + dosage.reactif.vol + dosage.exc.vol;
 
     // Concentrations
-    G.titre.conc = getValueID( ui.ES_TITRE_CONC, "float" );
-    G.titrant.conc = getValueID( ui.ES_TITRANT_CONC, "float" );
-    G.reactif.conc = G.hasReactif ? getValueID( ui.ES_SUPP_CONC, "float" ) : 0;
-    G.exc.conc = G.hasExc ? getValueID( ui.ES_EXC_CONC, "float" ) : 0;
+    dosage.titre.conc = getValueID( ui.ES_TITRE_CONC, "float" );
+    dosage.titrant.conc = getValueID( ui.ES_TITRANT_CONC, "float" );
+    dosage.reactif.conc = dosage.hasReactif ? getValueID( ui.ES_SUPP_CONC, "float" ) : 0;
+    dosage.exc.conc = dosage.hasExc ? getValueID( ui.ES_EXC_CONC, "float" ) : 0;
 
     // Divers
-    G.equation.id = getValueID( ui.ES_AUTREDOS_SELECT, "int" ) - 1;
-    const r = E.listOxydo[ G.equation.id ];
-    G.mesure = r.mesure;
-    G.indics = new uString( r.indic ).strListToArray().getArray();
-    G.label = r.label;
-    G.typeDetail = parseInt( r.type );
+    dosage.equation.id = getValueID( ui.ES_AUTREDOS_SELECT, "int" ) - 1;
+    const r = E.listOxydo[ dosage.equation.id ];
+    dosage.mesure = r.mesure;
+    dosage.indics = new uString( r.indic ).strListToArray().getArray();
+    dosage.label = r.label;
+    dosage.typeDetail = parseInt( r.type );
 
     // equation
     var eq = [];
-    if ( G.hasReactif ) {
-        eq.push( JSON.parse( E.eqs[ G.equation.id ][ 0 ] ) );
-        eq.push( JSON.parse( E.eqs[ G.equation.id ][ 1 ] ) );
+    if ( dosage.hasReactif ) {
+        eq.push( JSON.parse( E.eqs[ dosage.equation.id ][ 0 ] ) );
+        eq.push( JSON.parse( E.eqs[ dosage.equation.id ][ 1 ] ) );
         var s = r.reaction[ 0 ].reactifs.split( "," );
-        G.reactif.formule = s[ 1 ];
+        dosage.reactif.formule = s[ 1 ];
     } else {
-        eq.push( JSON.parse( E.eqs[ G.equation.id ] ) );
+        eq.push( JSON.parse( E.eqs[ dosage.equation.id ] ) );
     }
 
-    G.equation.params = eq;
+    dosage.equation.params = eq;
 
-    G.ph = G.hasExc ? -Math.log10( G.exc.conc ) : eq[ 0 ][ "pH" ];
+    dosage.ph = dosage.hasExc ? -Math.log10( dosage.exc.conc ) : eq[ 0 ][ "pH" ];
 
     // initialise couleurs
-    G.titre.color = cts.COLORS[ eq[ 0 ].colors[ 0 ] ];
-    G.titrant.color = cts.COLORS[ eq[ 0 ].colors[ 1 ] ];
-    G.colProduit.endColor = cts.COLORS[ eq[ 0 ].colors[ 2 ] ];
-    if ( eq[ 0 ].colors.length > 3 ) G.colProduit.currentColor = cts.COLORS[ eq[ 0 ].colors[ 3 ] ];
+    dosage.titre.color = cts.COLORS[ eq[ 0 ].colors[ 0 ] ];
+    dosage.titrant.color = cts.COLORS[ eq[ 0 ].colors[ 1 ] ];
+    dosage.colProduit.endColor = cts.COLORS[ eq[ 0 ].colors[ 2 ] ];
+    if ( eq[ 0 ].colors.length > 3 ) dosage.colProduit.currentColor = cts.COLORS[ eq[ 0 ].colors[ 3 ] ];
 }
 
 /** initialise les valeurs acide-base
  *
- * @param {Dosage} G
+ * @param {Dosage} dosage
  * @file especes.data.js
  */
-function setDosageAcValues( G, E) {
-    G.titre.id = getValueID( ui.ES_ACIDEBASE_TITRE_SELECT, "int" ) - 1;
-    G.titrant.id = getValueID( ui.ES_ACIDEBASE_TITRANT_SELECT, "int" ) - 1;
-    G.titre = E.listAcideBase[ G.titre.id ];
-    G.titrant = E.listAcideBase[ G.titrant.id ];
+function setDosageAcValues( dosage, E) {
+    dosage.titre.id = getValueID( ui.ES_ACIDEBASE_TITRE_SELECT, "int" ) - 1;
+    dosage.titrant.id = getValueID( ui.ES_ACIDEBASE_TITRANT_SELECT, "int" ) - 1;
+    dosage.titre = E.listAcideBase[ dosage.titre.id ];
+    dosage.titrant = E.listAcideBase[ dosage.titrant.id ];
     
     // formatage des valeurs string -> number
-    parseObjectType(G.titre, ['@id', 'type'], 'int')
-    parseObjectType(G.titrant, ['@id', 'type'], 'int')
+    parseObjectType(dosage.titre, ['@id', 'type'], 'int')
+    parseObjectType(dosage.titrant, ['@id', 'type'], 'int')
  
-    G.titrant.vol = 0;
-    G.titre.vol = getValueID( ui.ES_TITRE_VOL, "float" );
-    G.titre.conc = getValueID( ui.ES_TITRE_CONC, "float" );
-    G.titrant.conc = getValueID( ui.ES_TITRANT_CONC, "float" );
-    G.eau.vol = getValueID( ui.ES_EAU_VOL, "float" );
-    G.solution.vol = G.titre.vol + G.eau.vol;
-    G.mesure = cts.MESURE_PH + cts.MESURE_COND;
-    G.indics = new uString( G.titre.indics ).strListToArray().getArray();
+    dosage.titrant.vol = 0;
+    dosage.titre.vol = getValueID( ui.ES_TITRE_VOL, "float" );
+    dosage.titre.conc = getValueID( ui.ES_TITRE_CONC, "float" );
+    dosage.titrant.conc = getValueID( ui.ES_TITRANT_CONC, "float" );
+    dosage.eau.vol = getValueID( ui.ES_EAU_VOL, "float" );
+    dosage.solution.vol = dosage.titre.vol + dosage.eau.vol;
+    dosage.mesure = cts.MESURE_PH + cts.MESURE_COND;
+    dosage.indics = new uString( dosage.titre.indics ).strListToArray().getArray();
 }
 
 /** Extrait la charge à partir de la formule

@@ -1,6 +1,6 @@
-import { ChartType, ChartTypeRegistry, ChartItem } from "../node_modules/chart.js";
-import { tBECHER, tBURETTE, tCanvasImage, tColorProduit, tDataDPH, tDataPH, tEquation, tGlobalCharts, tKeyboard, tInconnu, tLab, tOCANVAS, tPoint, tReactif, tReaction, tCanvasRect, tCanvasText, tFLACON, tGraphChart, tGraphID } from "./types.js";
-import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil, iCanvasTimeline, iCanvasLoop, iCanvasMouse, iGraph} from "./interfaces"
+import { ChartTypeRegistry, ChartItem } from "../node_modules/chart.js";
+import { tBECHER, tBURETTE, tCanvasImage, tColorProduit, tDataDPH, tDataPH, tEquation, tKeyboard, tInconnu, tLab, tEtat, tPoint, tReactif, tReaction, tCanvasRect, tCanvasText, tGraphID, tEvent } from "./types.js";
+import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil, iCanvasTimeline, iCanvasLoop, iCanvasMouse} from "./interfaces"
 
 
 declare class Dosages {
@@ -17,7 +17,7 @@ declare class Dosage {
     titrant: tReactif;
     solution: tReactif;
     colProduit: tColorProduit;
-    etat: number;
+    etat: tEtat;
     event: number;
     ph: number;
     sph: string;
@@ -27,7 +27,7 @@ declare class Dosage {
     spot: string;
     indic: number;
     
-    pHs: string[];
+    pHs: number[];
     vols: number[];
     dpHs: number[];
     pots: number[];
@@ -45,13 +45,32 @@ declare class Dosage {
     hasReactif: boolean;
     hasExc: number;
     label: string;
-    lab: tLab;
     name: string
-    setState(name: number, action: number): void;
-    test(name: string, action: number): boolean;
+    setState(name: string, action: number, value?: any): void;
+    getState(name: string): number;
     get(name: string): unknown;
     set(name: string, value: unknown): void;
+    getMask(name: string, value: unknown): number;
    
+}
+
+declare class Lab {
+    becher: Becher;
+    tooltip: Tooltip;
+    burette: Burette;
+    flacons: Flacon[];
+    phmetre: Phmetre;
+    potentiometre: Potentiometre;
+    conductimetre: Conductimetre;
+    canvas: Canvas;
+    setCanvas(canvas: Canvas, background: string , labo: tLab): void
+    setBackground(img: string): void;
+    initBecher(dosage: Dosage): void;
+    initTooltip(): void;
+    initBurette(dosage: Dosage): void;
+    initPhmetre(dosage: Dosage): void;
+    initConductimetre(dosage: Dosage):void;
+    initPotentiometre(dosage: Dosage): void;
 }
 
 declare class Especes {
@@ -148,6 +167,7 @@ type tCanvasDisplay = {
     rectangle: (arg0: tCanvasRect) => iCanvasRect;
 };
 
+
 declare class Canvas {
     width: number;
     height: number;
@@ -179,17 +199,19 @@ declare class Flacon implements iFlacon {
     verse: number;
     vidage: number;
     angle: number;
+    max: number;
     flacon_image: iCanvasImage;
     contenu_flacon: iCanvasImage;
     text_flacon: iCanvasText;
-    liquide: tOCANVAS;
+    liquide: iCanvasRect;
     length?: number;
+    
     chgText: (txt:string, x:number, y:number) => void
     dispose: (arg: Becher) => void
-    vidange: (arg:Becher) => void
+    vidange: (arg:Becher) => boolean
 }
 
-export class ChartX extends Chart {
+export class ChartX {
     canvas: any;
     chart: any;
     selectedIndicePoint: number;
@@ -218,7 +240,7 @@ declare class Graphx extends ChartX {
     dspTangente: (chartID: number, elt: Record<string, unknown>[], idTangente: number) => void;
     addTangente: (num: number, pts: tPoint[]) => void;
     delTangente: (index: number) => void;
-    movTangente: (evt: Event, indice: number, points: tPoint[], idx: number) => void;
+    movTangente: (evt: tEvent, indice: number, points: tPoint[], idx: number) => void;
     dspDerivee: () => void;
     _initDerivee: (data: tDataPH[], derive: tDataDPH[]) => tDataPH[];
     _initOptions: (data: unknown[]) => void;
@@ -226,7 +248,7 @@ declare class Graphx extends ChartX {
     dspPerpendiculaire: (etat?: number) => number;
     _getPerpendiculaire: (p0: tPoint, p1: tPoint, pente: number, factor: number) => void;
     _calcPente: (indice_1: number, indice_2: number, points: unknown[]) => number;
-    setEvent: (event: string, callback: (evt: Event, elt? : unknown[]) => any) => void   
+    setEvent: (event: string, callback: (evt: tEvent, elt? : unknown[]) => any) => void   
     changeData: (data: object[]) => void
     removeData: (arg: number)=> void
     getChartByProp: (id:string, prop:string) => number
@@ -272,4 +294,4 @@ declare class Input extends Element{
     _feedback: object
 }
 
-export {Becher, Dosage, Dosages, Especes, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, Graphs, EventForm, Element, Input, Label, Form, Tooltip}
+export {Becher, Dosage, Dosages, Especes, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, Graphs, EventForm, Element, Input, Label, Form, Tooltip, Lab}

@@ -189,6 +189,7 @@ input[type=password] {
 .canvas {
     border: 2px solid rgb(150, 153, 153);
     margin-top: 10px;
+    padding-right: 10px;
 }
 
 .graph {
@@ -336,6 +337,13 @@ input[type=password] {
     margin: 0 !important;
 }
 
+.text-overflow{
+    display: inline-block;
+    text-overflow: ellipsis;
+    width: inherit;
+    overflow: hidden;
+}
+
 .no-padding{
     padding: 0 !important;
 }
@@ -345,6 +353,11 @@ input[type=password] {
 .menu-list{
     border-radius: 4px ! important;
     border: 2px solid;
+}
+
+.btn-dosage{
+    margin-bottom: 0;
+    margin-top: 4px;
 }
 
 

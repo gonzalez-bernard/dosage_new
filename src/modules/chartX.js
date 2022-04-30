@@ -1,32 +1,100 @@
-/** graph.js */
+/** chartX.js */
 
-/**
- * La structure d'un chart est la suivante :
- *  canvas,
+/** Wrapper pour chart.js
+ * La création d'un chart est la suivante : new chart(canvas, config)
+ * 
+ * config a la structure suivante : {
+ *      type: '',
+ *      data: {},
+ *      options: {}
+ * }  
+ * 
+ * Structure de data :
+ * 
  * {
- *  type: ...,
- *  data: {
- *    labels: [...],
- *    datasets: [{
- *      label:...,
- *      data: [...],
- *      other...
- *    },{... id:y'}]
- *  },
- *  options:{
- *    ....
- *    scales: {
- *      x:{...},
- *      y:{...},
- *      y':{...}
- *    }
- *  }
+ *      labels: [],
+ *      datasets: [{dataset1},{dataset2},...]}
  * }
+ * 
+ * Structure de dataset:
+ * 
+ * {
+ *      label: '',
+ *      data: [number,...] ou [{x:..., y:...}]}
+ *      borderColor: 'rgba()',
+ *      backgroundColor: '...',
+ *      yAxisID: 'y',
+ *      hidden: true|false
+ * }
+ * 
+ * Structure de options:
+ * 
+ * {    
+ *      responsive : true|false,
+ *      title: {
+ *              display: true|false,
+ *              text: '...'
+ *      },
+ *      scales: {
+ *              y: {
+ *                  type: '...',
+ *                  reverse: true|false,
+ *                  position: left|right,
+ *                  ticks: {
+ *                          color: 'rgba()
+ *                  }
+ *                  grids: {
+ *                      drawOnChartArea: true|false
+ *                  }
+ *              },
+ *              y': {...}
+ *      },
+ *      plugins: {
+ *          legend: {
+ *              position: 'top|bottom'}
+ *          },
+ *          title: {
+ *              display: true|false,
+ *              text: '...'
+ *          }
+ *      }
+ * 
+ * Les courbes affichées sont mémorisées dans un 'dataset'
+ * Un dataset contient :
+ *  - label {string} : nom
+ *  - data {array} : ensemble des données sous forme de dataset
+ *  - other
+ *  - id
+ * 
+ * Pour créer un graphe on doit d'abord créer un dataset
+ * Pour cela on utilise la méthode 'setDataset' avec les paramètres nécessaires
+ * puis on appelle la méthode 'createChart'
+ * On fournit les paramètres :
+ * - type {string} : type de graphe
+ * - dataset {object} : dataset
+ * - options {object} : options 
+ * 
+ * Pour ajouter une série de données ou appelle la méthode 'addDataset'
+ * On lui passe un 'dataset' ou bien un tableau avec les différents paramètres.
+ *
+ * La suppression d'une courbe utilise 'removeData' avec un seul paramètre
+ * l'indice de la courbe. 
+ * 
+ * Pour supprimer un ou pusieurs points d'une courbe il faut utiliser
+ * la méthdoe 'clearData' avec l'indice de la courbe et éventuellement
+ * les numéros des points à afficher.
+ * 
+ * La modification des données d'une courbes se réalise avec la méthode 
+ * 'changeData' avec :
+ * - data {object} : ensemble des données
+ * - index {number} : index de la courbe (0 par défaut)
  */
 
-import { hasKey } from "./utils/object.js"
+import { copyDeep, hasKey, replace, updateItem } from "./utils/object.js"
 import * as e from "./utils/errors.js"
-import { isObject, isString, isEvent, isNumeric, isStrNum, isInteger, isDefined } from "./utils/type.js"
+import { isObject, isString, isNumeric, isInteger, isDefined, isArray, isFunction } from "./utils/type.js"
+//import { Chart } from "../../node_modules/chart.js/dist/chart.js";
+
 
 /**
  * @typedef {import("chart.js").ChartItem} chartItem
@@ -34,13 +102,14 @@ import { isObject, isString, isEvent, isNumeric, isStrNum, isInteger, isDefined 
  */
 
 class ChartX {
+
     /** Constructeur
      *
      * @param {string}  canvas nom du canvas destinataire "#canvas"
      * 
      */
     constructor(canvas) {
-        
+
         if (!isString(canvas)) throw new TypeError(e.ERROR_STR);
         /** @type {string} */
         this.canvas = canvas; // enregistre l'id du canvas
@@ -48,61 +117,40 @@ class ChartX {
         this.chart = {}; // mémorise le graphe donc de type Chart
         /** @type {number} */
         this.selectedIndicePoint = -1;
-         /** @type {number} */
+        /** @type {number} */
         this.old_selectedIndicePoint = -1;
         /** @type {tPoint[]} */
         this.activePoints = [];
         /** @type {string} */
     }
 
-    /********************************************************** */
-
     /** Crée le graphe
      *
-     * @param {import("chart.js").ChartType} type : type de graphe 'line, scatter,...'
-     * @param {object} dataset contient label, data et autres paramètres (other)
-     * @param {object} options
+     * @param {import("chart.js").ChartConfiguration} config contient label, data et autres paramètres (other)
      */
-    createChart(type, dataset, options = {}) {
-        if (!isString(type)) throw new TypeError(e.ERROR_STR)
-        if (!isObject(dataset)) throw new TypeError(e.ERROR_OBJ)
-        if (!hasKey(dataset, "label") || !hasKey(dataset, "data")) throw new e.NotElementException()
-
-        // enregistre dataset
-        this.dataset = dataset;
-        //this.chart.data.datasets.push( this.dataset );
-
-        
+    async createChart(config) {
+        if (!isObject(config)) throw new TypeError(e.ERROR_OBJ)
+        if (!config.hasOwnProperty('type')) throw new TypeError(e.ERROR_OBJ)
+        if (!config.hasOwnProperty('data')) throw new TypeError(e.ERROR_OBJ)
         // @ts-ignore
-        this.chart = new Chart(this.canvas, {
-            type: type,
-            data: { datasets: [this.dataset] },
-            options: options,
-        });
-
-        // Ajoute le label si n'existe pas
-        if (this.chart.data.labels.indexOf(dataset.label) == -1)
-            this.chart.data.labels.push(dataset.label);
-    }
-
-    /********************************************************** */
+        this.chart = new Chart(this.canvas, config)
+        }
 
     /** Crée un dataset
      *
-     * Crée le dataset
      * @param {string} label nom du jeu de données
      * @param {object[]} data jeu de données
-     * @param {object} other paramètres du jeu
      * @param {string} yAxe ID de l'axe vertical utilisé pour les options
+     * @param {object} other paramètres du jeu (borderColor, backgroundColor,...)
      * @returns {object} dataset
      */
-    setDataset(label, data, yAxe = "", other = undefined) {
+    createDataset(label, data, yAxe = "", other = undefined) {
         if (!isString(label)) throw new TypeError(e.ERROR_STR)
         if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
-        if (isDefined(other) && !isObject(other)) throw new TypeError(e.ERROR_OBJ)
         if (isDefined(yAxe) && !isString(yAxe)) throw new TypeError(e.ERROR_STR)
+        if (isDefined(other) && !isObject(other)) throw new TypeError(e.ERROR_OBJ)
 
-        let dataset = {};
+        const dataset = {};
         dataset.label = label;
         dataset.data = data;
         dataset.yAxisID = yAxe
@@ -112,69 +160,188 @@ class ChartX {
         return dataset;
     }
 
-    /********************************************************** */
-    /** Ajoute une série de données
-     *
-     * @param {array | object} arg dataset ou paramètres nécessaires :
-     *  - label {string} label
-     *  - data {object} data données
-     *  - yAxe {string} ID axe vertical
-     *  - other {object} other paramètre de dessin (couleur)
-     *  - options {object} options : contient les options. Le niveau maximum d'inclusion est de 2 niveaux.
-     * Ex : {scales: {x:{...}, y:{...}}}
-     * @use setDataset
+    /** Définit les données
+     * 
+     * @param {Dataset} dataset  
+     * @param {string[]} labels tableau des labels
+     * @returns {object}
      */
-     addDataset(...arg) {
-        if (isObject(arg[0]))
-            this._addDataset(arg[0].label, arg[0].data, arg[0].yAxe, arg[0].other, arg[0].options, )
-        else
-            this._addDataset(arg[0], arg[1], arg[2], arg[3], arg[4])
+    setData(dataset, labels = []) {
+        if (!isObject(dataset)) throw new TypeError(e.ERROR_OBJ)
+        if (!isArray(labels)) throw new TypeError(e.ERROR_ARRAY)
+
+        return {
+            labels: labels,
+            datasets: [copyDeep(dataset)]
+        }
     }
 
-    _addDataset(label= "", data = [], yAxe= "", other = undefined, options = {}, _dataset = {}) {
+    /** Définit la configuration
+     * 
+     * @param {import("chart.js").ChartType} type : type de graphe 'line, scatter,...' 
+     * @param {import("chart.js").ChartData} data object données
+     * @param {object} options 
+     * @param {object} plugins 
+     * @returns {import("chart.js").ChartConfiguration}
+     */
+    setConfig(type, data, options, plugins = []) {
+        if (!isString(type)) throw new TypeError(e.ERROR_STR)
+        if (!isObject(data) && !isObject(options)) throw new TypeError(e.ERROR_OBJ)
+        if (!isArray(plugins)) throw new TypeError(e.ERROR_ARRAY)
+
+        return {
+            type: type,
+            data: copyDeep(data),
+            options: copyDeep(options),
+            plugins: plugins
+        }
+    }
+
+    setPlugin(plugin) {
+        return plugin
+    }
+
+    /** Initialisation ou modification des options
+     *
+     * @param {string} root : racine ex: scales
+     * @param {object} option : objet définissant les options 
+     */
+    setOption(root, option) {
+        if (!isString(root)) throw new TypeError(e.ERROR_STR)
+        if (!isObject(option)) throw new TypeError(e.ERROR_OBJ)
+
+        if (root == ""){
+            this.chart.options = copyDeep(option)
+        } else {
+            replace(this.chart.options[root], copyDeep(option), '', true)
+        }
+    }
+
+    /** Met en place un gestionnaire d'évènement
+     *
+     * @param {String} event : type de l'événement ex: onClick
+     * @param {Function} callback : fonction de traitement
+     */
+    setEvent(event, callback) {
+        if (!isString(event)) throw new TypeError(e.ERROR_STR)
+        if (!isFunction(callback)) throw new TypeError(e.ERROR_FCT);
+
+        const evts = ['mouseenter', 'mouseout', 'mouseup', 'mousedown', 'mousemove']
+        const evt = event.substring(2).toLowerCase();
+        //this.chart.data[event] = callback;
+        if (!this.chart.options['events'].includes(evt))
+            this.chart.options['events'].push(evt)
+
+        this.chart.options[event] = function (evt, elt) {
+            callback(evt, elt);
+        };
+
+        if (evts.includes(evt))
+            $('#' + this.canvas).on(evt, (evt, elt) => callback(evt, elt))
+
+    }
+
+    /************************************************************ 
+                    AJOUT
+    ***********************************************************/
+
+    /** Ajoute une courbe
+     * 
+     * @param {string} label 
+     * @param {Dataset} dataset dataset
+     * @param {{root:string, opt:{}}} options précise les options
+     */
+    addChart(label, dataset, options = {root:'', opt:{}}) {
 
         if (!isString(label)) throw new TypeError(e.ERROR_STR)
-        if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
-        if (isDefined(other) && !isObject(other)) throw new TypeError(e.ERROR_OBJ)
-        if (isDefined(yAxe) && !isString(yAxe)) throw new TypeError(e.ERROR_STR)
-        if (isDefined(options) && !isObject(options)) throw new TypeError(e.ERROR_OBJ)
+        if (!isObject(dataset)) throw new TypeError(e.ERROR_OBJ)
 
-        
-        // met en forme le dataset
-        let dataset = this.setDataset(label, data, yAxe, other);
-
-        // ajoute le dataset
-        this.chart.data.datasets.push(dataset);
+        this.chart.data.datasets.push({...dataset} );
         this.chart.data.labels.push(label);
-        
 
-        if (options != undefined) {
-            //Object.assign(this.chart.options, options)
-                
-            for (var elt in options) {
-                if (typeof options[elt] === "object") {
-                    this.chart.options[elt] = {}
-                    for (var subelt in options[elt]) {
-                         this.chart.options[elt][subelt] = options[elt][subelt]
-                        //this.options[ elt ][ subelt ].push( options[ elt ][ subelt ] );
-                    }
-                }
-            }
-            
-            
-        } 
+        if (options.opt != {})
+            this.setOption(options.root, options.opt)
+        
         this.chart.update();
     }
 
-    /********************************************************** */
+    /** Ajoute des données à un graphe existant
+    *
+    * @param {object[]|object} data : données à ajouter
+    * @param {number} index : index de la courbe
+    */
+    addData(data, index = 0) {
+        if (!isObject(data) && !isArray(data)) throw new TypeError(e.ERROR_PRM)
+        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
 
-    /** Suppression de toutes les données
+        if (isArray(data)) {
+            this.chart.data.datasets[index].data.push(...data);
+        } else
+            this.chart.data.datasets[index].data.push(data);
+
+        this.chart.update();
+    }
+
+    addOption(root, option){
+        this.chart.options[root] = copyDeep(option)
+    }
+
+    /************************************************************ 
+                    MODIFICATION
+    ***********************************************************/
+
+    /** Change les données et actualise la courbe
+     *
+     * @param {object} data : ensemble des données
+     * @param {number} index : index de la courbe
+     */
+    changeData(data, index = 0) {
+        if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
+        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
+
+        this.chart.data.datasets[index].data = data;
+        this.chart.update();
+    }
+
+   /** Complète ou modifie l'objet other
+     * 
+     * @param {{}} other précise les paramètres  
+     * @param {{}} upd paramètres à ajouter ou modifier
+     */
+    updOther(other, upd) {
+        if (!isObject(other)) throw new TypeError(e.ERROR_OBJ);
+        if (!isObject(upd)) throw new TypeError(e.ERROR_OBJ);
+
+        replace(other, upd, '', true)
+    }
+
+    /** Modifie ou ajoute une option
+     * 
+     * @param {string} path chemin indiquant l'option à modifier ex: scales/y/max  
+     * @param {any} value valeur  
+     */
+    updOptions(path, value){
+        if (!isString(path)) throw new TypeError(e.ERROR_STR);
+        
+        try {
+            updateItem(path,this.chart.options,value)
+        } catch (customError) {
+            console.log(customError)
+        }
+    }
+
+
+    /************************************************************ 
+                    SUPPRESSION
+    ***********************************************************/
+
+    /** Suppression de toutes les courbes
      * 
      * @use removeData
      */
-    removeAllData() {
-        for (let i = 0; i<this.chart.data.datasets.length;i++ ){
-            this.removeData(i)
+    removeAllCharts() {
+        for (let i = 0; i < this.chart.data.datasets.length; i++) {
+            this.removeChart(i)
         }
         this.chart.data.datasets = {}
         this.chart.data.labels = {}
@@ -183,40 +350,38 @@ class ChartX {
         this.chart.update();
     }
 
-    /********************************************************** */
-
     /** Suppression de la courbe
      *
      * @param {number} index : indice de la courbe
      */
-    removeData(index = 0) {
+    removeChart(index = 0) {
         if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
         if (this.chart.data.datasets.length <= index) throw new RangeError(e.ERROR_RANGE);
         if (index == -1) return
-        
+
         // si on supprime toute la courbe
         if (this.chart.data.datasets[index]) {
 
             // on récupère xAxisID et yAxisID
             const xAxis = this.chart.data.datasets[index].xAxisID;
             const yAxis = this.chart.data.datasets[index].yAxisID;
-            
+
             this.chart.data.datasets.splice(index, 1)
-            this.chart.data.labels.splice(index,1)
+            this.chart.data.labels.splice(index, 1)
             this.chart.update();
 
             // suppression axes
             this.chart.boxes.forEach((item, index) => {
                 if (item.id && item.id == yAxis)
-                    this.chart.boxes.splice(index,1)
+                    this.chart.boxes.splice(index, 1)
             })
-            
-            if (xAxis){
+
+            if (xAxis) {
                 delete this.chart.options.scales[yAxis]
                 delete this.chart.scales.xAxis
             }
-                
-            if (yAxis){
+
+            if (yAxis) {
                 delete this.chart.options.scales[yAxis]
                 delete this.chart.scales[yAxis]
             }
@@ -224,19 +389,17 @@ class ChartX {
         this.chart.update();
     }
 
-    /********************************************************** */
-
-    /** Suppression des données de la courbe
+    /** Suppression d'un ou plusieurs points de la courbe
      *
      * @param {number} index : indice de la courbe
      * @param {number} indice : N° du point à supprimer
      */
-     clearData(index = 0, indice = -1) {
+    removeData(index = 0, indice = -1) {
         if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
         if (isDefined(indice) && !isInteger(indice)) throw new TypeError(e.ERROR_NUM)
         if (this.chart.data.datasets.length <= index) throw new RangeError(e.ERROR_RANGE);
         if (index == -1) return
-        
+
         // si on supprime toute la courbe
         if (indice == -1) {
             if (this.chart.data.datasets[index].data.length > 0) {
@@ -252,36 +415,30 @@ class ChartX {
         this.chart.update();
     }
 
-    /********************************************************** */
-
-    /** Supprime un élément des options
-     *
-     * @param {string} option chaine indiquant l'élément à supprimer sous la forme "scales/y/min..."
-     * @use setOption
-     */
-    removeOption(option) {
-        if (!isString(option)) throw new TypeError(e.ERROR_STR)
-        this.setOption(option, "")
+    /************************************************************ 
+                    AFFICHAGE
+    ***********************************************************/
+    hideChart(index) {
+        if (!isNumeric(index)) throw new TypeError(e.ERROR_NUM);
+        if (this.chart.data.datasets.length > index - 1)
+            this.chart.hide(index)
     }
 
-    /********************************************************** */
-
-    /** Met en place un gestionnaire d'évènement
-     *
-     * @param {String} event : type de l'événement ex: onClick
-     * @param {Function} callback : fonction de traitement
-     */
-    setEvent(event, callback) {
-        if (!isString(event)) throw new TypeError(e.ERROR_STR)
-
-        this.chart.data[event] = callback;
-        this.chart.options[event] = function (evt, elt) {
-            callback(evt, elt);
-        };
+    toggleChart(index) {
+        if (!isNumeric(index)) throw new TypeError(e.ERROR_NUM);
+        if (this.chart.data.datasets.length > index - 1)
+            this.chart.toggleDataVisibility(index)
     }
 
-    /********************************************************** */
+    showChart(index) {
+        if (!isNumeric(index)) throw new TypeError(e.ERROR_NUM);
+        if (this.chart.data.datasets.length > index - 1)
+            this.chart.show(index)
+    }
 
+    /************************************************************ 
+                    INFORMATIONS
+    ***********************************************************/
     /** Retourne un tableau avec les informations sur la courbe (datasetIndex), l'index du point (index)
      * et le point (element)
      *
@@ -298,11 +455,9 @@ class ChartX {
         );
     }
 
-    /********************************************************** */
-
     /** Retourne l'indice de la courbe sur laquelle on a cliqué.
      *
-     * @param {chartItem[]} elt événement
+     * @param {import("chart.js").ActiveElement[]} elt événement
      * @return {number} indice de la courbe
      */
     getEventIndexChart(elt) {
@@ -310,8 +465,6 @@ class ChartX {
 
         return elt[0].datasetIndex;
     }
-
-    /********************************************************** */
 
     /** Retourne l'indice du point
      *
@@ -323,8 +476,6 @@ class ChartX {
 
         return elt[0].index;
     }
-
-    /********************************************************** */
 
     /** Retourne les coordonnées en pixels du point sur lequel on a agit
      *
@@ -339,53 +490,22 @@ class ChartX {
         return coords;
     }
 
-    /********************************************************** */
-
     /** Retourne les coordonnées d'un point de la courbe à partir des coordonnées x, y en pixels
      *
-     * @param {Event} elt élément
+     * @param {Element} elt élément
      * @returns {number[]}
      */
     getEventCoord(elt) {
         if (!isObject(elt)) throw new TypeError(e.ERROR_OBJ);
 
         let coords = [];
-        coords.push(elt[0].element.parsed.x, elt[0].element.parsed.y);
+        coords.push(elt[0].element.$context.parsed.x, elt[0].element.$context.parsed.y);
         return coords;
     }
 
-    /********************************************************** */
-
-    /** Change les données et actualise la courbe
-     *
-     * @param data : ensemble des données
-     * @param {number} index : index de la courbe
-     */
-    changeData(data, index = 0) {
-        if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
-        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
-        // si datasets vide
-        this.chart.data.datasets[index].data = data;
-        this.chart.update();
+    getCurrentChartID(id){
+        return this.getChartByProp('id', id)
     }
-
-    /********************************************************** */
-
-    /** Ajoute des données à un graphe existant
-     *
-     * @param {object[]} data : données à ajouter
-     * @param {number} index : index de la courbe
-     */
-    addData(data, index = 0) {
-        if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
-        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
-
-        for (var elt in data)
-            this.chart.data.datasets[index].data.push(data[elt]);
-        this.chart.update();
-    }
-
-    /********************************************************** */
 
     /** Retourne l'indice du graphe possédant la propriété
      *
@@ -408,8 +528,6 @@ class ChartX {
         return -1;
     }
 
-    /********************************************************** */
-
     /** Renvoie un objet avec le label et l'id du graphe correspondant à ce N°
      *
      * @param {number} index N° du graphe
@@ -425,11 +543,9 @@ class ChartX {
         return o;
     }
 
-    /********************************************************** */
-
     /** Retourne le tableau des points
      *
-     * @param {number|import("chart.js").ChartItem} prm N° de la courbe
+     * @param {number|import("chart.js").ActiveElement[]} prm N° de la courbe
      * @returns {array} tableau coordonnées des points
      */
     getData(prm) {
@@ -446,61 +562,6 @@ class ChartX {
         throw new TypeError(e.ERRORTYPE);
     }
 
-    /********************************************************** */
-
-    /** Mise à jour des options
-     *
-     * @param {string} option : sous la forme "parent/enfant1/enfant2/../option" à partir de 'options'
-     * @param {object} value : valeur
-     * @returns {object}
-     */
-    setOption(option, value) {
-        if (!isString(option)) throw new TypeError(e.ERROR_STR)
-        if (!isStrNum(value)) throw new TypeError(e.ERROR_STRNUM)
-
-        const props = option.split("/");
-
-        function _setOption(obj, props, value) {
-            // on a fini
-            if (props.length == 0) {
-                return obj;
-            }
-
-            let prop = props[0];
-            // si prop est un tableau
-            if (prop.indexOf("[]") != -1) {
-                if (hasKey(obj, prop)) {
-                    obj[prop] = props.length == 1 ? value : [];
-                }
-            } else {
-                // si la propriété existe
-                if (hasKey(obj, prop)) {
-                    if (Array.isArray(obj)) {
-                        let x = {};
-                        x[prop] = {};
-                        obj.push(x);
-                        _setOption(x[prop], props.slice(1), value);
-                        return;
-                    } else {
-                        if (props.length == 1) {
-                            if (value != null) obj[prop] = value;
-                            else delete obj[prop];
-                        }
-                    }
-                } else {
-                    // On crée la propriété
-                    obj[prop] = props.length == 1 ? value : {};
-                }
-            }
-
-            _setOption(obj[prop], props.slice(1), value);
-        }
-
-        if (!hasKey(this.chart, 'options'))
-            this.chart.options = {}
-        _setOption(this.chart.options, props, value);
-        return this.chart.options;
-    }
 }
 
 /**
@@ -515,7 +576,7 @@ class Dataset {
      * @param {object} options  
      * @param {object} other 
      */
-    constructor(label, data, yAxe, options, other){
+    constructor(label, data, yAxe, options, other) {
         this.label = label == undefined ? "" : label
         this.data = data == undefined ? [] : data;
         this.yAxe = yAxe == undefined ? "" : yAxe
@@ -527,21 +588,21 @@ class Dataset {
         }
     }
 
-   setOptions(name, value){
-       this.options[name] = value
-   } 
+    setOptions(name, value) {
+        this.options[name] = value
+    }
 
-   setOther(name, value){
-       this.other[name] = value
-   }
+    setOther(name, value) {
+        this.other[name] = value
+    }
 
-   setEvent(name, callback){
+    setEvent(name, callback) {
         if (!isString(name)) throw new TypeError(e.ERROR_STR)
 
         this.options[name] = function (evt, elt) {
-        callback(evt, elt);
-    };
-   }
+            callback(evt, elt);
+        };
+    }
 }
 
 export { ChartX, Dataset };

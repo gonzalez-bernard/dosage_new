@@ -8,7 +8,7 @@
 
 import {hasKey} from "./object.js"
 import * as e from "./errors.js"
-import {isObject} from "./type.js"
+import {isArray, isNumeric, isObject} from "./type.js"
 
 /**
  * @typedef {import ("../../../types/types").tPoint} tPoint 
@@ -41,6 +41,7 @@ function calcDistance2Pts( p1, p2, factor = 1 ) {
  */
  function calcDistanceOrtho( p1, p2, p ) {
     if ( !isObject(p1) || !isObject(p2) || !isObject(p)) throw new TypeError(e.ERROR_OBJ)
+
     var a = Math.pow( p1.x - p.x, 2 ) + Math.pow( p1.y - p.y, 2 );
     var b = Math.pow( p2.x - p.x, 2 ) + Math.pow( p2.y - p.y, 2 );
     var c = Math.pow( p1.x - p2.x, 2 ) + Math.pow( p1.y - p2.y, 2 );
@@ -77,6 +78,12 @@ function getMedium( p1, p2 ) {
  * @file 'modules/utils/math.js'
  */
  function getCoordsTangente(point, xlim, ylim, pente, dep = 0.1){
+    if ( !isObject(point) ) throw new TypeError(e.ERROR_OBJ)
+    if (!hasKey( point, 'x' ) || !hasKey( point, 'y' ) ) throw new e.NotElementException()
+    if (!isArray(xlim) || !isArray(ylim)) throw new TypeError(e.ERROR_ARRAY)
+    if (!isNumeric(pente) || !isNumeric(dep)) throw new TypeError(e.ERROR_NUM)
+    
+
     let x =  point.x
     let y = point.y
     let xc, yc

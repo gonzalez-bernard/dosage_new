@@ -6,15 +6,14 @@
  * ***export : Graphx***
 */
 
-import {cts} from"../environnement/constantes.js";
+import { cts } from "../environnement/constantes.js";
 import { gDosages } from "../environnement/globals.js";
 import * as e from "../modules/utils/errors.js"
 import { ChartX } from "../modules/chartX.js";
 import { calcDistance2Pts, getMedium } from "../modules/utils/math.js";
 import { uArray } from "../modules/utils/array.js";
 import { getCoordsTangente } from "../modules/utils/math.js";
-import { isArray, isNumeric, isObject} from "../modules/utils/type.js"
-import { setEventsClick } from "../dosage/dosage.js"
+import { isArray, isNumeric, isObject } from "../modules/utils/type.js"
 import { dspContextInfo } from "../infos/infos.js"
 
 /**
@@ -23,6 +22,26 @@ import { dspContextInfo } from "../infos/infos.js"
  */
 
 class Graphx extends ChartX {
+
+    TYPE_PH = 1
+    TYPE_CD = 2
+    TYPE_PT = 3
+    TAN1 = "Tangente N°1"
+    TAN2 = "Tangente N°2"
+    PENTE = "pente"
+    COLOR_TAN1 = "rgba(255,0,255,0.5)"
+    ID_TAN1 = "tan1"
+    COLOR_TAN2 = "rgba(0,0,255,0.5)"
+    ID_TAN2 = "tan2"
+    PERP = "Perp."
+    ID_PERP = "perp"
+    COLOR_PERP = "rgba(0,120,120,0.5)"
+    DERIVEE = "derivee"
+    DERIVEE_TH = "dérivée th."
+    YNAME_DERIVEE = "dpH"
+    DERIVEE_EXP = "dérivée exp."
+    COURBE_TH = "courbe théorique"
+    ID_COURBE = "theo"
 
     /**
      * Creates an instance of Graphx.
@@ -41,22 +60,9 @@ class Graphx extends ChartX {
         this.tangente_point = 0
     }
 
-    /** Initialise et crée le graphe 
-     * 
-    *  @param {object} _dtset object précisant les propriétés de la courbe
-    * - label : {string} nom de la courbe
-    * - data : {object} données
-    * - yAxe : {string} yAxe nom de l'axe
-    * _ other : {object} autres options 
-     */
-    init(_dtset){
-        this.data = _dtset.data
-        let dataset = this.setDataset(_dtset.label, _dtset.data, _dtset.yAxe, _dtset.other);
-        this.createChart("scatter", dataset, _dtset.options);
-    }
-
     setType(type) {
         if (!isNumeric(type)) throw new TypeError(e.ERROR_NUM)
+        if (!(type in [this.TYPE_PH, this.TYPE_CD, this.TYPE_PT])) throw new TypeError(e.ERROR_RANGE)
         this.type = type
     }
 
@@ -67,12 +73,12 @@ class Graphx extends ChartX {
      */
     setOptions(G) {
 
-        if (this.type == 1) {
+        if (this.type == this.TYPE_PH) {
             this.options = cts.GR_OPTIONS_PH;
-        } else if (this.type == 2) {
+        } else if (this.type == this.TYPE_CD) {
             this.options = cts.GR_OPTIONS_CD;
             this.chart.options.scales.y.max = 1.2 * Math.max(...G.conds);
-        } else if (this.type == 3) {
+        } else if (this.type == this.TYPE_PT) {
             this.options = cts.GR_OPTIONS_PT;
             this.chart.options.scales.y.max = 1.2 * Math.max(...G.pots)
         }
@@ -98,7 +104,7 @@ class Graphx extends ChartX {
      */
     initDataTheorique() {
 
-        const G = gDosages.getCurrentDosage() 
+        const G = gDosages.getCurrentDosage()
         if (this.data_theorique.length != 0) return;
         for (var i = 0; i < G.vols.length; i++) {
             this.data_theorique.push({
@@ -114,11 +120,11 @@ class Graphx extends ChartX {
 
     /** Affiche le graphe ou le cache
      *
-     * Affiche ou cache le graphe en fonction de ETAT_GRAPH_dsp
+     * Affiche ou cache le graphe en fonction de GRAPH_TYPE
      */
     display() {
-        const G = gDosages.getCurrentDosage() 
-        if (G.test('etat', cts.ETAT_GRAPH_dsp)) {
+        const G = gDosages.getCurrentDosage()
+        if (G.getState('GRAPH_TYPE') != 0) {
             $(this.canvas).hide();
         } else {
             $(this.canvas).show();
@@ -151,7 +157,7 @@ class Graphx extends ChartX {
         var pts = getCoordsTangente(points[indice], xlim, ylim, pente)
 
         this.addTangente(idTangente, pts);
-        dspContextInfo("pente", this.pentes);
+        dspContextInfo(this.PENTE, this.pentes);
     }
 
     /** Ajoute une tangente
@@ -164,17 +170,17 @@ class Graphx extends ChartX {
         if (!isArray(pts)) throw new TypeError(e.ERROR_ARRAY)
         let label, id, col
         if (num == 1) {
-            label = "tangente N°1";
-            id = "tan1";
-            col = "rgba(255,0,255,0.5)";
+            label = this.TAN1;
+            id = this.ID_TAN1;
+            col = this.COLOR_TAN1;
         } else if (num == 2) {
-            label = "tangente N°2";
-            id = "tan2";
-            col = "rgba(0,0,255,0.5)";
+            label = this.TAN2;
+            id = this.ID_TAN2;
+            col = this.COLOR_TAN2;
         } else if (num == 3) {
-            label = "Perp.";
-            id = "perp";
-            col = "rgba(0,120,120,0.5)";
+            label = this.PERP;
+            id = this.ID_PERP;
+            col = this.COLOR_PERP;
         }
         // ajout segment
         var _data = {
@@ -209,7 +215,7 @@ class Graphx extends ChartX {
 
     /** Déplace les tangentes
      *
-     * @param {Event} evt événement
+     * @param {{Event}} evt événement
      * @param {number} indice numéro du point
      * @param {tPoint[]} points tableau des coordonnées
      * @param {number} idx indice de la courbe
@@ -261,31 +267,33 @@ class Graphx extends ChartX {
      * @file graphx.js
      */
     dspDerivee() {
-        const G = gDosages.getCurrentDosage() 
+        const G = gDosages.getCurrentDosage()
         const other = {
-            id: "derivee",
+            id: this.DERIVEE,
             showLine: true,
             backgroundColor: "rgba(255,255,255,0)",
             pointBackgroundColor: "rgba(255,0,0,1)",
             borderColor: "rgba(255,0,0,1)",
             pointRadius: 1,
-            yAxisID: "dpH",
+            yAxisID: this.YNAME_DERIVEE,
         };
 
         // si graph pH non affiché
-        if (!G.test('etat', cts.ETAT_GRAPH_PH)) return;
+        if (G.getState('GRAPH_TYPE') != 1) return;
 
         let option;
         // initialise les données théoriques
         this.initDataTheorique();
-        if (G.test('etat', cts.ETAT_THEORIQUE)) {
+        if (G.getState('THEORIQUE') == 1) {
             option = this._initOptions(this.data_derive_theorique);
-            this.addDataset("dérivée th.", this.data_derive_theorique, "dpH", other, option);
+            const _dataset = this.createDataset(this.DERIVEE_TH, this.data_derive_theorique, this.YNAME_DERIVEE, other)
+            this.addChart(this.DERIVEE_TH, _dataset, option);
         } else {
             // extrait les valeurs dérivées à partir des données réelles (data)
             const lst_derivee = this._initDerivee(this.data, this.data_derive_theorique);
             option = this._initOptions(lst_derivee);
-            this.addDataset("dérivée exp", lst_derivee,"dpH", other, option);
+            const _dataset = this.createDataset(this.DERIVEE_EXP, lst_derivee, this.YNAME_DERIVEE, other)
+            this.addChart(this.DERIVEE_EXP, _dataset, option);
         }
         this.chart.update();
     }
@@ -299,13 +307,13 @@ class Graphx extends ChartX {
 
         if (etat == 0) {
             this.initDataTheorique();
-            var data = { label: "courbe théorique", data: this.data_theorique, id: "theo" };
+            var data = { label: this.COURBE_TH, data: this.data_theorique, id: this.ID_COURBE };
             this.chart.data.datasets.push(data);
             this.chart.data.labels.push(data.label)
             this.chart.update();
         } else {
-            const idx = this.getChartByProp("id", "theo")
-            if (idx) 
+            const idx = this.getChartByProp("id", this.ID_COURBE)
+            if (idx)
                 this.removeData(idx);
         }
     }
@@ -320,7 +328,7 @@ class Graphx extends ChartX {
 
         // la perpendiculaire est déjà affichée, on l'efface
         if (etat == 1) {
-            var idx = this.getChartByProp("id", "perp");
+            var idx = this.getChartByProp("id", this.ID_PERP);
             if (idx) {
                 // On la supprime
                 this.removeData(idx);
@@ -339,8 +347,8 @@ class Graphx extends ChartX {
             return -1;
 
         // on récupère les indices des courbes tangentes
-        var id1 = this.getChartByProp("id", "tan1");
-        var id2 = this.getChartByProp("id", "tan2");
+        var id1 = this.getChartByProp("id", this.ID_TAN1);
+        var id2 = this.getChartByProp("id", this.ID_TAN2);
         if (!id1 || !id2) return -1;
 
         // On récupère les points extrêmes des tangentes et on calcule ceux de la perpendiculaire
@@ -407,7 +415,8 @@ class Graphx extends ChartX {
                         text: "dpH/dv",
                     },
                 }
-        }};
+            }
+        };
         return option;
     }
 
@@ -422,7 +431,6 @@ class Graphx extends ChartX {
      * @file graphx.js
      */
     _getPerpendiculaire(p0, p1, pente, factor) {
-
 
         // constante pas
         const pas = 0.1;

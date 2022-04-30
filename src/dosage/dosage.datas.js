@@ -4,11 +4,12 @@
 */
 
 import { gDosages, gGraphs } from "../environnement/globals.js";
-import {cts} from "../environnement/constantes.js";
+import {cts, etats} from "../environnement/constantes.js";
 import { roundDecimal } from "../modules/utils/number.js";
-import { isLimit, addData } from "./dosage.graph.js";
+import { isLimit} from "./dosage.graph.js";
 import { uArray } from "../modules/utils/array.js";
 import { getData } from "../data.js"
+import {Graphx} from "./graphx.js"
 
 /** @typedef {import('../../types/classes').Burette} Burette */
 
@@ -64,10 +65,11 @@ async function getDosage(type) {
  * @use dosage.graphs.addData
  * @file dosage.datas.js
  * */
-function updValues( burette ) {
+function updValues( burette, currentDosage ) {
 
-    const G = gDosages.getCurrentDosage()
     const C = gGraphs.currentChart
+
+    const indexs = gGraphs.getChartIndexByID(gGraphs.idCurrentChart)
 
     // vol = volume versé, on ne prend que les valeurs différentes
     var vol = roundDecimal( burette.vol_verse, 3 );
@@ -76,80 +78,71 @@ function updValues( burette ) {
     if ( isLimit( vol ) ) return false
 
     // initialise les volumes
-    G.titrant.vol = vol;
-    G.solution.vol = vol + G.titre.vol + G.eau.vol;
-    if ( G.reactif.vol != undefined )
-        G.solution.vol += G.reactif.vol;
+    currentDosage.titrant.vol = vol;
+    currentDosage.solution.vol = vol + currentDosage.titre.vol + currentDosage.eau.vol;
+    if ( currentDosage.reactif.vol != undefined )
+        currentDosage.solution.vol += currentDosage.reactif.vol;
 
+    const type = currentDosage.getState('APPAREIL_ON' ) 
     // on enregistre le pH
-    if ( G.test( 'etat', cts.ETAT_PHMETRE ) ) {
+    if ( type == 1 ) {
         // récupère le pH
-        G.ph = _getPH( G.titrant.vol );
-        G.sph = G.ph.toFixed( 2 );
+        currentDosage.ph = _getPH();
+        currentDosage.sph = currentDosage.ph.toFixed( 2 );
 
         // met à jour le tableau pour le graphe
-        // @ts-ignore
-        addData( C, vol, G.ph )
-
+        C.addData([{x:vol,y:currentDosage.ph}],indexs.dsp )
+        
         // si conductance
-    } else if ( G.test( 'etat', cts.ETAT_COND ) ) {
-        G.cond = _getConductance( G.titrant.vol );
-        G.scond = G.cond.toFixed( 2 );
+    } else if ( type == 2 ) {
+        currentDosage.cond = _getConductance( );
+        currentDosage.scond = currentDosage.cond.toFixed( 2 );
 
         // met à jour le tableau pour le graphe
         // @ts-ignore
-        addData( C, vol, G.cond )
+        C.addData({x:vol,y:currentDosage.cond},indexs.dsp )
 
         // potentiomètre
-    } else if ( G.test( 'etat', cts.ETAT_POT ) ) {
-        G.pot = _getPotentiel( G.titrant.vol );
-        G.spot = G.pot.toFixed( 2 );
+    } else if ( type == 3 ) {
+        currentDosage.pot = _getPotentiel( );
+        currentDosage.spot = currentDosage.pot.toFixed( 2 );
 
         // met à jour le tableau pour le graphe
-        // @ts-ignore
-        addData( C, vol, G.pot )
+        C.addData( {x:vol, y:currentDosage.pot},indexs.dsp )
     }
 
     return true;
 
     /** Récupère le pH à partir des couples v, pH calculés
     *
-    * @param vol {number} volume
     * @returns {number} pH
     * @use uArray.getArrayNearIndex
     */
-    function _getPH( vol ) {
-        const G = gDosages.getCurrentDosage()
-        let i = new uArray( G.vols ).getArrayNearIndex( vol, 0 );
-        return G.pHs[ i ];
+    function _getPH() {
+        let i = new uArray( currentDosage.vols ).getArrayNearIndex( currentDosage.titrant.vol, 0 );
+        return currentDosage.pHs[ i ];
     }
 
     /** Récupère la conductance à partir des couples v, cond calculés
      *
-     * @param vol {number} volume
      * @use uArray.getArrayNearIndex, uArray.extrapolate
      * @returns {number} conductance
      */
-    function _getConductance( vol ) {
-        const G = gDosages.getCurrentDosage()
-        let i = new uArray( G.vols ).getArrayNearIndex( vol, 1 );
+    function _getConductance( ) {
+        let i = new uArray( currentDosage.vols ).getArrayNearIndex( currentDosage.titrant.vol, 1 );
         // on extrapole
-        let c = uArray.extrapolate( vol, i, G.vols, G.conds )
+        let c = uArray.extrapolate( currentDosage.titrant.vol, i, currentDosage.vols, currentDosage.conds )
         return c
     }
 
-    /********************************************************** */
-
     /** Récupère le potentiel à partir des couples v, cond calculés
      *
-     * @param vol {number} volume
      * @use uArray.getArrayNearIndex
      * @returns {number} potentiel
      */
-    function _getPotentiel( vol ) {
-        const G = gDosages.getCurrentDosage()
-        let i = new uArray( G.vols ).getArrayNearIndex( vol, 1 );
-        return G.pots[ i ];
+    function _getPotentiel( ) {
+        let i = new uArray( currentDosage.vols ).getArrayNearIndex( currentDosage.titrant.vol, 1 );
+        return currentDosage.pots[ i ];
     }
 }
 
@@ -190,7 +183,7 @@ function resetMesures( all = true ) {
         G.pot = 0;
         G.spot = "---";
         G.vols = [];
-        G.etat = 0
+        G.etat = etats
 
         // réinitialisation partielle
     } else {
@@ -249,7 +242,7 @@ function setDosageValues( G, data) {
     if ( G.type == cts.TYPE_ACIDEBASE ) {
         G.pHs = data.pHs;
         G.dpHs = data.dpHs;
-        G.ph = parseFloat( G.pHs[ 0 ] );
+        G.ph = G.pHs[ 0 ] ;
         G.sph = G.ph.toFixed( 2 );
     }
 }

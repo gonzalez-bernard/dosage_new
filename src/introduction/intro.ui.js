@@ -8,7 +8,7 @@ import { HTML } from "./html.js"
 import { getEltID } from "../modules/utils/html.js"
 import * as ui from "./html_cts.js"
 import { ESPECES, MNU_ESPECES } from "../especes/html_cts.js"
-import { initEspeces } from "../especes/especes.ui.js"
+import { initEspeces } from "../especes/interface.js"
 import { gDosages } from "../environnement/globals.js"
 import { MNU_PROBLEM } from "../problem/html_cts.js"
 

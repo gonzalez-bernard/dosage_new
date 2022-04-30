@@ -1,4 +1,21 @@
 // Constantes javascript
+const etats = {
+    ESPECES_INIT: 0,    /** espèces défines */
+    APPAREIL_ON: 0,     /** appareil actif ou inactif */
+    APPAREIL_TYPE: 0,   /** pHmètre (1), conductimètre (2) ou potentiomètre (3) branché */
+    INDIC_ON: 0,        /** indicateur coloré mis */
+    GRAPH_TYPE: 0,      /** type de graphe affiché 1:PH, 2: CD et 3:PT ou 4: multiple*/
+    DATA_INIT: 0,       /** données existantes */
+    DERIVEE_EXP: 0,     /** dérivée expérimentale affichée */
+    TANGENTE: 0,        /** indique que la tangente N°1 est affichée */
+    PERPENDICULAIRE: 0, /** perpendiculaire entre tangente */
+    MOVE_TANGENTE: 0,   /** déplacement tangente activé */
+    GRAPH_SAVE: 0,      /** Sauvegarde des courbes */
+    THEORIQUE: 0,       /** courbe théorique affichée */
+    PROBLEM: 0,         /** probleme actif */
+
+
+}
 
 const cts = {
 
@@ -20,46 +37,7 @@ const cts = {
     TYPE_NUL: 0,
     TYPE_ACIDEBASE: 1,
     TYPE_OXYDO: 2,
-    ETAT_INITIAL: 0,
-    /** espèces défines */
-    ETAT_ESPECES: 1,
-    /** pHmètre branché */
-    ETAT_PHMETRE: 0x2,
-    /** conductimètre branché */
-    ETAT_COND: 0x4,
-    /** potentiomètre branché */
-    ETAT_POT: 0x8,
-    /** indicateur coloré mis */
-    ETAT_INDIC: 0x10,
-    /** graphe pH initié */
-    ETAT_GRAPH_PH: 0x20,
-    /** graphe CD initié */
-    ETAT_GRAPH_CD: 0x40,
-    /** graphe PT initié */
-    ETAT_GRAPH_PT: 0x80,
-    /** données existantes */
-    ETAT_DOS: 0x100,
-    /** dérivée expérimentale affichée */
-    ETAT_DERIVEE: 0x200,
-    /** indique que la tangente N°1 est affichée */
-    ETAT_TANGENTE_1: 0x800,
-    /** indique que la tangente N°2 est affichée */
-    ETAT_TANGENTE_2: 0x1000,
-    /** perpendiculaire entre tangente */
-    ETAT_PERPENDICULAIRE: 0x2000,
-    /** déplacement tangente activé */
-    ETAT_MOVE_TANGENTE: 0x4000,
-    /** graphe affiché */
-    ETAT_GRAPH_dsp: 0x8000,
-    /** Sauvegarde des courbes */
-    ETAT_GRAPH_SAVE: 0x10000,
-    /** dosage en cours */
-    ETAT_DOSAGE: 0x20000,
-    /** courbe théorique affichée */
-    ETAT_THEORIQUE: 0x40000,
-    /** probleme actif */
-    ETAT_PROBLEM: 0x100000,
-
+    
     /** dosage simple */
     TYPE_OX_SIMPLE: 1,
     /** dosage en retour */
@@ -120,11 +98,12 @@ const cts = {
     },
 
     /** Options pour graphe pH */
-    GR_OPTIONS_PH: {
+    GR_OPTIONS: {
         responsive: true,
         maintainAspectRatio: true,
         aspectRatio: 1.0,
         events: ["click", "mousemove"],
+        animation: false,
         scales: {
             x: {
                 display: true,
@@ -140,105 +119,71 @@ const cts = {
                 min: 0,
                 max: 25,
             },
+        }
+    },
 
-            y: {
+    GR_OPTIONS_SCALE: {
+        scales: {
+            x: {
                 display: true,
                 title: {
                     display: true,
-                    text: "pH",
+                    text: "Volume",
                 },
                 ticks: {
                     beginAtZero: true,
-                    maxTicksLimit: 16,
+                    maxTicksLimit: 40,
+                    stepSize: 5,
                 },
-                max: 14,
                 min: 0,
+                max: 25,
             },
-        },
+        }
+    },
 
-        animation: {
-            duration: 0,
+    GR_OPTIONS_PH: {
+        position:"left",
+        display: true,
+        title: {
+            display: true,
+            text: "pH",
         },
+        ticks: {
+            beginAtZero: true,
+            maxTicksLimit: 16,
+        },
+        max: 14,
+        min: 0,
     },
 
     /** Options pour graphe CD */
     GR_OPTIONS_CD: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 1,
-        events: ["click", "mousemove"],
-        scales: {
-            x: {
-                display: true,
-                title: {
-                    display: true,
-                    text: "Volume",
-                },
-                ticks: {
-                    beginAtZero: true,
-                    maxTicksLimit: 25,
-                    stepSize: 5,
-                },
-                min: 0,
-                max: 25,
-            },
-
-            y: {
-                display: true,
-                title: {
-                    display: true,
-                    text: "Conductance",
-                },
-                ticks: {
-                    beginAtZero: true,
-                },
-                min: 0,
-                max: 1
-            },
+        position:"right",
+        display: true,
+        title: {
+            display: true,
+            text: "Conductance",
         },
-        animation: {
-            duration: 0,
+        ticks: {
+            beginAtZero: true,
         },
+        min: 0,
+        max: 1
     },
 
     /** Options pour graphe PT */
     GR_OPTIONS_PT: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 1,
-        events: ["click", "mousemove"],
-        scales: {
-            x: {
-                display: true,
-                title: {
-                    display: true,
-                    text: "Volume",
-                },
-                ticks: {
-                    beginAtZero: true,
-                    maxTicksLimit: 25,
-                    stepSize: 5,
-                },
-                min: 0,
-                max: 25,
-            },
-
-            y: {
-                display: true,
-                title: {
-                    display: true,
-                    text: "Potentiel",
-                },
-                ticks: {
-                    beginAtZero: true,
-                },
-                min: 0,
-                max: 1
-            },
+        position:"right",
+        display: true,
+        title: {
+            display: true,
+            text: "Potentiel",
         },
-        animation: {
-            duration: 0,
+        ticks: {
+            beginAtZero: true,
         },
+        min: 0,
+        max: 1
     },
 
 
@@ -286,4 +231,4 @@ const cts = {
     DOS_TITRANT_MIN: 1
 }
 
-export { cts }
+export { cts, etats }

@@ -1,4 +1,4 @@
-import {tOCANVAS, tBURETTE, tBECHER, tFLACON, tPoint} from "./types"
+import {tOCANVAS, tBURETTE, tBECHER, tPoint, tHTMLImageElement} from "./types"
 import {Canvas, Becher} from "./classes"
 
 interface iCanvasLoop{
@@ -33,7 +33,7 @@ export interface iCanvasImage extends iCanvasMethods{
   y: number
   width: number
   height: number
-  image: string | HTMLImageElement
+  image: string |tHTMLImageElement
   abs_y: number
 }
 

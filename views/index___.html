@@ -14,17 +14,20 @@
     <script type="text/javascript" src="node/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="node/chart.js/dist/chart.js"></script>
     
-    <!-- <script type="module" src="/tests/graph.js"></script> -->
-    <script src="node/highcharts/highcharts.js"></script>
+    <script type="module" src="/tests/test_graph.js"></script>
+    
     
 </meta>
 </head>
 
 <body>
     <div class="chart-container" style="position: relative;">
-        <div id="container"></div>
+        <canvas id="container" width='600' height='400'></canvas>
     </div>
-    <script src="/tests/test_highcharts.js"></script>
+    <script src="node/socket.io/client-dist/socket.io.js"></script>
+    <script>
+        var socket = io()
+    </script>
     
 </body>
 </html>

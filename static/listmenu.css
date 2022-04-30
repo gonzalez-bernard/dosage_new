@@ -1,6 +1,6 @@
 .menu-item{
   display: table-cell;
-  padding: 0px 2px !important;
+  padding: 0px 1px !important;
   margin: 0px 0px !important;
 }
 
@@ -9,12 +9,14 @@
 }
 
 .menu-item-nodisplay{
-  display: none
+  display: none;
+  padding: 0px !important;
 }
 
 .menu-item-row{
   line-height: 2.0em;
   background-color: rgb(245, 246, 248);
+  padding: 0px;
 }
 
 .menu-item-row:hover{

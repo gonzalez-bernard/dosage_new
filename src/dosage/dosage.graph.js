@@ -3,31 +3,55 @@
  * @module dosage/dosage.graph
  * @description fonctions utilisées pour les graphes
  * ***
- * L'affichage des graphes est géré par le menu des graphes enregistrés et par les appareils de mesures
- * Lors de l'activation d'un appareil (double clic) on regarde si un graphe de même type (pH, cd ou pt) est actif (le graphe est lié à un dosage).
- * Si c'est le cas on réaffiche le graphe sinon on crée un nouveau graphe lié à ce dosage.
- * Lors de la désactivation d'un appareil, on regarde si ce graphe est enregistré
- * Si c'est le cas on cache le graphe s'il est non visible ou on le conserve dans le cas contraire
- * Si le graphe n'est pas enregistré on le cache.
- * Pour les graphes enregistrés : l'icone visibilité est prioritaire
- * Si on décoche un graphe visible dans listMenu, on le cache
- * Si l'appareil est en place on le désactive, on supprime le graphe courant
- * Sinon on cache le graphe.
- * Si on coche un graphe visible, on l'affiche
- * On définit currentGraph et currentDosage
- * Lors de la création d'un nouveau dosage, tous les graphes sont masqués.
+ * L'affichage ou le masquage des graphes est déclenché par le menu des graphes enregistrés éventuels et par les appareils de mesures.
+ * Il ne peut pas y avoir plus de 2 graphes de type différents affichés en même temps.
+ * La gestion est assurée par l'objet 'gGraphs'
+ *  - currentGraph contient l'objet de type 'graphx' qui gère les courbes affichées.
+ *  - charts est un tableau qui mémorise toutes les courbes créées. 
+ *      -- la propriété visible indique si la courbe est affichée.
+ *      -- la propriété save indique si la courbe est enregistrée.
+ * 
+ * Evénément : activation d'un appareil (double clic) 
+ *  - on regarde si 2 courbes sont déjà affichées :
+ *      -- si oui on affiche un message d'erreur
+ *      -- si non on regarde si un graphe de même ID est enregistré dans charts (le graphe est lié à un dosage).
+ *          --- si oui on réaffiche le graphe, on modifie la propriété visible
+ *              ---- on regarde si courbe enregistrée
+ *                  ----- si oui on modifie l'icone
+ *          --- si non on crée un nouveau graphe lié à ce dosage, on l'enregistre dans 'charts'
+ * 
+ * Evénement : Désactivation d'un appareil 
+ *  - on regarde si ce graphe est enregistré
+ *      -- si oui on teste la propriété visible
+ *          --- si visible activé on ne fait rien (l'icone visibilité est prioritaire)
+ *          --- si non on cache le graphe, suppression dans currentChart
+ *      -- si non on le cache suppression dans currentChart
+ * 
+ * Evénement : On décoche un graphe visible dans listMenu. 
+ *  - on cache le graphe
+ *  - on regarde si appareil activé
+ *      -- si oui on le remet en place
+ * 
+ * Evénement: on coche un graphe visible
+ *  - on regarde si 2 courbes de type différents sont affichées
+ *      -- si oui message d'erreur
+ *      -- si non on affiche le graphe
+ * 
+ * Evénement: création d'un nouveau graphe
+ *  - tous les graphes sont masqués, suppression dans currentChart, propriété visible à false.
+ *  
  */
 
 import * as ui from "./ui/html_cts.js";
 import { cts } from "../environnement/constantes.js";
 import { gDosages, gGraphs, gGraphMenu } from "../environnement/globals.js";
-import { Graphx } from "./graphx.js";
 import { setEventsClick } from "./dosage.events.js";
 import { getEltID } from "../modules/utils/html.js"
-import { DOS_CHART, DOS_DIV_GRAPH } from "./ui/html_cts.js";
+import { DOS_DIV_GRAPH } from "./ui/html_cts.js";
 import { uArray } from "../modules/utils/array.js"
 import { Dataset } from "../modules/chartX.js";
-import { isDefined } from "../modules/utils/type.js";
+import { hasKey, replace, copyDeep } from "../modules/utils/object.js";
+import { updateAppareil } from "./ui/appareil.js";
 
 /**
  * @typedef {import('../../types/classes').Canvas} Canvas
@@ -40,15 +64,15 @@ import { isDefined } from "../modules/utils/type.js";
  * @param {number} app constante indiquant le type d'appareil 
  * @returns 
  */
-function defGraph(app){
+function defGraph(app) {
     const G = gDosages.getCurrentDosage()
     const _options = [cts.GR_OPTIONS_PH, cts.GR_OPTIONS_CD, cts.GR_OPTIONS_PT]
     const _other = [cts.GR_OTHER_PH, cts.GR_OTHER_CD, cts.GR_OTHER_PT]
-    const values = [G.pHs, G.conds, G.pots]
-    const _names = ['pH','Conductance','Potentiel']
+    const values = [G.pHs.map(Number), G.conds.map(Number), G.pots.map(Number)]
+    const _names = ['pH', 'Conductance', 'Potentiel']
     const idx = Math.log2(app) - 1
-    
-    
+
+
     // Génère l'ID
     const ID = gGraphs.genNewID(idx, gDosages.idCurrentDosage)
     // définit les paramètres
@@ -60,20 +84,100 @@ function defGraph(app){
     return new Dataset(_names[idx], [], "y", options, other)
 }
 
+/** Crée un graphe
+ * 
+ * @param {number} app indique le type de mesures 
+ * @returns {{indice: number, id: string}}
+ */
+function createGraph(app) {
+    let arg, options, dataset
 
-function createGraph(app, id) {
-    let _dataset, arg
+    const G = gDosages.getCurrentDosage()
+    const _other = [cts.GR_OTHER_PH, cts.GR_OTHER_CD, cts.GR_OTHER_PT]
+    const _names = ['pH', 'Conductance', 'Potentiel']
+    const idx = app - 1
+
     arg = { indice: -1, id: "" }
-    const idx = Math.log2(app) - 1
-    _dataset = defGraph(app)
-    arg = addGraph(_dataset, idx)
-    _dataset.setEvent("onHover", setEventsClick);
-            
-    // On enregistre le dataset créé dans le graphe courant
-    gGraphs.currentChart.init(_dataset)
+
+    // Génère l'ID
+    const ID = gGraphs.genNewID(idx, gDosages.idCurrentDosage)
+
+    // génère le nom de l'axe y (iAxisID)
+    const yName = gGraphs.genYName(idx, gDosages.idCurrentDosage)
+
+    // définit les paramètres
+    let other = _other[idx]
+    other.id = ID
+
+    // Si aucun graphe en cours on le crée
+    if (hasActiveGraph() == -1) {
+        options = getOption(-1, idx, yName)
+        dataset = gGraphs.currentChart.createDataset(_names[idx], [], yName, other)
+        const data = gGraphs.currentChart.setData(dataset, [yName])
+        const config = gGraphs.currentChart.setConfig('scatter', data, options)
+        gGraphs.currentChart.createChart(config)
+        arg = addGraphCharts(dataset, options)
+        G.setState('GRAPH_TYPE', G.getState('APPAREIL_TYPE'))
+    }
+
+    else {
+        options = getOption(-1, idx, yName)
+        dataset = gGraphs.currentChart.createDataset(_names[idx], [], yName, other)
+        gGraphs.currentChart.addChart(_names[idx], dataset)
+        gGraphs.currentChart.addOption('scales', options)
+        arg = addGraphCharts(dataset, options)
+    }
+
+
+    // Enregistre le graphe
+    //arg = addGraphCharts(dataset, options)
+    gGraphs.currentChart.setEvent("onHover", setEventsClick);
+
     // on enregistre l'ID de la courbe active
     gGraphs.idCurrentChart = arg.id
     return arg
+}
+
+function hasActiveGraph() {
+    if (!hasKey(gGraphs.currentChart.chart, 'id'))
+        return -1
+
+    return gGraphs.currentChart.chart.data.datasets.length
+}
+
+/** Retourne l'option
+ * 
+ * @param {number} type indique le type d'option
+ * @param {number} idx 0 = pH, 1 = CD et 2 = PT 
+ * @returns {object} option
+ */
+
+function getOption(type, idx, yName) {
+    const G = gDosages.getCurrentDosage()
+    const values = [G.pHs.map(Number), G.conds.map(Number), G.pots.map(Number)]
+    const _options = [cts.GR_OPTIONS_PH, cts.GR_OPTIONS_CD, cts.GR_OPTIONS_PT]
+
+    let o = {}
+
+    if (type == -1) { // axes x et (pH ou cd ou pt){
+        o = copyDeep(cts.GR_OPTIONS)
+        o.animation = false
+        o['scales'][yName] = copyDeep(_options[idx])
+        replace(o['scales'][yName], { max: Math.max(...values[idx]) })
+        replace(o, { position: 'left' }, '', true)
+        return o
+    }
+    else {
+        o[yName] = copyDeep(_options[idx])
+        replace(o[yName], { max: Math.max(...values[idx]) })
+
+        // test si il y a déjà une courbe affichée dans ce cas l'axe est à droite.
+        if (!hasActiveGraph())
+            replace(o[yName], { position: 'left' }, '', true)
+        else
+            replace(o[yName], { position: 'right' }, '', true)
+        return o
+    }
 }
 
 /** Crée un dataset
@@ -86,43 +190,56 @@ function createGraph(app, id) {
  * @param {object} id
  * @returns {tDataset} dataset
  */
-/** Enregistre un graphe
+
+/** Enregistre le dataset et les options dans le tableau charts
  * 
- * @param {tDataset} set graphe à enregistrer
- * @param {number} app type d'appareil
- * @returns {{indice:number,id:string}} ID du graphe ajouté
+ * @param {tDataset} dataset graphe à enregistrer
+ * @param {object} option type d'appareil
+ * @returns {{indice:number,id:string}} indice et ID du graphe ajouté
  * @use Graphs
  * @file dosage.graph.js
  */
-function addGraph(set, app) {
-  
+function addGraphCharts(dataset, option) {
+
     // enregistre dans la liste
     // @ts-ignore
-    gGraphs.addLstID(set.other.id)
+    gGraphs.addLstID(dataset.id)
     // Enregistre le graphe
     // @ts-ignore
-    gGraphs.charts.push({ id: set.other.id, dataset: set, visible: true, save: false, numDosage: gDosages.idCurrentDosage })
+    gGraphs.charts.push({ id: dataset.id, dataset: dataset, options: option, visible: true, save: false, numDosage: gDosages.idCurrentDosage })
 
     // @ts-ignore
-    return { indice: gGraphs.charts.length - 1, id: set.other.id }
+    return { indice: gGraphs.charts.length - 1, id: dataset.id }
+}
+
+function updGraphsCharts(indexs) {
+    gGraphs.charts[indexs.vrt].dataset.data = gGraphs.currentChart.chart.data.datasets[indexs.dsp].data
 }
 
 /** Supprime une courbe
  * 
- * @param {string} id ID courbe
+ * @param {string} id ID courbe ou index dans datasets
  * @use Graphs
  * @file dosage.graph
  */
 function removeGraph(id) {
-    // Si id existe
-    if (gGraphs.lstID[id]) {
-        // supprime de la liste
-        gGraphs.removeLstID(id)
-        // retire du tableau
-        gGraphs.removeGraph(id)
 
-    }
+    // Si id existe
+    if (gGraphs.lstID.indexOf(id) == -1) return false
+    // supprime de la liste
+    gGraphs.removeLstID(id)
+    // flag visible = false du tableau charts
+    const indexs = gGraphs.getChartIndexByID(id)
+    if (indexs.vrt != -1)
+        gGraphs.charts[indexs.vrt].visible = false
+    // supprime la courbe
+    gGraphs.currentChart.removeChart(gGraphs.getChartIndexByID(id).dsp)
+    // remplace l'ID
+    const _id = gGraphs.lstID.length == 0 ? "" : gGraphs.lstID[0]
+    gGraphs.idCurrentChart = _id
+
 }
+
 
 /** Retourne la dernière courbe correspondant au type
  * 
@@ -143,198 +260,131 @@ function getLastGraph(type) {
  * Sinon On recherche indice dans datasets dans currentGraph à partir de ID de activeChart et on l'enlève du graphX
  * Si ID présent dans charts, donc _getChart renvoie un tGraphID, on l'ajoute à currentGraph et on initialise activeChart
  * Sinon on crée le dataset et on l'ajoute à currentGraph et on initialise activeChart
- * @param {number} app N° du type d'appareil (2, 4 ou 8)
- * @returns {number} index numéro de l'item dans le menu 
+ * @param {number} app N° du type d'appareil (1, 2 ou 3)
+ * @param {number} action -1 : action sur appareil, 0 : icone visibilité ON et 1 : OFF
+ * @returns {number|undefined} index numéro de l'item dans le menu 
  * @use Graphs
  * @use defGraphPH, defGraphCD, defGraphPT, addSet
  * @file dosage.graph.js
  */
-function manageGraph(app = 0) {
+function manageGraph(app, action) {
 
     if (app == 0) return -1
 
     const G = gDosages.getCurrentDosage()
-    const indice = Math.log2(app) - 1
-    const type = ['PH', 'CD', 'PT']
-    const ETAT_GRAPH = [cts.ETAT_GRAPH_PH, cts.ETAT_GRAPH_CD, cts.ETAT_GRAPH_PT] 
+    const type = ['ph', 'cd', 'pt']
 
-    // récupère ID du dosage en cours
-    const id = type[indice] + "_" + gDosages.idCurrentDosage
-    const index = gGraphs.getChartIndexByID(id)
+    // récupère ID du dosage en cours et index de la courbe (-1 si pas de courbe)
+    let id = type[app-1] + gDosages.idCurrentDosage
+    const indexs = gGraphs.getChartIndexByID(id)
 
-    // si Phmetre actif
-    if (G.test('etat', ETAT_GRAPH[indice])) {
+    // action sur un appareil
+    if (action == -1) {
+        // si activation Appareil
+        if (G.getState('APPAREIL_ON') == 0) {
 
-        // la courbe existe
-        if (index != -1) {
-            // si courbe non visible on change son état
+            // la courbe existe
+            if (indexs.vrt == -1) {
+                const arg = createGraph(app)
+                id = arg.id
+            }
+            updGraphMenuIcon(id, indexs.vrt, 0)
             gGraphs.setVisibility(id, true)
-
-            // si graphe enregistré
-            if (gGraphs.isSave(index) == true ){
-
-                // on modifie l'icone
-                const nligne = gGraphMenu.menu.getPosByID(id)
-                if (nligne != -1)
-                    gGraphMenu.menu.changeIcon([nligne, 2], 0)
-            }
-
-            // active la courbe si graphe unique du même type
-            const chartsOfType = gGraphs.charts.filter(elt => elt.id.substr(0,2) == type[indice])
-            if (chartsOfType.length == 1){
-                gGraphs.idCurrentChart = id
-                // @ts-ignore
-                //gGraphs.currentChart = new Graphx(ui.DOS_CANVAS)
-                //gGraphs.currentChart.init(chartsOfType[0].dataset)
-            }
-            return index
+            gGraphs.idCurrentChart = id
+            gGraphs.addLstID(id)
+            G.setState('APPAREIL_ON',1)
+            // Appareil inactivé
         } else {
-            // la courbe n'existe pas on doit la créer 
-            const arg = createGraph(app, id)
-            gGraphs.setVisibility(arg.id, true)
-            return arg[0]
-        }
-        // Phmetre inactif
-    } else {
-
-        if (index != -1) {
-            // si la courbe est visible et sauvée on ne fait rien
-            if (gGraphs.isSave(index) == true && gGraphs.isVisible(index))
-                return index
-            gGraphs.setVisibility(id, false)
-
-            // On annule currentGraph
             gGraphs.idCurrentChart = ''
-        } else {
-            return index
-        }
-    }
-
-    /*
-    // suppression du graphe existant
-    const index = gGraphs.currentChart.getChartByProp("id", id)
-    
-    if (index != -1) {
-        // si courbe non enregistrée et visible on l'efface
-        if (gGraphs.charts[index].save == false && gGraphs.charts[index].visible == true) {
-            gGraphs.currentChart.chart.destroy()
-            gGraphs.currentChart = new Graphx(DOS_CHART)
-            gGraphs.idCurrentChart = ""
+            gGraphs.removeLstID(id)
+            updGraphsCharts(indexs)
+            updGraphMenuIcon(id, indexs.vrt, 1)
             gGraphs.setVisibility(id, false)
-            return index
-        } else
-            return index
-    }
-    // cas branchement appareil, on cherche si une courbe correspondant au dosage et visible existe
-    // si non on en crée une
-    let tDataset = _getChart(id)
-    let _dataset, arg
-    if (tDataset) {
-        _dataset = tDataset.dataset
-        arg = { indice: -1, id: id }
-        // gGraphs.currentChart.addDataset(tDataset.dataset)
-        // on enregistre l'ID de la courbe active
-        //gGraphs.idCurrentChart = id
+            G.setState('APPAREIL_ON',0)
+
+        }
     } else {
-        // On crée le dataset
-        arg = { indice: -1, id: "" }
-        switch (app) {
-            case cts.ETAT_PHMETRE:
-                _dataset = defGraphPH(id)
-                arg = addSet(_dataset, 0)
-                _dataset.setEvent("onHover", setEventsClick);
-                break
-            case cts.ETAT_COND:
-                _dataset = defGraphCD(id)
-                arg = addSet(_dataset, 1)
-                break
-            case cts.ETAT_POT:
-                _dataset = defGraphPT(id)
-                arg = addSet(_dataset, 2)
-                break
+        // clic sur icone visibilité
+        if (action == 0) {
+            gGraphs.setVisibility(id, true)
+        }
+        else {
+            if (G.getState('GRAPH_TYPE') != 0) {
+                G.setState('GRAPH_TYPE', 0)
+            }
+            updGraphsCharts(indexs)
+            gGraphs.setVisibility(id, false)
         }
     }
-    // On enregistre le dataset créé dans le graphe courant
-    // @ts-ignore
-    gGraphs.currentChart.init(_dataset.label, _dataset.data, _dataset.yAxe, _dataset.other, _dataset.options)
-    // on enregistre l'ID de la courbe active
-    gGraphs.idCurrentChart = arg.id
-    gGraphs.setVisibility(arg.id, true)
-    */
 
-    /** Recherche dans charts et Retourne le dataset identifié par son ID
-    * 
-    * @param {string} id ID
-    * @returns {tGraphID}
-    */
-    function _getChart(id) {
-        return gGraphs.charts.filter(e => e.id === id)[0]
-    }
-
-    return index
-}
-
-function _updGraph(graph) {
-    const G = gDosages.getCurrentDosage()
-    const state = G.etat & (cts.ETAT_PHMETRE + cts.ETAT_COND + cts.ETAT_POT)
-
-    // si graphe initié on le modifie sinon on le crée
-    if (G.test('etat', state)) {
-        // mise à jour du graphe
-        graph.changeData(graph.data);
-    } else {
-        var data = [];
-        switch (state) {
-            case cts.ETAT_PHMETRE:
-                data.push({ x: G.titrant.vol, y: G.ph });
-                break;
-            case cts.ETAT_COND:
-                data.push({ x: G.titrant.vol, y: G.cond });
-                break;
-            case cts.ETAT_POT:
-                data.push({ x: G.titrant.vol, y: G.pot });
-                break;
+    function updGraphMenuIcon(id, chartsIndex, state) {
+        if (chartsIndex == -1) return
+        if (state == 0) {
+            if (gGraphs.isSave(chartsIndex) == true) {
+                const nligne = gGraphMenu.menu.getPosByID(id)
+                if (nligne != -1) {
+                    gGraphMenu.menu.changeIcon([nligne, 2], 0)
+                    console.log("courbe sauvée -> modification icone -> visible")
+                }
+            }
+        } else {
+            if (gGraphs.isSave(chartsIndex) == true && gGraphs.isVisible(chartsIndex)) {
+                console.log("courbe sauvée et visible -> supprime visibilité")
+                const nligne = gGraphMenu.menu.getPosByID(id)
+                if (nligne != -1) {
+                    gGraphMenu.menu.changeIcon([nligne, 2], 1)
+                    console.log("courbe sauvée -> modification icone -> non visible")
+                }
+            }
         }
-
-        graph.setDatas(data);
-        graph.chart.update()
-        // on initie l'état 
-        G.setState(state, 1)
     }
+
 }
+
+
 
 /** Affiche toutes les courbes qui ont la propriété 'visible' à true
  * 
  */
 function displayGraphs() {
-    // Crée un nouveau graphx
-    if (isDefined(gGraphs.currentChart.chart.id)){
-        gGraphs.currentChart.chart.destroy()
-    }
-    
-    gGraphs.currentChart = new Graphx(DOS_CHART)
-    
-    // Parcours les datasets visibles
-    const datasets = gGraphs.charts.filter(e => e.visible == true)
-    if (datasets.length > 0){
-        gGraphs.currentChart.init(datasets[0].dataset)
-        for (let i = 1; i < datasets.length; i++){
-            gGraphs.currentChart.addDataset(datasets[i].dataset)
-        }
-    }
+    // efface toutes les courbes
+    gGraphs.currentChart.chart.data = [];
+    //gGraphs.currentChart.chart.options = {};
+
+    // reconstruit le dataset et les options
+    const visibleCharts = gGraphs.charts.filter(e => e.visible == true)
+    if (visibleCharts.length == 0) return false
+    let datasets = []
+    let labels = []
+    let options = { ...cts.GR_OPTIONS_SCALE }
+    let index = 0
+    visibleCharts.forEach((chart) => {
+        datasets.push(chart.dataset)
+        labels.push(chart.dataset.yAxisID)
+        if (index == 0)
+            options = { ...options['scales'], ...chart.options.scales }
+        else
+            options = replace(options, chart.options.scales[chart.dataset.yAxisID], chart.dataset.yAxisID)
+        index++
+    })
+
+    gGraphs.currentChart.chart.data['datasets'] = copyDeep(datasets)
+    gGraphs.currentChart.chart.data['labels'] = copyDeep(labels)
+    gGraphs.currentChart.chart.options.scales = copyDeep(options)
+    gGraphs.currentChart.chart.update()
+
 }
 
 /** Affiche ou cache le graphe 
- * Le graphe est affiché si etat contient ETAT_PHMETRE ou ETAT_POT ou ETAT_COND
+ * Le graphe est affiché si etat contient APPAREIL_ON actif
  * ou si il ya des graphes enregistrés et visible
  * 
  * @file dosage.graph.js
  */
 function showGraph() {
     const G = gDosages.getCurrentDosage()
-    const state = cts.ETAT_PHMETRE + cts.ETAT_COND + cts.ETAT_POT
     let display = false
-    if (G.test('etat', state)) {
+    if (G.getState('APPAREIL_ON') != 0) {
         display = true
     } else {
         // Recherche s'il existe une courbe affichée
@@ -366,26 +416,12 @@ function isLimit(vol) {
     const C = gGraphs.currentChart
 
     let resp = false
-    if (G.test('etat', (cts.ETAT_COND + cts.ETAT_PHMETRE + cts.ETAT_POT))) {
+    if (G.getState('APPAREIL_ON') != 0) {
         if (vol == new uArray(C.chart.data).getArrayObjectExtremumValues("x", "max"))
             resp = true;
     }
     return resp
 }
-
-/** Ajoute une valeur au graphe en cours
- * 
- * @param {Graphx} graph graphe en cours
- * @param {number} vol volume
- * @param {number} value valeur en cours
- * @file dosage.graph.js
- */
-function addData(graph, vol, value) {
-    if (vol != undefined && value != undefined) {
-        graph.data.push({ x: vol, y: value });
-    }
-}
-
 
 /**
  * Active ou désactive l'affichage d'une courbe
@@ -396,36 +432,37 @@ function addData(graph, vol, value) {
 function toggleDisplayGraph(evt) {
     const idx = gGraphMenu.menu.getPos(this)  // récupère indice dans liste
     const id = gGraphMenu.menu.getItems()[idx[0]][0]._text  // récupère ID
+    const item = gGraphMenu.menu.getItems()[idx[0]][idx[1]] // item icone
     // détecte le type de courbe à l'aide de l'id
-    let type
-    switch (id.substring(0, 2)) {
-        case 'PH':
-            type = cts.ETAT_PHMETRE
-            break
-        case 'PO':
-            type = cts.ETAT_POT
-            break
-        case 'CO':
-            type = cts.ETAT_COND
-    }
-    //const G = gDosages.getCurrentDosage()
+
+    // Change visibilité
     gGraphs.setVisibility(id, -1)
 
-    // cache le graphe courant
-    // manageGraph(type)
+    // supprime le graphe du currentGraph
+    const dosage = gDosages.getCurrentDosage()
+    manageGraph(dosage.getState('GRAPH_TYPE'), item.options.idx)
+    if (!gGraphs.getVisibility(id) && (dosage.getState('GRAPH_TYPE') == 1))
+        updateAppareil(gDosages.dosages[0].lab.phmetre, gDosages.dosages[0].lab.becher)
+
     displayGraphs()
     showGraph()
 
 }
 
-/** Supprime un graphe à partir du clic sur poubelle
+/** Supprime l'enregistrement d'un graphe à partir du clic sur poubelle
  * 
  * @file dosage.graph.js
+ *  @this {any}
  */
-function removeGraphMenu() {
-    const idx = gGraphMenu.menu.getIndex()  // récupère indice dans liste
-    const id = gGraphMenu.menu[idx][1].content  // récupère ID
-    removeGraph(id)
+function removeGraphMenu(evt) {
+
+    // supprime la courbe dans tableau 'charts'
+    const idx = gGraphMenu.menu.getPos(this)  // récupère indice dans liste
+    const id = gGraphMenu.menu.getItems()[idx[0]][0]._text  // récupère ID
+    gGraphs.charts.splice(gGraphs.getChartIndexByID(id).vrt)
+
+    // supprime l'item de menu
+    gGraphMenu.menu.removeItem(this)
 }
 
 /** Enregistre la courbe dans le menu
@@ -438,4 +475,4 @@ function addGraphMenu(name) {
 }
 
 
-export {defGraph, manageGraph, showGraph, isLimit, addData, removeGraph, toggleDisplayGraph, removeGraphMenu, getLastGraph, displayGraphs }
+export { manageGraph, showGraph, isLimit, removeGraph, toggleDisplayGraph, removeGraphMenu, getLastGraph, displayGraphs, updGraphsCharts, addGraphCharts, getOption, hasActiveGraph }

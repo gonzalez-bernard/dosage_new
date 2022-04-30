@@ -1,6 +1,21 @@
 import { ChartTypeRegistry } from "chart.js"
 import {Becher, Phmetre, Conductimetre, Potentiometre, Burette, Flacon, Canvas, Graphx, Dosage, Tooltip, ChartX} from "./classes"
 
+type tEtat = {
+  ESPECES_INIT: number,
+  APPAREIL_ON: number,
+  INDIC_ON: number,
+  GRAPH_TYPE: number
+  DATA_INIT: number
+  DERIVEE_EXP: number
+  TANGENTE: number
+  PERPENDICULAIRE: number
+  MOVE_TANGENTE: number
+  GRAPH_SAVE: number
+  THEORIQUE: number
+  PROBLEM: number
+}
+
 // structure objet Canvas
 type tOCANVAS  = {
   x: number
@@ -156,6 +171,7 @@ type tReactif = {
 
 type tField = {
   precision: string
+  value: number
 }
 
 type tInconnu = {
@@ -284,7 +300,7 @@ type iGraphOptions = {
   ticks: {stepsize: number}
   min: string
   max: string
-  onClick: (evt: Event, elt: unknown) => void
+  onClick: (evt: tEvent, elt: unknown) => void
 }
 
 type tGraphChart = {
@@ -312,7 +328,7 @@ type tDataset = {
   //yAxisID: string;
   other: {}
   options: {}
-  setEvent: (event:string, callback:(evt:Event)=>void)=>void
+  setEvent: (event:string, callback:(evt:tEvent)=>void)=>void
 }
 
 type tGraphID = {
@@ -322,3 +338,7 @@ type tGraphID = {
   save: boolean     // indique si courbe à mémoriser
   numDosage: number    // indice du dosage dans tableau dosages.items[]
 }
+
+type tEvent = {}
+
+type tHTMLImageElement = {}

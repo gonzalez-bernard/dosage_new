@@ -7,13 +7,13 @@
  * ***export formSetFeedback, formSetOptions, formValidButtons
  */
 
-import { isEvent, isString, isArray, isUndefined, isFunction } from "./type.js"
+import { isEvent, isString, isArray, isUndefined, isFunction, isDefined } from "./type.js"
 import * as e from "./errors.js"
 import { getEltID } from "./html.js"
 
 /** Affiche le message de feedback
  * @typedef {import("../../../types/interfaces").iFrmData} iFrmData
- * @param {event|iFrmData} event : permet de cibler l'objet objet.data contient les informations
+ * //@param {event|iFrmData} event : permet de cibler l'objet objet.data contient les informations
  * data.feedback pointe sur l'élément qui affiche le message sous la forme *_xxx 
  * l'étoile sera remplacé par l'id du champ input
  * xxx sera n'importe quoi. ex : id input = 'es_espece', id feedback = 'es_espece_feed' et msg = '*_feed'
@@ -95,7 +95,7 @@ class Form {
         this.idForm = form
         this.form = undefined // jQuery formulaire
         this.idField = undefined // 
-        this.field = undefined // jQuery element
+        this.field = undefined // jQueryElement 
         this.mark = false // 
         this.pass = false // 
         this.buttons = []
@@ -119,6 +119,7 @@ class Form {
      * - buttons? {string[]} liste des id des boutons concernés
      * - callback? {function} fonction de callback (undefined)
      * - validator? {function} fonction de validation (undefined)
+     * @file 'modules/utils/forms'
      */
     validButtons( event ) {
 
@@ -270,15 +271,25 @@ class Form {
      * @param {boolean} valid
      */
     _dspFeedback( idField, valid ) {
+        if ( !isString( idField ) ) throw new TypeError( e.ERROR_STR )
+        if (isUndefined(idField)) throw new ReferenceError(e.ERROR_ABS)
+        
         const feed = valid ? "valid_feedback" : "error_feedback"
-            // On inscrit le message dans la balise adéquate
+        // On inscrit le message dans la balise adéquate
 
         // On cache les messages si égal à ""
-        if ( this._feedbackMessage == "" || isUndefined( this._feedbackMessage ) ) {
-            _getFeedBack( idField, 'valid_feedback' ).hide()
-            _getFeedBack( idField, 'error_feedback' ).hide()
+        let elt
+        if ( idField !== undefined && (this._feedbackMessage == "" || isUndefined( this._feedbackMessage )) ) {
+            elt = _getFeedBack( idField, 'valid_feedback' ) 
+            if (elt === null) return false 
+            elt.hide()
+            elt = _getFeedBack( idField, 'error_feedback' )
+            if (elt === null) return false 
+            elt.hide()
         } else {
-            _getFeedBack( idField, feed ).html( this._feedbackMessage ).show()
+            elt = _getFeedBack( idField, feed )
+            if (elt === null) return false 
+            elt.html( this._feedbackMessage ).show()
         }
 
     }
@@ -305,9 +316,9 @@ class Form {
         
         if ( feed in this.oValidator ) return this.oValidator[ feed ]
         else {
-            let _elt = _getFeedBack( idField, feed )[ 0 ]
-            if ( _elt && _elt.textContent != '' )
-                return _elt.textContent
+            let _elt = _getFeedBack( idField, feed)
+            if (_elt === null || _elt[0] === undefined) return "" 
+            return _elt[ 0 ].textContent
             return msg
         }
     }
@@ -323,8 +334,12 @@ class Form {
         if ( !field[ 0 ].validity.valid ) return false
             // si validateur
         if ( isValidator && this.oValidator ) {
-            if ( 'verif' in this.oValidator )
+            if ( 'verif' in this.oValidator ) {
+                if (isUndefined(this.field)) return false
+                // @ts-ignore
                 return this.oValidator.verif( this.field[ 0 ] )
+            }
+                
         }
         return true
     }
@@ -332,6 +347,7 @@ class Form {
     /** Déclence une action si les champs identifiés sont valides
      * 
      * @param {object} event évenement avec propriété 'data'
+     * @file 'modules/utils/form.js'
      */
     actionFields(event){
         if (!isEvent(event)) throw new Error(e.ERROR_EVT)
@@ -391,12 +407,18 @@ function formSetOptions( data, label = "" ) {
  * 
  * @param {string} idField ID de l'élément courant
  * @param {string} name nom du feedback en général error_feedback ou success_feedback 
- * @returns {JQuery | undefined}
+ * @returns {JQuery|null}
+ * @file 'modules/utils/form.js'
  */
 function _getFeedBack( idField, name ) {
-    return getEltID( idField ).parent().find( "p" ).filter( function() {
+    if ( !isString( idField ) ) throw new TypeError( e.ERROR_STR )
+    if (isUndefined( idField )) throw new ReferenceError(e.ERROR_ABS)
+    
+    let elt = getEltID( idField ).parent().find( "p" ).filter( function() {
         return ( this.className == name )
     } )
+
+    return elt || null
 }
 
 export { Form, formSetOptions }
