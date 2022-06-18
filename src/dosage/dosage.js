@@ -10,14 +10,14 @@ import { cts } from "../environnement/constantes.js";
 import * as ui from "./ui/html_cts.js";
 
 import * as labo from "./ui/interface.js";
-import { gDosages, gGraphs, gLab } from "../environnement/globals.js";
+import { gDosage, gGraphMenu, gGraphs, gLab } from "../environnement/globals.js";
 import { ES_BT_dspINFO_OX, MNU_ESPECES, ESPECES, ES_BT_dspINFO_AC } from "./../especes/html_cts.js"
 
 // utils
 import * as e from "../modules/utils/errors.js";
 import { uArray } from "../modules/utils/array.js";
 import { mixColors } from "../modules/utils/color.js";
-import { hasKey } from "../modules/utils/object.js";
+import { hasKey, isEmpty } from "../modules/utils/object.js";
 import { isNumeric } from "../modules/utils/type.js";
 import { getEltID, getElt } from "../modules/utils/html.js";
 import { dspContextInfo, dspErrorMessage } from "../infos/infos.js";
@@ -25,11 +25,11 @@ import { dspContextInfo, dspErrorMessage } from "../infos/infos.js";
 // labo
 import { set_drag } from "./ui/flacon.js";
 
-import { setEvents, setEventsClick, reset } from "./dosage.events.js";
-import { dspTabDosage, setButtonClass, setButtonState, initGraphMenu, dspGraphMenu } from "./dosage.ui.js";
+import { setEvents, setEventsClick, resetLabo } from "./dosage.events.js";
+import { dspTabDosage, setButtonClass, initGraphMenu } from "./dosage.ui.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { resetMesures, setDosageValues, updValues, getDosage } from "./dosage.datas.js";
-import { addGraphCharts, updGraphsCharts, showGraph, getOption } from "./dosage.graph.js";
+import { showGraph } from "./dosage.graph.js";
 import { html } from "./ui/html.js";
 import { ES_MSG_DOSAGE_ERR, ES_MSG_INFO_ERR } from "../especes/lang_fr.js";
 
@@ -43,12 +43,6 @@ import { ES_MSG_DOSAGE_ERR, ES_MSG_INFO_ERR } from "../especes/lang_fr.js";
  * - Initialise le dosage (Crée le graphe sans affichage)
  * @param {Dosage} dosage dosage en cours
  * @returns void
- * @use dosage.datas~getDosage, dosage.datas~setDosageValues
- * @use dosage.graph~manageGraph, dosage.graph~displayGraph
- * @use infos~dspErrorMessage
- * @use dialog.ui~initGraphMenu
- * @use especes.ui~dspTabEspeces, especes.ui~dspTabDosage
- * @use createLab
  * @file dosage.js
  */
 async function initDosage(dosage) {
@@ -79,6 +73,7 @@ async function initDosage(dosage) {
 
                 // modifie l'état
                 dosage.setState('DATA_INIT', 1)
+                dosage.setState('APPAREIL_ACTIF', 0)
 
                 // Affiche page
                 if (dosage.getState('GRAPH_TYPE') == 0) {
@@ -88,7 +83,8 @@ async function initDosage(dosage) {
                 }
 
                 /** Initialisation du dosage (dosage.js)  */
-                createLab(dosage)
+                if (!dosage.getState('LAB_INIT'))
+                    createLab(dosage)
 
                 // On bascule sur dosage
                 dspTabEspeces(false)
@@ -99,11 +95,17 @@ async function initDosage(dosage) {
                 // Affichage
                 showGraph()
 
-                reset(false)
+                resetLabo(false)
+                
+                // affiche menu déroulant si il y a des items suvegardés
+                if (! isEmpty(gGraphMenu.menu) && gGraphMenu.menu.getRows().length > 0) {
+                    // Affiche le menu
+                    gGraphMenu.menu.displayMenu(gGraphMenu.idRootMenu, true)
+                }
                 dosage.setState('INDIC_ON', 0)
 
                 // désactive les boutons
-                setButtonClass("")
+                //setButtonClass("")
                 set_drag(gLab.flacons, true)
             }
         })
@@ -168,8 +170,6 @@ async function createLab(dosage) {
 
     });
 
-    //if (isObject(dosage.lab)) {
-
     // Modifie affichage pHmetre et graph
     gLab.phmetre.setText(dosage.sph);
 
@@ -182,6 +182,8 @@ async function createLab(dosage) {
     dspContextInfo("init")
 
     initGraphMenu()
+
+    dosage.setState('LAB_INIT', 1)
     /*
     } else {
         getEltID(ui.DOS_DIV_GRAPH).hide()
@@ -205,19 +207,12 @@ async function createLab(dosage) {
  */
 function vidage(lab, dosage) {
 
-    // Vérifie que l'on ne ravaille pas sur une courbe enregistrée
+    // Vérifie que l'on ne travaille pas sur une courbe enregistrée
     // Si un id des axes y dans scales correspond avec un ID d'une courbe sauvée on inactive la vidange
-    let valid = true
-    const courbes = gGraphs.currentChart.chart.scales
-    gGraphs.charts.forEach(elt => {
-        if ("y_" + elt.id in courbes && elt.save == true)
-            valid = false
-    })
-
-    if (!valid) return
+    if (gGraphs.charts.get(gGraphs.idCurrentChart).save) return
 
     // change état
-    lab.burette.vidage = lab.burette.vidage == 0 ? 1 : 0;
+    lab.burette.vidage = 1 - lab.burette.vidage;
 
     // vidage de la burette
     lab.burette.vidange(lab.burette.debit, lab.becher);
@@ -228,33 +223,16 @@ function vidage(lab, dosage) {
     // Modifie la couleur du bécher en fonction du dosage
     lab.becher.setColor(getColor(0));
 
-    switch (dosage.getState('APPAREIL_ON')) {
+    switch (dosage.getState('APPAREIL_TYPE')) {
         case 1:
             lab.phmetre.setText(dosage.sph);
             break
         case 2:
-            lab.potentiometre.setText(dosage.spot);
+            lab.conductimetre.setText(dosage.scond);
             break
         case 3:
-            lab.conductimetre.setText(dosage.scond);
+            lab.potentiometre.setText(dosage.spot);
     }
-
-    // Active les boutons si volume titrant supérieur à 5 mL
-    setButtonState(false)
-    dspGraphMenu(true)
-
-    // si le tableau charts ne contient pas la courbe (suppression par le menu) il faut le réinitialiser
-    const C = gGraphs.currentChart
-    const indexs = gGraphs.getChartIndexByID(gGraphs.idCurrentChart)
-    if (indexs.vrt == -1) {
-        const options = getOption(-1, C.type - 1, "y_" + gGraphs.idCurrentChart)
-        const arg = addGraphCharts(C.chart.data.datasets[indexs.dsp], options)
-        indexs.vrt = arg.indice
-        updGraphsCharts(indexs)
-    }
-    //actualise le graphe
-    //const index = gGraphs.getChartIndexByID(gGraphs.idCurrentChart)
-    //C.changeData(C.data, index);    
 }
 
 /** Récupère la couleur du bécher ou de la burette
@@ -264,26 +242,24 @@ function vidage(lab, dosage) {
  * @file dosage.js
  */
 function getColor(container) {
-    const G = gDosages.getCurrentDosage()
     if (!isNumeric(container)) throw new TypeError(e.ERROR_NUM);
 
     function _getColorPH() {
         let resp = ""
 
-        const G = gDosages.getCurrentDosage()
-        const indic = labo.INDICATEURS[G.indic];
+        const indic = labo.INDICATEURS[gDosage.indic];
 
         // Modification couleur du bécher
-        if (G.indic == null) {
+        if (gDosage.indic == null) {
             resp = cts.COLOR_INIT;
         } else {
             // ajuste la couleur en fonction du pH et de l'indicateur coloré
-            if (G.titre.vol > 0) {
+            if (gDosage.titre.vol > 0) {
 
                 const col = parseFloat(indic.values[0]);
-                if (G.ph < col - 0.5)
+                if (gDosage.ph < col - 0.5)
                     resp = indic.values[1];
-                else if (G.ph > col + 0.5)
+                else if (gDosage.ph > col + 0.5)
                     resp = indic.values[3];
                 else
                     resp = indic.values[2];
@@ -296,22 +272,21 @@ function getColor(container) {
 
         // suivant le type de dosage (simple, retour ou ) on cherche la concentration du titré ou celle du réactif
         // on récupère l'indice du tableau 'vols' avec le volume théorique le plus proche du volume en cours
-        const G = gDosages.getCurrentDosage()
-        var ind = new uArray(G.vols).getArrayNearIndex(G.titrant.vol);
+        var ind = new uArray(gDosage.vols).getArrayNearIndex(gDosage.titrant.vol);
         var idTitle = [0, 0, 3, 7]; // indice de l'espèce titrée
 
         // récupère la concentration
-        var concentration = G.concs[ind][idTitle[G.typeDetail]];
+        var concentration = gDosage.concs[ind][idTitle[gDosage.typeDetail]];
 
         // changement de couleur - On commence à modifier si la concentration est inférieure à 1/100 de la concentration initiale en mixant les couleurs.
-        var indic = labo.INDICATEURS[G.indic];
+        var indic = labo.INDICATEURS[gDosage.indic];
         let firstColor, endColor;
         let currentColor = null;
 
-        if (G.indic == null || G.indic == undefined) {
-            firstColor = G.titre.color;
-            endColor = G.colProduit.endColor;
-            if (hasKey(G.colProduit, "currentColor")) currentColor = G.colProduit.currentColor;
+        if (gDosage.indic == null || gDosage.indic == undefined) {
+            firstColor = gDosage.titre.color;
+            endColor = gDosage.colProduit.endColor;
+            if (hasKey(gDosage.colProduit, "currentColor")) currentColor = gDosage.colProduit.currentColor;
         } else {
             firstColor = indic.values[1];
             currentColor = indic.values[2];
@@ -319,13 +294,13 @@ function getColor(container) {
         }
 
         if (concentration > 0) {
-            let initialConcentration = G.concs[0][idTitle[G.typeDetail]];
+            let initialConcentration = gDosage.concs[0][idTitle[gDosage.typeDetail]];
             if (concentration < initialConcentration / 20) {
                 var proportion = 1 - (20 * concentration) / initialConcentration;
 
                 if (currentColor)
                     return mixColors(currentColor, endColor, 1 - proportion, proportion);
-                else return mixColors(G.titre.color, endColor, 1 - proportion, proportion);
+                else return mixColors(gDosage.titre.color, endColor, 1 - proportion, proportion);
             } else {
                 if (currentColor) return currentColor;
                 else return firstColor;
@@ -339,10 +314,10 @@ function getColor(container) {
     if (container == 0) {
 
         // si dosage pH
-        if (G.type == cts.TYPE_ACIDEBASE)
+        if (gDosage.type == cts.TYPE_ACIDEBASE)
             resp = _getColorPH();
         // dosage oxydo
-        else if (G.type == cts.TYPE_OXYDO)
+        else if (gDosage.type == cts.TYPE_OXYDO)
             resp = _getColorOX();
     }
 

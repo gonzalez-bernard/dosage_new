@@ -1,40 +1,56 @@
+// @ts-nocheck
 /**
  * Classe lab
  *
  */
 
-import {initBecher as _initBecher} from "../ui/becher.js";
+import { initBecher as _initBecher } from "../ui/becher.js";
 // @ts-ignore
-import {initTooltip as _initTooltip, Tooltip} from "../ui/tooltip.js";
-import {initBurette as _initBurette} from "../ui/burette.js";
-import {initFlacon as _initFlacon} from "../ui/flacon.js";
-import {initPhmetre as _initPhmetre} from "../ui/phmetre.js";
-import {initConductimetre as _initConductimetre} from "../ui/conductimetre.js";
-import {initPotentiometre as _initPotentiometre} from "../ui/potentiometre.js";
+import { initTooltip as _initTooltip, Tooltip } from "../ui/tooltip.js";
+import { initBurette as _initBurette } from "../ui/burette.js";
+import { initFlacon as _initFlacon } from "../ui/flacon.js";
+import { initPhmetre as _initPhmetre } from "../ui/phmetre.js";
+import { initConductimetre as _initConductimetre } from "../ui/conductimetre.js";
+import { initPotentiometre as _initPotentiometre } from "../ui/potentiometre.js";
 
 // @ts-ignore
 
-/** @typedef {import('../../../types/classes').Canvas} Canvas */
+/** @typedef {import('../../../types/classes').Canvas} Canvas
+    @typedef {import('../../../types/classes').Phmetre} Phmetre 
+    @typedef {import('../../../types/classes').Conductimetre} Conductimetre
+    @typedef {import('../../../types/classes').Potentiometre} Potentiometre
+    @typedef {import('../../../types/classes').Becher} Becher
+    @typedef {import('../../../types/classes').Burette} Burette
+    @typedef {import('../../../types/classes').Flacon} Flacon
+    @typedef {import('../../../types/classes').Tooltip} Tooltip
+*/
 
 class Lab {
 
-  /*  
-  becher; tooltip; flacons; phmetre; conductimetre; potentiometre
-  */
+    /*  
+    becher; tooltip; flacons; phmetre; conductimetre; potentiometre
+    */
 
     constructor() {
-
-      this.canvas = undefined
-      this.becher = {} 
-      this.tooltip = {}
-      this.labo = {}
-      this.burette = {}
-      this.flacons = []
-      this.phmetre = {}
-      this.conductimetre = {}
-      this.potentiometre = {}
+        /** @type {Canvas} */
+        this.canvas = undefined
+        /** @type {Becher} */
+        this.becher = {}    
+        /** @type {Tolltip} */
+        this.tooltip = {}
+        this.labo = {}
+        /** @type {Burette} */
+        this.burette = {}
+        /** @type {Flacon[]} */
+        this.flacons = []
+        /** @type {Phmetre} */
+        this.phmetre = {}
+        /** @type {Conductimetre} */
+        this.conductimetre = {}
+        /** @type {Potentiometre} */
+        this.potentiometre = {}
     }
-   
+
     /**
      *
      * @param {Canvas} canvas
@@ -98,4 +114,4 @@ class Lab {
     }
 }
 
-export {Lab};
+export { Lab };

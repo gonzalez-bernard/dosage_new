@@ -7,7 +7,7 @@
 */
 
 import { cts } from "../environnement/constantes.js";
-import { gDosages } from "../environnement/globals.js";
+import { gDosage } from "../environnement/globals.js";
 import * as e from "../modules/utils/errors.js"
 import { ChartX } from "../modules/chartX.js";
 import { calcDistance2Pts, getMedium } from "../modules/utils/math.js";
@@ -77,10 +77,10 @@ class Graphx extends ChartX {
             this.options = cts.GR_OPTIONS_PH;
         } else if (this.type == this.TYPE_CD) {
             this.options = cts.GR_OPTIONS_CD;
-            this.chart.options.scales.y.max = 1.2 * Math.max(...G.conds);
+            this.chart.options.scales.y.max = 1.2 * Math.max(...gDosage.conds);
         } else if (this.type == this.TYPE_PT) {
             this.options = cts.GR_OPTIONS_PT;
-            this.chart.options.scales.y.max = 1.2 * Math.max(...G.pots)
+            this.chart.options.scales.y.max = 1.2 * Math.max(...gDosage.pots)
         }
     }
 
@@ -104,16 +104,15 @@ class Graphx extends ChartX {
      */
     initDataTheorique() {
 
-        const G = gDosages.getCurrentDosage()
         if (this.data_theorique.length != 0) return;
-        for (var i = 0; i < G.vols.length; i++) {
+        for (var i = 0; i < gDosage.vols.length; i++) {
             this.data_theorique.push({
-                x: G.vols[i],
-                y: G.pHs[i],
+                x: gDosage.vols[i],
+                y: gDosage.pHs[i],
             });
             this.data_derive_theorique.push({
-                x: G.vols[i],
-                y: G.dpHs[i],
+                x: gDosage.vols[i],
+                y: gDosage.dpHs[i],
             });
         }
     }
@@ -123,8 +122,7 @@ class Graphx extends ChartX {
      * Affiche ou cache le graphe en fonction de GRAPH_TYPE
      */
     display() {
-        const G = gDosages.getCurrentDosage()
-        if (G.getState('GRAPH_TYPE') != 0) {
+        if (gDosage.getState('GRAPH_TYPE') != 0) {
             $(this.canvas).hide();
         } else {
             $(this.canvas).show();
@@ -183,16 +181,15 @@ class Graphx extends ChartX {
             col = this.COLOR_PERP;
         }
         // ajout segment
-        var _data = {
+        var _option = {
             label: label,
             type: "line",
-            id: id,
+            name: id,
             data: pts,
             backgroundColor: "rgba(0,0,0,0)",
             borderColor: col,
         };
-        this.chart.data.datasets.push(_data);
-        this.chart.update();
+        this.chart.appendSeries(_option);
     }
 
     /** Efface la tangente
@@ -267,35 +264,31 @@ class Graphx extends ChartX {
      * @file graphx.js
      */
     dspDerivee() {
-        const G = gDosages.getCurrentDosage()
-        const other = {
-            id: this.DERIVEE,
-            showLine: true,
-            backgroundColor: "rgba(255,255,255,0)",
-            pointBackgroundColor: "rgba(255,0,0,1)",
-            borderColor: "rgba(255,0,0,1)",
-            pointRadius: 1,
-            yAxisID: this.YNAME_DERIVEE,
-        };
-
         // si graph pH non affiché
-        if (G.getState('GRAPH_TYPE') != 1) return;
+        if (gDosage.getState('GRAPH_TYPE') != 1) return;
 
         let option;
         // initialise les données théoriques
         this.initDataTheorique();
-        if (G.getState('THEORIQUE') == 1) {
+
+
+        if (gDosage.getState('THEORIQUE') == 1) {
+            /*
             option = this._initOptions(this.data_derive_theorique);
             const _dataset = this.createDataset(this.DERIVEE_TH, this.data_derive_theorique, this.YNAME_DERIVEE, other)
             this.addChart(this.DERIVEE_TH, _dataset, option);
+            */
         } else {
             // extrait les valeurs dérivées à partir des données réelles (data)
             const lst_derivee = this._initDerivee(this.data, this.data_derive_theorique);
-            option = this._initOptions(lst_derivee);
-            const _dataset = this.createDataset(this.DERIVEE_EXP, lst_derivee, this.YNAME_DERIVEE, other)
-            this.addChart(this.DERIVEE_EXP, _dataset, option);
-        }
-        this.chart.update();
+
+            this.chart.appendSeries({
+                name: "derivée",
+                data: lst_derivee,
+                type: 'line'
+            })}
+
+            gDosage.setState("DERIVEE_INIT", 1)
     }
 
     /** Affiche la courbe théorique
@@ -378,11 +371,12 @@ class Graphx extends ChartX {
         return 1
     }
 
-    /**
-    *
-    * @param {object[]} data tableau des valeurs volumes et pH
-    * @param {object[]} derive tableau des valeurs volumes et dpH
-    * @returns {array} tableau des valeurs volume et dpH réelles
+    /** Construit un tableau avec pour abscisse les volumes et en ordonnée la dérivée du pH
+     * 
+     *
+     * @param {object[]} data tableau des valeurs volumes et pH
+     * @param {object[]} derive tableau des valeurs volumes et dpH
+     * @returns {array} tableau des valeurs volume et dpH réelles
     */
     _initDerivee(data, derive) {
         var lst_derivee = [];

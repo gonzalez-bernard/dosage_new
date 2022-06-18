@@ -6,7 +6,7 @@
 
 import {cts} from '../../environnement/constantes.js'
 
-const CANVAS = {width:500, height:600}
+const CANVAS = { width: 500, height: 600 }
 
 const BURETTE = {
   x: 80,
@@ -103,7 +103,7 @@ const PHMETRE = {
   fond: undefined,
   fill: undefined,
   zindex: 0,
-  origin: {x:undefined, y:undefined},
+  origin: { x: undefined, y: undefined },
   abs_x: undefined,
   abs_y: undefined
 };
@@ -114,13 +114,13 @@ const CONDUCTIMETRE = {
   w: 100,
   h: 150,
   image: "/img/dosage/conductimetre.png",
-  value: "0.0",
+  value: "----",
   offsetX: 20,
   offsetY: 85,
   fond: undefined,
   fill: undefined,
   zindex: 0,
-  origin: {x:undefined, y:undefined},
+  origin: { x: undefined, y: undefined },
   abs_x: undefined,
   abs_y: undefined
 };
@@ -131,28 +131,28 @@ const POTENTIOMETRE = {
   w: 100,
   h: 150,
   image: "/img/dosage/potentiometre.png",
-  value: "0.0",
+  value: "----",
   offsetX: 10,
   offsetY: 85,
   fond: undefined,
   fill: undefined,
   zindex: 0,
-  origin: {x:undefined, y:undefined},
+  origin: { x: undefined, y: undefined },
   abs_x: undefined,
   abs_y: undefined
 };
 
 const INDICATEURS = [
   {
-    nom: "phenolphtaleine",values: ["9.1", cts.COLORS.phi_acide, cts.COLORS.phi_acide, cts.COLORS.phi_base],
+    nom: "phenolphtaleine", values: ["9.1", cts.COLORS.phi_acide, cts.COLORS.phi_acide, cts.COLORS.phi_base],
   },
   { nom: "BBT", values: ["6.8", cts.COLORS.bbt_acide, cts.COLORS.bbt_virage, cts.COLORS.bbt_base] },
   {
-    nom: "Rouge de Phénol",values: ["8.0", cts.COLORS.rp_acide, cts.COLORS.rp_virage, cts.COLORS.rp_base],
+    nom: "Rouge de Phénol", values: ["8.0", cts.COLORS.rp_acide, cts.COLORS.rp_virage, cts.COLORS.rp_base],
   },
   { nom: "Hélianthine", values: ["3.7", cts.COLORS.h_acide, cts.COLORS.h_virage, cts.COLORS.h_base] },
   {
-    nom: "Vert de Bromocrésol",values: ["4.6", cts.COLORS.vb_acide, cts.COLORS.vb_virage, cts.COLORS.vb_base],
+    nom: "Vert de Bromocrésol", values: ["4.6", cts.COLORS.vb_acide, cts.COLORS.vb_virage, cts.COLORS.vb_base],
   },
   {
     nom: "NET",
@@ -164,4 +164,4 @@ const INDICATEURS = [
   }
 ];
 
-export {CANVAS, BECHER, BURETTE, FLACON, FLACON_COLORS, FLACON_IMAGES, FLACON_LABELS, PHMETRE, CONDUCTIMETRE, INDICATEURS, TOOLTIP, AGITATEUR, POTENTIOMETRE}
+export { CANVAS, BECHER, BURETTE, FLACON, FLACON_COLORS, FLACON_IMAGES, FLACON_LABELS, PHMETRE, CONDUCTIMETRE, INDICATEURS, TOOLTIP, AGITATEUR, POTENTIOMETRE }

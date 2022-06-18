@@ -90,10 +90,9 @@
  * - index {number} : index de la courbe (0 par défaut)
  */
 
-import { copyDeep, hasKey, replace, updateItem } from "./utils/object.js"
+import { copyDeep, hasKey, isEmpty, replace, updateItem } from "./utils/object.js"
 import * as e from "./utils/errors.js"
 import { isObject, isString, isNumeric, isInteger, isDefined, isArray, isFunction } from "./utils/type.js"
-//import { Chart } from "../../node_modules/chart.js/dist/chart.js";
 
 
 /**
@@ -259,29 +258,13 @@ class ChartX {
         this.chart.data.datasets.push({...dataset} );
         this.chart.data.labels.push(label);
 
-        if (options.opt != {})
+        if (! isEmpty(options.opt) )
             this.setOption(options.root, options.opt)
         
         this.chart.update();
     }
 
-    /** Ajoute des données à un graphe existant
-    *
-    * @param {object[]|object} data : données à ajouter
-    * @param {number} index : index de la courbe
-    */
-    addData(data, index = 0) {
-        if (!isObject(data) && !isArray(data)) throw new TypeError(e.ERROR_PRM)
-        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
-
-        if (isArray(data)) {
-            this.chart.data.datasets[index].data.push(...data);
-        } else
-            this.chart.data.datasets[index].data.push(data);
-
-        this.chart.update();
-    }
-
+    
     addOption(root, option){
         this.chart.options[root] = copyDeep(option)
     }
@@ -392,7 +375,13 @@ class ChartX {
     /** Suppression d'un ou plusieurs points de la courbe
      *
      * @param {number} index : indice de la courbe
-     * @param {number} indice : N° du point à supprimer
+     * @param {number} indice : N° du point à su
+function updGraphCharts(id) {
+    const o = gGraphs.charts.get(id)
+    o.data = gGraphs.currentChart.data
+    gGraphs.charts.set(id, o)
+}
+pprimer
      */
     removeData(index = 0, indice = -1) {
         if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)

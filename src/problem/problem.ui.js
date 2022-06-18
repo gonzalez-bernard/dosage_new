@@ -5,7 +5,7 @@
  */
 import * as txt from "./lang_fr.js"
 import * as ui from "./html_cts.js"
-import {gDosages} from "../environnement/globals.js"
+import {gDosage} from "../environnement/globals.js"
 import { getHtml } from "./html.js";
 import { getEltID, getValueID} from "../modules/utils/html.js";
 
@@ -40,22 +40,21 @@ function initPage(data){
  * @return {void}
  */
 function initProblem(arg){
-    const dosage = gDosages.getCurrentDosage()
     const data = isEvent(arg) ? arg.data : arg
 
     getProblem(data.data).then(function(data){
     data.inconnu.label = new uString(data.inconnu.label).convertExpoIndice().html
     data.inconnu.value = data.inconnu.field[0].value
-    dosage.type = data.type
+    gDosage.type = data.type
     
     // Crée la page HTML
     initPage(data)
 
-    dosage.setState('PROBLEM',1)
-    dosage.inconnu = data.inconnu
+    gDosage.setState('PROBLEM',1)
+    gDosage.inconnu = data.inconnu
     
     // Définition des événements
-    setEvents(dosage, data)
+    setEvents(gDosage, data)
   })
 }
 
@@ -134,13 +133,12 @@ function dspMessage( result, mode = 0 ) {
  */
  function validProblem() {
 
-  const dosage = gDosages.getCurrentDosage()
 
   // On arrondit la valeur en tenant compte du nombre de CS (precision)
-  let roundValue = parseFloat(mathArrondir( dosage.inconnu.field[0].value, 10 ))
+  let roundValue = parseFloat(mathArrondir( gDosage.inconnu.field[0].value, 10 ))
   let reponse = getValueID( ui.PB_PROBLEM_REPONSE,'float')
   let r = Math.abs( 1 - reponse/roundValue )
-  let prec = new uString(dosage.inconnu.field[0].precision).strListToArray().array
+  let prec = new uString(gDosage.inconnu.field[0].precision).strListToArray().array
   if ( r < parseFloat(prec[0]) ) {
     dspMessage( true )
   } else if ( r < parseFloat(prec[1]) )
@@ -188,13 +186,12 @@ function cancelProblem(e) {
  * @file problem.ui.js
  */
 function experiment(e){
-  const dosage = gDosages.getCurrentDosage()
-  updEspeces(dosage)
+  updEspeces(gDosage)
   dspTabProblem(false)
   dspTabEspeces(true)
 }
 
-const data = {G: gDosages.getCurrentDosage(), data: { 'indice': 1 }}
+const data = {dosage: gDosage, data: { 'indice': 1 }}
 
 initProblem(data)
 

@@ -1,0 +1,45 @@
+@startuml dbClicAppareil
+start
+:<b>event dbClic dans appareil.js;
+note
+  dbClicHandler
+end note
+:initialise appareil -> <b>appareil/updateAppareil;
+note 
+  <b>updateAppareil 
+  repositionne -> <b>_setAppareil
+  actualise type
+end note
+:désactive double clic <b>APPAREIL_ON = 0;
+:active dosage <b>DOSAGE_ON = 1;
+:gestion des graphes -> <b>dosage.graph/graphManager;
+partition graphManager {
+  if (activation <b>APPAREIL_ACTIF = 0) then (OK)
+    if (première création <b>GRAPH_INIT = 0 ) then (OK)
+      :crée structure -> <b>createChart
+      <b>GRAPH_INIT = 1;
+    endif
+    :<b>APPAREIL_ACTIF = 1
+    <b>GRAPH_TYPE = type appareil
+    vide currentChart.data;
+    if (courbe existe dans charts et visible) then (OK)
+      :remplit données currentChart.data à partir de charts;
+    else
+      :crée le graphe  <b>dosage.graph/addGraphCharts;
+    endif
+  else
+    :initialise idCurrentChart
+    désactive visibilité -> <b>graphs.setVisibility
+    <b>GRAPH_TYPE = 0
+    désactive appareil <b>APPAREIL_ACTIF = 0;
+  endif
+  :actualise icone de menu -> <b>dosage.graph/_updGraphMenuIcon;
+}
+:affiche graphe -> <b>dosage.graph/displayGraphs
+actualise affichage -> <b>dosage.graph/showGraphs
+actualise les boutons -> <b>dosage.ui/setButtonVisible
+désactive Double clic <b>APPAREIL_ON = 0
+active dosage <b>DOSAGE_ON = 1;
+@enduml
+
+

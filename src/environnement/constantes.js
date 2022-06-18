@@ -1,19 +1,26 @@
+//import { setEventsClick } from "../dosage/dosage.events.js"
+
 // Constantes javascript
 const etats = {
-    ESPECES_INIT: 0,    /** espèces défines */
-    APPAREIL_ON: 0,     /** appareil actif ou inactif */
+    ESPECES_INIT: 0,    /** espèces définies */
+    APPAREIL_ON: 0,     /** on peut activer un appareil */
     APPAREIL_TYPE: 0,   /** pHmètre (1), conductimètre (2) ou potentiomètre (3) branché */
+    APPAREIL_ACTIF: 0,  /** appareil actif ou inactif */
+    DOSAGE_ON: 0,       /** on peut vidanger */
+    LAB_INIT: 0,        /** laboratoire créé */
     INDIC_ON: 0,        /** indicateur coloré mis */
+    GRAPH_INIT: 0,      /** le graphe a été créé */
     GRAPH_TYPE: 0,      /** type de graphe affiché 1:PH, 2: CD et 3:PT ou 4: multiple*/
     DATA_INIT: 0,       /** données existantes */
+    DERIVEE_INIT: 0,    /** indique si les valeurs de la dérivée sont calculées */
+    DERIVEE_ON: 0,      /** indique si la dérivée est affichée */
     DERIVEE_EXP: 0,     /** dérivée expérimentale affichée */
-    TANGENTE: 0,        /** indique que la tangente N°1 est affichée */
-    PERPENDICULAIRE: 0, /** perpendiculaire entre tangente */
+    TANGENTE: 0,        /** précise les tangentes affichées 0: aucune, 1: tan1, 2: tan2, 3: tan1 et 2*/
+    PERPENDICULAIRE: 0, /** perpendiculaire entre tangente 0: aucune, 1: perpendiculaire affichée*/
     MOVE_TANGENTE: 0,   /** déplacement tangente activé */
     GRAPH_SAVE: 0,      /** Sauvegarde des courbes */
     THEORIQUE: 0,       /** courbe théorique affichée */
     PROBLEM: 0,         /** probleme actif */
-
 
 }
 
@@ -37,7 +44,7 @@ const cts = {
     TYPE_NUL: 0,
     TYPE_ACIDEBASE: 1,
     TYPE_OXYDO: 2,
-    
+
     /** dosage simple */
     TYPE_OX_SIMPLE: 1,
     /** dosage en retour */
@@ -67,124 +74,82 @@ const cts = {
     COLORS: { 'vert_pale': "#f2faeb99", 'violet': "#cf45d988", 'incolore': "#c1e0e866", 'jaune': "#e0c00b88", 'blanc': "#ffffffff", 'brun': "#603315", 'rouge': "#e02f0b88", 'bleu_pale': "#b5d8e888", 'bleu': "#0d9cde88", 'phi_acide': "#ffffff44", 'phi_virage': "#ECDEE7FF", 'phi_base': "#C769A7FF", 'bbt_acide': "#e3fa0fff", 'bbt_virage': "#5dabf8ff", 'bbt_base': "#04dc53ff", 'rp_acide': "#DCE34CFF", 'rp_virage': "#F0963EFF", 'rp_base': "#F52939FF", 'h_acide': "#F72B3BFF", 'h_virage': "#ECB744FF", 'h_base': "#DBE34AFF", 'vb_acide': "#DEE24BFF", 'vb_virage': "#82C767FF", 'vb_base': "#00A7CBFF", 'net_acide': "#ff1111FF", 'net_virage': "#aa11aaFF", 'net_base': "#42c4f0FF", 'jaune_pale': "#fefce1ff", "emp_acide": "#0d9cde88", "emp_virage": "#0d9cde88", "emp_base": "#fefce1ff" },
 
     // Définition des graphes
-    /** Autre Options pour graphe pH */
-    GR_OTHER_PH: {
-        label: "pH",
-        showLine: true,
-        backgroundColor: "rgba(255,255,255,0)",
-        pointBackgroundColor: "rgba(0,0,0,1)",
-        borderColor: "rgba(0,255,0.5)",
-        pointRadius: 1,
-    },
 
-    /** Autre options pour graphe CD */
-    GR_OTHER_CD: {
-        label: "Conductance",
-        showLine: true,
-        backgroundColor: "rgba(255,255,255,0)",
-        pointBackgroundColor: "rgba(0,255,0,1)",
-        borderColor: "rgba(255,0,0,0.5)",
-        pointRadius: 1,
-    },
+    _GR_OPTIONS: {
+        chart: {
+            type: 'line',
+            styleMode: true,
+            //width: '595px',
+            //height: '595px',
+            //animations: {
+            //enabled: false,
+            //},
 
-    /** Autre options pour graphe pH */
-    GR_OTHER_PT: {
-        label: "Potentiel",
-        showLine: true,
-        backgroundColor: "rgba(255,255,255,0)",
-        pointBackgroundColor: "rgba(0,0,255,1)",
-        borderColor: "rgba(0,0,255,0.5)",
-        pointRadius: 1,
-    },
 
-    /** Options pour graphe pH */
-    GR_OPTIONS: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 1.0,
-        events: ["click", "mousemove"],
-        animation: false,
-        scales: {
-            x: {
-                display: true,
-                title: {
-                    display: true,
-                    text: "Volume",
+        },
+        /*stroke: {
+            width: 1,
+            curve: 'straight'
+        },
+        */
+        plotOptions: {
+            series: {
+                animation: {
+                    duration: 200
                 },
-                ticks: {
-                    beginAtZero: true,
-                    maxTicksLimit: 40,
-                    stepSize: 5,
+                marker: {
+                    enabled: true,
+                    radius: 3
+                }
+            }
+        },
+        title: {
+            text: 'Dosage'
+        },
+        
+        // colors: ['#ff0000','#42C4F0FF'],
+        /* grid: {
+            position: 'front',
+            xAxis: {
+                lines: {
+                    show: true,
                 },
-                min: 0,
-                max: 25,
+                type: 'numeric'
             },
+            yAxis: {
+                lines: {
+                    show: true,
+                },
+            }
+        }, */
+        xAxis: {
+            title: {
+                text: 'Volume (mL)',
+            },
+            min: 0,
+            max: 24,
+            tickInterval: 2,
+            gridLineWidth: 1,
+            //type: 'numeric',
+            //decimalsInFloat: 0,
         }
     },
 
-    GR_OPTIONS_SCALE: {
-        scales: {
-            x: {
-                display: true,
-                title: {
-                    display: true,
-                    text: "Volume",
-                },
-                ticks: {
-                    beginAtZero: true,
-                    maxTicksLimit: 40,
-                    stepSize: 5,
-                },
-                min: 0,
-                max: 25,
+
+    _GR_YAXES: {
+        yAxis:
+        {
+            name: '',
+            title: {
+                text: ''
             },
-        }
+            min: 0,
+            max: 14,
+            tickInterval: 1,
+            //decimalsInFloat: 0
+        },
     },
 
-    GR_OPTIONS_PH: {
-        position:"left",
-        display: true,
-        title: {
-            display: true,
-            text: "pH",
-        },
-        ticks: {
-            beginAtZero: true,
-            maxTicksLimit: 16,
-        },
-        max: 14,
-        min: 0,
-    },
-
-    /** Options pour graphe CD */
-    GR_OPTIONS_CD: {
-        position:"right",
-        display: true,
-        title: {
-            display: true,
-            text: "Conductance",
-        },
-        ticks: {
-            beginAtZero: true,
-        },
-        min: 0,
-        max: 1
-    },
-
-    /** Options pour graphe PT */
-    GR_OPTIONS_PT: {
-        position:"right",
-        display: true,
-        title: {
-            display: true,
-            text: "Potentiel",
-        },
-        ticks: {
-            beginAtZero: true,
-        },
-        min: 0,
-        max: 1
-    },
 
 
     // constante de cellule en m

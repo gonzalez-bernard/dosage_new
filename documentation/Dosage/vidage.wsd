@@ -1,44 +1,31 @@
 @startuml vidage
 start
   #CCCCCC:vidage]
-  :get current dosage;
-  :get current graph;
-  :vidage burette;
+  note
+    dosage.js
+  end note
+  if (courbe enregistrée) then (OK) 
+    stop
+  endif
+  :vidage burette -> <b>burette/vidange();
   note 
     change état burette
-    vidage
-    mise à jour
+    change état becher
   end note
-  :change couleur becher;
+  :mise à jour des valeurs -> <b>dosage.datas/updValues();
+  note
+    - currentDosage
+    - data
+    - actualise data graphe -> <b>Highchart/hChart.updateSerie()
+    - actualise data charts -> <b>dosage.graph/updGraphCharts()
+  end note
+  :change couleur becher -> <b>setColor();
   if (conductimetre) then (OK)
-    :change text;
-    package #11EEAA dosage.graphs {
-      :<b>changeData</b>
-      change données courbe;
-    }
+    :change text -> <b>setText() ;
   elseif (phmetre ?) then (ok)
-    :change text;
-    package #11EEAA dosage.graphs {
-      :<b>changeData</b>
-      change données courbe;
-    }
-    if (titrant volume suffisant ?) then (OK)
-      package  #EEEEEE dosage.ui {
-        :<b>setButtonState</b>
-        actualise boutons;
-      }
-      package #11EEAA dosage.graph {
-        :<b>dspGraphMenu</b>
-        affiche menu graphe;
-      }
-    endif
-  
+    :change text -> <b>setText();
   elseif (potentiometre) then (OK)
-    :change text;
-    package #11EEAA dosage.graphs {
-      :<b>changeData</b>
-      change données courbe;
-    }
+    :change text -> <b>setText();
   endif
   
 stop

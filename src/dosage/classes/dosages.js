@@ -8,9 +8,9 @@
  */
 class Dosages {
 
-  constructor() {
-      this.saveGraphs = false
-      this.idCurrentDosage = 0,   // indice du dosage courant
+    constructor() {
+        this.initGraph = false      // indique que le graph unique a été créé
+        this.idCurrentDosage = 0,   // indice du dosage courant
 
           /** @type Dosage[] */
           this.dosages = []           // tableau des dosages

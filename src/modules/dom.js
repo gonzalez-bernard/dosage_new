@@ -6,11 +6,10 @@
  * ***
  */
 
-import { insertDiese, uString } from "./utils/string.js"
+import { uString } from "./utils/string.js"
 import { uArray } from "./utils/array.js"
 import { getEltID } from "./utils/html.js"
 import { isArray, isObject} from "./utils/type.js"
-import { getFileName } from "./utils/file.js"
 
 /** classe Element */
 /**
@@ -393,12 +392,6 @@ class Element {
     }
 }
 
-/************************************************** */
-
-
-
-/************************************************** */
-
 /**
  * Il faut définir 
  *  - la structure html du formulaire
@@ -486,8 +479,6 @@ class Dialog{
     }
 }
 
-/************************************************** */
-
 /** 
  * @class Domus
  * @classdesc  Sert à insérer des enfants en ayant déclaré le parent avant
@@ -513,8 +504,6 @@ class Domus {
     }
 }
 
-/************************************************** */
-
 /**  
  * @classdesc Gestion des formulaires 
  * @extends Element
@@ -534,8 +523,6 @@ class Form extends Element {
             this.action = 'action' in o ? '#' : o.action
     }
 }
-
-/************************************************** */
 
 /**
  * @classdesc gestion des boutons
@@ -559,8 +546,6 @@ class Button extends Element {
         this.type = 'type' in o ? o.type : 'button'
     }
 }
-
-/************************************************** */
 
 /** 
  * @extends Element 
@@ -589,8 +574,6 @@ class Label extends Element {
     }
 }
 
-/************************************************** */
-
 /**
  * @class Div
  * @classdesc création simplifiée des div
@@ -607,8 +590,6 @@ class Div extends Element {
         super('div', { class: classe, id: id })
     }
 }
-
-/************************************************** */
 
 /** 
  * @classdesc Gestion des champs input
@@ -785,8 +766,6 @@ class Input extends Element {
 
 }
 
-/************************************************** */
-
 /**
  * @classdesc Paragraphe
  * @extends Element
@@ -812,8 +791,6 @@ class Span extends Element{
     }
 }
 
-/************************************************** */
-
 /**
  * @classdesc Ajoute lien (href)
  * @extends Element
@@ -830,8 +807,6 @@ class Link extends Element {
         this.href = ref
     }
 }
-
-/************************************************** */
 
 /**
  * @classdesc Gestion image
@@ -885,8 +860,6 @@ class Img extends Element {
     }
 }
 
-/************************************************** */
-
 /**
  * @class Alert
  * @classdesc Gestion alert
@@ -915,8 +888,6 @@ class Alert {
         return this
     }
 }
-
-/************************************************** */
 
 /**
  * @class List
@@ -967,8 +938,6 @@ class Message {
         this.div.addChild(this.elt)
     }
 }
-
-/************************************************** */
 
 /** Affiche un message
  * 

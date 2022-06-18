@@ -111,6 +111,7 @@ class Dosage {
         this.typeDetail = undefined
 
         this.vols = [] // volumes ajoutés
+        this.id = 0     // premier dosage
     }
 
 
@@ -158,29 +159,24 @@ class Dosage {
         return this.get(name) & value
     }
 
-
-
     /** Modifie la variable "etat"
      * 
      * @param {string} name valeur de l'état défini dans etats.js
-     * @param {number} action précise l'action 1=active, 0=désactive, -1=inverse
+     * @param {number} value précise la valeur si -1=inverse
+     * @param {number| undefined} prm
      */
-    setState(name, action, value = undefined) {
-        if (!isNumeric(action)) throw new TypeError(e.ERROR_NUM)
+    setState(name, value, prm = undefined) {
+        if (!isNumeric(value)) throw new TypeError(e.ERROR_NUM)
         if (!isString(name)) throw new TypeError(e.ERROR_STR)
-        if (action != 0 && action != 1 && action != -1) throw new TypeError(e.ERROR_RANGE)
 
-        switch (action) {
-            case 1: // activation
-                this.etat[name] = 1
-                break
-            case 0: // désactivation
-                this.etat[name] = 0
-                break
-            case -1:
-                if (value) {
-                    this.etat[name] = this.etat[name] == 0 ? value : 0
-                }
+        if (value == -1) {
+            if (prm) {
+                this.etat[name] = this.etat[name] == 0 ? prm : 0
+            } else {
+                this.etat[name] = 1 - this.etat[name]
+            }
+        } else {
+            this.etat[name] = value
         }
     }
 }

@@ -65,6 +65,7 @@ interface iAppareil {
   offsetY: number 
   fond: iCanvasImage
   image: string
+  type: number
   dispose:(becher: Becher, x:number, y:number) => void
   setText: (arg: string) => void
 }

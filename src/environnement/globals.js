@@ -10,16 +10,12 @@ import {Lab} from "../dosage/classes/lab.js"
 // définition d'une instance de Dosage et d'espèces
 const gDosage = new Dosage()
 const gEspeces = new Especes()
-const gDosages = new Dosages()
 const gGraphs = new Graphs(DOS_CHART)
 const gGraphMenu = new graphMenu("menu","menu_list")
 const gLab = new Lab()
 
-gDosages.dosages.push(gDosage)
 //initGraphMenu()
 
-function getGlobal() {
-    return gDosages.getCurrentDosage()
-}
+const getGlobal = () => {return(gDosage)} 
 
-export { gDosage, gDosages, gGraphs, gEspeces, gGraphMenu, getGlobal, gLab }
+export { gDosage, gGraphs, gEspeces, gGraphMenu, gLab, getGlobal }

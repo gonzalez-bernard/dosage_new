@@ -1,15 +1,16 @@
 import * as ui from "./ui/html_cts.js";
 
-import { gDosages, gGraphs, gGraphMenu } from "../environnement/globals.js";
+import { gDosage, gGraphs, gGraphMenu } from "../environnement/globals.js";
 import { getEltID } from "../modules/utils/html.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { cts } from "../environnement/constantes.js";
-import {Dialog} from "../modules/dom.js"
-import {ListMenu} from "../modules/listmenu.js"
+import { Dialog } from "../modules/dom.js"
+import { ListMenu } from "../modules/listmenu.js"
 
-import {toggleDisplayGraph, removeGraphMenu} from "./dosage.graph.js"
+import { toggleDisplayGraph, removeGraphMenu, updGraphMenuIcon } from "./dosage.graph.js"
 import { dgForm } from "./ui/html.js";
 import { DOS_TOOLTIP_OEIL, DOS_TOOLTIP_TRASH } from "./ui/lang_fr.js";
+import { isEmpty } from "../modules/utils/object.js";
 
 
 /** Action à faire en cas de fermeture du dialogue "dspErrorMessage"
@@ -38,7 +39,6 @@ function displayEspece() {
  * @file dosage.ui.js
  */
 function setButtonState(clear = true) {
-    const G = gDosages.getCurrentDosage()
     const C = gGraphs.currentChart
 
     let bts = [ui.DOS_BT_COTH, ui.DOS_BT_DERIVEE, ui.DOS_BT_TAN1, ui.DOS_BT_TAN2, ui.DOS_BT_PERP, ui.DOS_BT_SAVE_GRAPH]
@@ -52,18 +52,23 @@ function setButtonState(clear = true) {
     }
 
     // activation de graphe théorique
-    getEltID(ui.DOS_BT_COTH).prop("disabled", G.getState('APPAREIL_ON') != 1)
+    getEltID(ui.DOS_BT_COTH).prop("disabled", gDosage.getState('APPAREIL_ACTIF') != 1)
 
 
-    // on active tan2 si tan1 existe ou tan2 déjà tracée
-    if (_this.indiceTangentes[0] != 0 || _this.indiceTangentes[1] != 0)
+    // on active ou désactive tan2 selon tan1
+    if (gDosage.getState('TANGENTE') == 1)
         getEltID(ui.DOS_BT_TAN2).prop("disabled", false);
+    else
+        getEltID(ui.DOS_BT_TAN2).prop("disabled", true);
 
     // on active perp si tan1 et tan2 tracées
-    if (_this.indiceTangentes[0] != 0 && _this.indiceTangentes[1] != 0)
+    if (gDosage.getState('TANGENTE') == 3)
         getEltID(ui.DOS_BT_PERP).prop("disabled", false);
+    else
+        getEltID(ui.DOS_BT_PERP).prop("disabled", true);
 
-    if (G.titrant.vol > cts.DOS_TITRANT_MIN) {
+    // on active les boutons si volume dosage suffisant
+    if (gDosage.titrant.vol > cts.DOS_TITRANT_MIN) {
         getEltID(ui.DOS_BT_DERIVEE).prop("disabled", false);
         getEltID(ui.DOS_BT_TAN1).prop("disabled", false);
         getEltID(ui.DOS_BT_SAVE_GRAPH).prop("disabled", false)
@@ -74,8 +79,8 @@ function setButtonState(clear = true) {
  * 
  * @file dosage.ui.js
  */
-function closeDialog(){
-    gGraphMenu.dialog.hide()
+function closeDialog() {
+    gGraphMenu.hideDialog()
 }
 
 /** Actions lors de la validation du dialogue ajout d'un graphe
@@ -84,14 +89,21 @@ function closeDialog(){
  * On ferme le dialogue
  * @file dialog.ui.js
  */
-function saveDialog(){
-    // @ts-ignore
+function saveDialog() {
     // Ajoute un item du graphe courant à la liste des graphes
-    addGraphMenuItem($("#graphName").val(), gGraphs.idCurrentChart)
+    const name = $("#graphName").val() || ''
+    addGraphMenuItem(name.toString(), gGraphs.idCurrentChart)
     // Affiche le menu
-    gGraphMenu.menu.displayMenu(gGraphMenu.idRootMenu, true)
+    gGraphMenu.displayMenu(gGraphMenu.idRootMenu, true)
     // ferme le dialogue
     closeDialog();
+
+    // inscrit le nom choisi dans la structure charts
+    const o = gGraphs.charts.get(gGraphs.idCurrentChart)
+    o.name = name
+    gGraphs.charts.set(gGraphs.idCurrentChart, o)
+
+    gDosage.setState('DOSAGE_ON', 0)
 }
 
 /** Crée un object Dialog pour saisie du nom de la courbe
@@ -99,12 +111,12 @@ function saveDialog(){
  * @returns {Dialog}
  * @file dialog.ui.js
  */
-function initDialog(){
+function initDialog() {
     const dgPrm = {
         autoOpen: false,
         height: 'auto',
         width: 'auto',
-        position: {my: 'center', at: "center"},
+        position: { my: 'center', at: "center" },
         modal: true,
         title: "Nom de la courbe",
         classes: {
@@ -136,61 +148,74 @@ function initDialog(){
  * 
  * @file dialog.ui.js
  */
- function initGraphMenu(){
-    const prop = {
-        label: gGraphMenu.label, 
-        idBtMenu:gGraphMenu.idButton, 
-        idMenu: gGraphMenu.idMenu, 
-        idRootMenu:gGraphMenu.idRootMenu, 
-        width: gGraphMenu.width, 
-        enabled: false
+function initGraphMenu() {
+
+    // si menu non défini on le crée
+    if (isEmpty(gGraphMenu.menu)) {
+        const prop = {
+            label: gGraphMenu.label,
+            idBtMenu: gGraphMenu.idButton,
+            idMenu: gGraphMenu.idMenu,
+            idRootMenu: gGraphMenu.idRootMenu,
+            width: gGraphMenu.width,
+            enabled: false
+        }
+
+        const rows = []
+
+        /** @type {ListMenu}*/
+        gGraphMenu.menu = new ListMenu(prop, rows)
+        gGraphMenu.createMenu()
+        gGraphMenu.displayMenu("#" + gGraphMenu.idMenu)
+        gGraphMenu.dialog = initDialog()
+    } else {
+        // affiche menu déroulant si il y a des items suvegardés
+        if (gGraphMenu.getRows().length > 0) {
+            // Affiche le menu
+            gGraphMenu.displayMenu(gGraphMenu.idRootMenu, true)
+
+            updGraphMenuIcon()
+        }
     }
-
-    const rows = []
-
-    gGraphMenu.menu = new ListMenu(prop, rows)
-    gGraphMenu.menu.createMenu()
-    gGraphMenu.menu.displayMenu("#"+gGraphMenu.idMenu)
-    gGraphMenu.dialog = initDialog()
 }
 
 /** Ajoute une courbe à la liste
  * La fonction vérifie que l'idGraph est unique
- * @param {string} label nom de la courbe
+ * @param {string|undefined} label nom de la courbe
  * @param {string} idGraph ID de la courbe
  * @file dialog.ui.js
  */
-function addGraphMenuItem(label, idGraph){
-    if (gGraphMenu.menu.getPosByID(idGraph) == -1){
+function addGraphMenuItem(label, idGraph) {
+    if (gGraphMenu.getRowIndexByID(idGraph) == -1) {
         const row = []
-        row.push({type:'label', content: [idGraph], width:0, visible:false})
-        row.push({type:'label', content: [label], class:'text-overflow'})
+        row.push({ type: 'label', content: [idGraph], width: 0, visible: false })
+        row.push({ type: 'label', content: [label], class: 'text-overflow' })
         row.push({
-        type:'img', 
-        content:[gGraphMenu.imgVisible, gGraphMenu.imgNoVisible],
-        idx: 0, 
-        action: toggleDisplayGraph, 
-        id: 'imgVisible_'+gGraphMenu.menu.getRows().length, 
-        width: 2, 
-        tooltip:DOS_TOOLTIP_OEIL
+            type: 'img',
+            content: [gGraphMenu.imgVisible, gGraphMenu.imgNoVisible],
+            idx: 0,
+            action: toggleDisplayGraph,
+            id: 'imgVisible_' + gGraphMenu.getRows().length,
+            width: 2,
+            tooltip: DOS_TOOLTIP_OEIL
 
-    })
+        })
         row.push({
-        type:'img', 
-        content: [gGraphMenu.imgTrash], 
-        action: removeGraphMenu, 
-        id: 'imgTrash_'+gGraphMenu.menu.getRows().length, 
-        width:2, 
-        tooltip: DOS_TOOLTIP_TRASH
-    })
-        gGraphMenu.menu.addItem(row, true)
+            type: 'img',
+            content: [gGraphMenu.imgTrash],
+            action: removeGraphMenu,
+            id: 'imgTrash_' + gGraphMenu.menu.getRows().length,
+            width: 2,
+            tooltip: DOS_TOOLTIP_TRASH
+        })
+        gGraphMenu.addItem(row, true)
     }
 }
 
 /** Active ou désactive l'affichage de menu graphe
  * 
  */
-function dspGraphMenu(state = false){
+function dspGraphMenu(state = false) {
     if (state)
         $("#" + gGraphMenu.idButton).show()
     else
@@ -202,15 +227,15 @@ function dspGraphMenu(state = false){
  * @param {boolean} visible true si boutons visibles
  * @file dialog.ui.js
  */
-function setButtonVisible(visible = true){
+function setButtonVisible(visible = true) {
     const bts = [ui.DOS_BT_COTH, ui.DOS_BT_DERIVEE, ui.DOS_BT_PERP, ui.DOS_BT_TAN1, ui.DOS_BT_TAN2]
     if (visible)
         bts.forEach((elt) => {
-            getEltID(elt).css('visibility','visible') 
+            getEltID(elt).css('visibility', 'visible')
         })
     else
         bts.forEach((elt) => {
-            getEltID(elt).css('visibility','hidden')
+            getEltID(elt).css('visibility', 'hidden')
         })
 }
 
@@ -222,14 +247,6 @@ function setButtonVisible(visible = true){
 * @file dosage.ui.js
 */
 function setButtonClass(bt, state = 1) {
-    /*
-      let bts = [ui.DOS_BT_TAN1, ui.DOS_BT_TAN2, ui.DOS_BT_COTH, ui.DOS_BT_PERP, ui.DOS_BT_DERIVEE]
-    
-    for (let e in bts) {
-        if (bts[e] != bt)
-            getEltID(bts[e]).removeClass("active-button");
-    }
-    */
 
     if (bt == "") return
     if (state == 0)

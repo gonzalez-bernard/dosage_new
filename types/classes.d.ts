@@ -3,13 +3,6 @@ import { tBECHER, tBURETTE, tCanvasImage, tColorProduit, tDataDPH, tDataPH, tEqu
 import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil, iCanvasTimeline, iCanvasLoop, iCanvasMouse} from "./interfaces"
 
 
-declare class Dosages {
-    saveGraphs: boolean;
-    idCurrentDosage: number;
-    dosages: Dosage[];
-    getCurrentDosage: () => Dosage
-}
-
 declare class Dosage {
     type: number;
     equation: tEquation;
@@ -45,7 +38,7 @@ declare class Dosage {
     hasReactif: boolean;
     hasExc: number;
     label: string;
-    name: string
+    id: number
     setState(name: string, action: number, value?: any): void;
     getState(name: string): number;
     get(name: string): unknown;
@@ -116,10 +109,11 @@ declare class Appareil implements iAppareil {
     offsetX: number;
     offsetY: number;
     image: string;
-    mesure: number
+    mesure: number;
+    type: number;
     value: iCanvasText;
     fond: iCanvasImage;
-    dispose: (becher: Becher) => void;
+    dispose: (becher: Becher, etat: number) => void;
     setText: (txt: string) => void;
 }
 
@@ -231,6 +225,7 @@ declare class Graphx extends ChartX {
     indiceTangentes: number[];
     type: number;
     tangente_point: number
+    tangente_coords: tPoint[][] // coordonnées des tangentes
     createChart: (type: keyof ChartTypeRegistry, dataset: unknown, options?: unknown) => void
     setType: (type: number) => void;
     setOptions: (G: Dosage) => void;
@@ -256,10 +251,9 @@ declare class Graphx extends ChartX {
 }
 
 declare class Graphs{
-    lstID: string[]
     charts: tGraphID[]
-    activeChart: string;
-    currentGraph: Graphx
+    currentChart: Graphx
+    idCurrentChart: string; // ID de la courbe 
 }
 
 declare class EventForm{
@@ -294,4 +288,4 @@ declare class Input extends Element{
     _feedback: object
 }
 
-export {Becher, Dosage, Dosages, Especes, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, Graphs, EventForm, Element, Input, Label, Form, Tooltip, Lab}
+export {Becher, Dosage, Especes, Canvas, Phmetre, Potentiometre, Conductimetre, Burette, Flacon, Graphx, Graphs, EventForm, Element, Input, Label, Form, Tooltip, Lab}

@@ -1,49 +1,17 @@
 import {cts} from"../environnement/constantes.js";
 import * as ui from "./html_cts.js";
-import {gDosages} from "../environnement/globals.js"
+import {gDosage} from "../environnement/globals.js"
 import { getValueID, getValue, getEltID } from "../modules/utils/html.js";
 import { uString } from "../modules/utils/string.js";
 import { mathArrondir } from "../modules/utils/number.js";
-import { MNU_DOSAGE } from "../dosage/ui/html_cts.js";
 import { getData } from "../data.js"
-import { initDosage} from "../dosage/dosage.js"
 import { parseObjectType } from "../modules/utils/type.js";
-//import { Canvas } from "../../types/classes";
 
 
 /**
  * @typedef { import ( '../../types/classes' ).Dosage } Dosage 
  * @typedef { import ( '../../types/classes' ).Especes } Especes 
  */
-
-/** Validation des espèces
- *
- * @param {Especes} E
- * @returns void
- * @file especes.data
- * @external especes.events
- */
-function eventValidation(dosage, E ) {
-    
-    // type de dosage (acide/base ou autres)
-    dosage.type = getValue( "input[name='choice_type']:checked", { type: "int" } );
-
-    // initialise espèces et calcule les différents points (volume, pH,...)
-    if ( dosage.type == cts.TYPE_ACIDEBASE ) {
-        setDosageAcValues( dosage, E );
-        dosage.title = "Dosage " + dosage.titre.nomc + " par " + dosage.titrant.nomc;
-    } else {
-        setDosageOxValues( dosage, E );
-        dosage.title = new uString( dosage.label ).convertExpoIndice().html;
-    }
-    initDosage(dosage)
-
-    // indique que les espèces ont été enregistrées
-    dosage.setState( 'ESPECES_INIT', 1 );
-
-    // active l'onglet dosage
-    getEltID( MNU_DOSAGE ).removeClass( "disabled disabledTab" );
-}
 
 /** initialise les valeurs oxydo
  *
@@ -171,4 +139,4 @@ async function getEspeces() {
 }
 
 
-export { getEspeces, setDosageAcValues, setDosageOxValues, getCharge, getPH, eventValidation };
+export { getEspeces, setDosageAcValues, setDosageOxValues, getCharge, getPH};

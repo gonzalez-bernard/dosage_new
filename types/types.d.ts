@@ -3,7 +3,7 @@ import {Becher, Phmetre, Conductimetre, Potentiometre, Burette, Flacon, Canvas, 
 
 type tEtat = {
   ESPECES_INIT: number,
-  APPAREIL_ON: number,
+  APPAREIL_ACTIF: number,
   INDIC_ON: number,
   GRAPH_TYPE: number
   DATA_INIT: number
@@ -213,7 +213,7 @@ type tLab = {
 }
 
 type tKeyboard = {
-  getKeysDown: () => number
+  getKeysDown: () => [number]
 }
 
 type tGlobalCharts = {
@@ -332,11 +332,10 @@ type tDataset = {
 }
 
 type tGraphID = {
-  id: string      // ID du graphe du type PH_0
-  dataset: tDataset  // structure
+  data: []  
   visible: boolean  // indique si courbe visible
   save: boolean     // indique si courbe à mémoriser
-  numDosage: number    // indice du dosage dans tableau dosages.items[]
+  type: number    // 1 = ph, 2 = cd, 3 = pt
 }
 
 type tEvent = {}

@@ -237,6 +237,20 @@ class uArray extends Array {
         return this.val.map(e => e.toString())
     }
 
+    /** Extrait les valeurs correspondante à la clé
+     * 
+     * @param {string} key clé
+     * @return [] tableau avec les valeurs de array correspondante à la clé
+     */
+    extract(key){
+        const l = this.val.length;
+        const tab = []
+        for(let i=0; i<l; i++){
+            tab.push(this.val[i][key])
+        }
+        return tab
+    }
+
 }
 
 

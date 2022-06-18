@@ -1,12 +1,9 @@
-import {Appareil} from "./appareil.js"
-import {cts} from"../../environnement/constantes.js";
+import { Appareil } from "./appareil.js"
 import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
 import { CONDUCTIMETRE } from "./interface.js";
-import { showGraph, manageGraph, displayGraphs} from "../dosage.graph.js"
-import { updateAppareil } from "./appareil.js";
-import { setButtonState, setButtonVisible } from "../dosage.ui.js";
+import { dbClicHandler } from "./appareil.js";
 
 /**
  * @typedef {import ('../../../types/classes').Canvas} Canvas
@@ -21,19 +18,19 @@ import { setButtonState, setButtonVisible } from "../dosage.ui.js";
  * @class Conductimetre
  * 
 */
-class Conductimetre extends Appareil{
+class Conductimetre extends Appareil {
 
-  /**
-   * Construit objet conductimetre
-   * @param {tAPPAREIL} app structure
-   * @param {Canvas} canvas 
-   * @param {string} unite 
-   */
-  constructor(app, canvas, unite){
-    super(app, canvas,  unite)
+    /**
+     * Construit objet conductimetre
+     * @param {tAPPAREIL} app structure
+     * @param {Canvas} canvas 
+     * @param {string} unite 
+     */
+    constructor(app, canvas, unite) {
+        super(app, canvas, unite, 2)
 
-    this.fond.addChild(this.value)
-  }
+        this.fond.addChild(this.value)
+    }
 }
 
 
@@ -82,21 +79,8 @@ function initConductimetre(G, lab) {
     /* Installe le conductimetre ou le positionne à sa place.
     Gère la création et l'affichage de la courbe */
     conductimetre.fond.bind("dblclick", function () {
-        if (updateAppareil(conductimetre, lab.becher)) {
-            
-            // Change l'état d'affichage du graphe
-            G.setState('GRAPH_TYPE', -1, G.getState('APPAREIL_ON'))
-
-            // met à jour le graphe
-            manageGraph(G.getState('GRAPH_TYPE'), -1)
-            displayGraphs()
-            showGraph()
-            
-            // actualise les boutons
-            setButtonState(false)
-            setButtonVisible(false)
-        }
-    });
+        return dbClicHandler(G, conductimetre, lab.becher, 2)
+    })
 
     return conductimetre;
 }

@@ -1,4 +1,4 @@
-@startuml manageGraph
+@startuml graphManager
 start
 fork
   :event dbClic sur appareil

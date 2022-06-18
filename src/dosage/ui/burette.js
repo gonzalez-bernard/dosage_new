@@ -14,10 +14,10 @@ import { vidage } from "../dosage.js";
 import { isNumeric, isColor, isObject } from "../../modules/utils/type.js"
 import { ERROR_OBJ, ERROR_COLOR, ERROR_NUM } from "../../modules/utils/errors.js"
 import { Dosage } from "../../dosage/classes/dosage.js";
+import { gDosage } from "../../environnement/globals.js";
 
 /**
  * @typedef {import ('../../../types/classes').Canvas} Canvas
- * @typedef {import ('../../../types/classes').Dosages} Dosages
  * @typedef {import ('../../../types/classes').Lab} Lab 
  * @typedef {import ('../../../types/classes').Becher} Becher
  * @typedef {import ('../../../types/types').tBURETTE} tBURETTE
@@ -303,7 +303,7 @@ function initBurette(dosage, lab) {
   burette.burette_f.bind("mousedown", function () {
     if (dosage.getState('ESPECES_INIT')) {
       // @ts-ignore
-      vidage(lab, DS);
+      vidage(lab, gDosage);
     }
   });
 

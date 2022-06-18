@@ -146,12 +146,12 @@ function dspContextInfo( type, arg = [undefined, undefined] ) {
             info = DO_INFO_INIT;
             break
         case "pente":
-            p1 = arg[ 0 ] == undefined ? "--" : arg[ 0 ].toFixed( 2 )
+            p1 = arg[ 1 ] == undefined ? "--" : arg[ 1 ].toFixed( 2 )
             info = DO_INFO_P1 + p1;
             break
         case "pentes":
-            p1 = arg[ 0 ] == undefined ? "--" : arg[ 0 ].toFixed( 2 )
-            p2 = arg[ 1 ] == undefined ? "--" : arg[ 1 ].toFixed( 2 )
+            p1 = arg[ 1 ] == undefined ? "--" : arg[ 1 ].toFixed( 2 )
+            p2 = arg[ 2 ] == undefined ? "--" : arg[ 2 ].toFixed( 2 )
             info = DO_INFO_P1 + p1 + DO_INFO_P2 + p2;
             break
         case "err_pentes":

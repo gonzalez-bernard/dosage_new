@@ -1,14 +1,12 @@
 
 
-import {Appareil} from "./appareil.js"
+import { Appareil } from "./appareil.js"
 import { PHMETRE } from "./interface.js"
-import {cts} from "../../environnement/constantes.js";
+import { cts } from "../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import { isObject } from "../../modules/utils/type.js";
 import * as e from "../../modules/utils/errors.js";
-import {showGraph, displayGraphs, manageGraph} from "../dosage.graph.js"
-import { setButtonState, setButtonVisible } from "../dosage.ui.js";
-import {updateAppareil} from "./appareil.js"
+import { dbClicHandler } from "./appareil.js"
 
 /**
  * @typedef {import ('../../../types/types').tAPPAREIL} tAPPAREIL
@@ -20,25 +18,24 @@ import {updateAppareil} from "./appareil.js"
  *
  * @class Phmetre
 */
-class Phmetre extends Appareil{
+class Phmetre extends Appareil {
   /**
    * 
    * @param {tAPPAREIL} app 
    * @param {Canvas} canvas 
    * @param {string} unite 
    */
-  constructor(app, canvas, unite){
-
-    super(app, canvas, unite)
+  constructor(app, canvas, unite) {
+    super(app, canvas, unite, 1)
 
     /** @type {iCanvasText} */
     this.value = canvas.display.text({
-      x: 5*app.w/6 -20 ,
-      y: app.h/2+6,
-      size: app.w/10,
+      x: 5 * app.w / 6 - 20,
+      y: app.h / 2 + 6,
+      size: app.w / 10,
       text: app.value,
       fill: "#0",
-      origin: {x:"center",y:"center"},
+      origin: { x: "center", y: "center" },
     })
 
     this.fond.addChild(this.value)
@@ -73,58 +70,39 @@ class Phmetre extends Appareil{
  * @public
  * @file Phmetre.js
  */
-function initPhmetre( G, lab ) {
-    if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
+function initPhmetre(G, lab) {
+  if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
 
-    // Crée phmetre
-    var phmetre = new Phmetre( PHMETRE, lab.canvas, "" );
-    lab.canvas.addChild( phmetre.fond );
+  // Crée phmetre
+  var phmetre = new Phmetre(PHMETRE, lab.canvas, "");
+  lab.canvas.addChild(phmetre.fond);
 
-    // survol pHmetre
-    phmetre.fond.bind( "mouseenter", function( ) {
-        if (G.type & cts.TYPE_ACIDEBASE && G.mesure & 1){
-            lab.canvas.mouse.cursor( "pointer" );
-            lab.tooltip.dspText( txt.DO_PHMETRE );
-        } else {
-            lab.canvas.mouse.cursor( "not-allowed" );
-        }
-    });
+  // survol pHmetre
+  phmetre.fond.bind("mouseenter", function () {
+    if (G.type & cts.TYPE_ACIDEBASE && G.mesure & 1) {
+      lab.canvas.mouse.cursor("pointer");
+      lab.tooltip.dspText(txt.DO_PHMETRE);
+    } else {
+      lab.canvas.mouse.cursor("not-allowed");
+    }
+  });
 
-    // Quitte survol pHmetre
-    phmetre.fond.bind( "mouseleave", function( ) {
-        lab.canvas.mouse.cursor( "default" );
-        if (G.type & cts.TYPE_ACIDEBASE && G.mesure & 1){
-            lab.tooltip.dspText();
-        } 
-    } );
+  // Quitte survol pHmetre
+  phmetre.fond.bind("mouseleave", function () {
+    lab.canvas.mouse.cursor("default");
+    if (G.type & cts.TYPE_ACIDEBASE && G.mesure & 1) {
+      lab.tooltip.dspText();
+    }
+  });
 
-    /* Installe le pHmètre ou le positionne à sa place.
-      Gère la création et l'affichage de la courbe */
-    phmetre.fond.bind( "dblclick", function(e) {
+  /* Installe le pHmètre ou le positionne à sa place.
+    Gère la création et l'affichage de la courbe */
+  phmetre.fond.bind("dblclick", function () {
+    return dbClicHandler(G, phmetre, lab.becher)
+  })
 
-      lab.phmetre.etat = 1 - lab.phmetre.etat
-      
-      if (updateAppareil(phmetre, lab.becher)) {
-          
-        // actualise etat
-        G.setState('APPAREIL_TYPE',1)
-        
-        
-        // gestion du graphe
-        manageGraph(G.getState('APPAREIL_TYPE'), -1)
 
-        displayGraphs()
-        showGraph()
-            
-        // actualise les boutons
-        setButtonVisible(true)
-        setButtonState(true)
-
-        return false
-      }
-    })
-
-    return phmetre
+  return phmetre
 }
 
 export { initPhmetre, Phmetre }

@@ -78,7 +78,7 @@ function initDataInfo( G ) {
         latex: true,
     }
 
-    if (G.getSate('ESPECES_INIT')){
+    if (G.getState('ESPECES_INIT')){
         initDataInfo.idcontainer = DOS_DIV_INFO
         initDataInfo.idmodal = "id_dos_modal"
     }

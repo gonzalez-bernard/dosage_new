@@ -9,12 +9,16 @@
 import { isBoolean, isNumeric, isUndefined } from "./type.js";
 import * as e from "./errors.js"
 
-/** Arrondit un nombre en tenant compte du nombre de CS
+/** Arrondit un nombre en tenant compte du nombre de chiffres
  * 
  * Si la partie entière a au moins autant de chiffres que precision on arrondit à l'entier
  * Sinon on garde un nombre de décimal égal à nombre de digits - precision
+ * - M.roundDecimal(0,043,3) -> 0,04
+ * - M.roundDecimal(0,045,3) -> 0,05
+ * - M.roundDecimal(12,43,3) -> 12,4
+ * - M.roundDecimal(12,43,5) -> 12,430
  * @param {number} nombre : nombre à arrondir
- * @param {number} precision : nombre de chiffres significatifs
+ * @param {number} precision : nombre de chiffres total
  * @return {string}
  * @file 'modules/utils/number.js'
  */
@@ -31,8 +35,10 @@ var mathArrondir = function (nombre, precision) {
         return parseFloat(_nombre).toFixed(precision - nInteger)
 }
 
-/** Arrondit un nombre avec le nombre de décimale
- * 
+/** Arrondit un nombre avec le nombre de décimales
+ *  - ex : roundDecimal(0,0564,2) -> 0,06 
+ *  - roundDecimal(0,0564,3) -> 0,056 
+ *  - roundDecimal(0,0365,3) -> 0,037 
  * @param {number} nombre 
  * @param {number} precision
  * @return {number} nombre
@@ -67,6 +73,32 @@ function getDecimal(valeur) {
     return offset
 }
 
+/** Arrondit un nombre en tenant compte du nombre de chiffres significatifs
+ * - M.roundPrecision(0,0565,4) -> 0,05650
+ * - M.roundPrecision(0,0565,2) -> 0,057
+ * - M.roundPrecision(12,345,4) -> 12,35
+ * 
+ * @param {number} valeur nombre à modifier
+ * @param {number} precision nombre de chiffres significatifs
+ * @returns 
+ */
+function roundPrecision(valeur, precision){
+    const offset = getDecimal(valeur)
+    return mathArrondir(valeur, precision + offset)
+}
+
+/** Arrondit au dixième supérieur
+ * - ex: 0,23 sera arrondi à 0,3 - 2,6 -> 3,0
+ * - On peut utiliser cette fonction pour calculer l'ordonnée maximum pratique pour graduer
+ * @param {number} valeur valeur à arrondir 
+ * @returns nombre arrondi 
+ */
+function around(valeur){
+    let offset = getDecimal(valeur)
+    let v = valeur*Math.pow(10, offset)
+    return Math.ceil(v)*Math.pow(10, -offset)
+}
+
 /** Détecte si une valeur est comprise dans un intervalle
  * 
  * @param {number} value valeur à tester
@@ -87,4 +119,4 @@ const isInInterval = function (value, min, max, strict = true) {
         return value >= min && value <= max ? true : false
 }
 
-export { mathArrondir, roundDecimal, getDecimal, isInInterval }
+export { mathArrondir, roundDecimal, getDecimal, isInInterval, around, roundPrecision }

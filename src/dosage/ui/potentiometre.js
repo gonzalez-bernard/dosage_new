@@ -7,13 +7,13 @@
  * ***export initPotentiometre***
 */
 
-import {Appareil} from "./appareil.js"
+import { Appareil, dbClicHandler } from "./appareil.js"
 import { POTENTIOMETRE } from "./interface.js";
-import {cts} from"../../environnement/constantes.js";
+import { cts } from "../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import * as e from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
-import { showGraph, manageGraph, displayGraphs    } from "../dosage.graph.js"
+import { showGraph, graphManager, displayGraphs } from "../dosage.graph.js"
 import { updateAppareil } from "./appareil.js";
 import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
@@ -26,36 +26,36 @@ import { setButtonState, setButtonVisible } from "../dosage.ui.js";
  * 
  */
 
- /**  Création potentiomètre
-  *
-  * @class potentiometre
-  * 
- */
- class Potentiometre extends Appareil{
-   
-   /**
-    * 
-    * @param {tAPPAREIL} app 
-    * @param {Canvas} canvas 
-    * @param {string} unite 
-    */
-   constructor(app, canvas, unite){
-     super(app, canvas, unite)
- 
-     /** @type {iCanvasText} */
-     this.value = canvas.display.text({
-       x: app.w/2+10,
-       y: app.h/2-23,
-       size: app.w/8,
-       text: app.value,
-       fill: "#0",
-       origin: {x:"center",y:"center"}
-     })
- 
-     this.fond.addChild(this.value)
-   }
- }
- 
+/**  Création potentiomètre
+ *
+ * @class potentiometre
+ * 
+*/
+class Potentiometre extends Appareil {
+
+  /**
+   * 
+   * @param {tAPPAREIL} app 
+   * @param {Canvas} canvas 
+   * @param {string} unite 
+   */
+  constructor(app, canvas, unite) {
+    super(app, canvas, unite, 2)
+
+    /** @type {iCanvasText} */
+    this.value = canvas.display.text({
+      x: app.w / 2 + 10,
+      y: app.h / 2 - 23,
+      size: app.w / 8,
+      text: app.value,
+      fill: "#0",
+      origin: { x: "center", y: "center" }
+    })
+
+    this.fond.addChild(this.value)
+  }
+}
+
 
 /** Crée le potentiomètre
  *
@@ -68,47 +68,34 @@ import { setButtonState, setButtonVisible } from "../dosage.ui.js";
  * @file initPotentiometre.js
  */
 function initPotentiometre(G, lab) {
-    if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
+  if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
 
-    // Crée potentiometre
-    var potentiometre = new Potentiometre(POTENTIOMETRE, lab.canvas, "V");
-    lab.canvas.addChild(potentiometre.fond);
+  // Crée potentiometre
+  var potentiometre = new Potentiometre(POTENTIOMETRE, lab.canvas, "V");
+  lab.canvas.addChild(potentiometre.fond);
 
-    // survol potentiometre
-    potentiometre.fond.bind("mouseenter", function () {
-        if (G.type == cts.TYPE_OXYDO && (G.mesure & 4)) {
-            lab.canvas.mouse.cursor("pointer");
-            lab.tooltip.dspText(txt.DO_POTENTIOMETRE);
-        } else
-            lab.canvas.mouse.cursor("not-allowed");
-    });
+  // survol potentiometre
+  potentiometre.fond.bind("mouseenter", function () {
+    if (G.type == cts.TYPE_OXYDO && (G.mesure & 4)) {
+      lab.canvas.mouse.cursor("pointer");
+      lab.tooltip.dspText(txt.DO_POTENTIOMETRE);
+    } else
+      lab.canvas.mouse.cursor("not-allowed");
+  });
 
-    // Quitte survol potentiometre
-    potentiometre.fond.bind("mouseleave", function () {
-        lab.canvas.mouse.cursor("default");
-        lab.tooltip.dspText();
-    });
+  // Quitte survol potentiometre
+  potentiometre.fond.bind("mouseleave", function () {
+    lab.canvas.mouse.cursor("default");
+    lab.tooltip.dspText();
+  });
 
-    /* Installe le potentiometre ou le positionne à sa place.
-    Gère la création et l'affichage de la courbe */
-    potentiometre.fond.bind("dblclick", function () {
-        
-        if (updateAppareil(potentiometre, lab.becher)) {
-            
-            G.setState('GRAPH_TYPE', -1, G.getState('APPAREIL_ON'))
+  /* Installe le potentiometre ou le positionne à sa place.
+  Gère la création et l'affichage de la courbe */
+  potentiometre.fond.bind("dblclick", function () {
+    return dbClicHandler(G, potentiometre, lab.becher, 3)
+  })
 
-            // met à jour le graphe
-            manageGraph(G.getState('GRAPH_TYPE'), -1)
-            displayGraphs()
-            showGraph();
-            
-            // actualise les boutons
-            setButtonState(false)
-            setButtonVisible(false)
-        }
-    })
-
-    return potentiometre;
+  return potentiometre;
 }
 
 export { initPotentiometre };

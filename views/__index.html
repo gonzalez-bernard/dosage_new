@@ -12,9 +12,9 @@
     <link rel="icon" type="image/png" href="./static/resources/img/favicon.png">
     <link rel="stylesheet" type="text/css" href="static/bootstrap/dist/css/bootstrap.min.css" />
     <script type="text/javascript" src="node/jquery/dist/jquery.js"></script>
-    <script type="text/javascript" src="node/chart.js/dist/chart.js"></script>
-    
-    <script type="module" src="/tests/test_graph.js"></script>
+    <!-- <script type="text/javascript" src="node/apexcharts/dist/apexcharts.js"></script>
+    <script type="module" src="/tests/apex.js"></script> -->
+    <script type="text/javascript" src="node/highcharts/highcharts.js"></script>
     
     
 </meta>
@@ -22,12 +22,14 @@
 
 <body>
     <div class="chart-container" style="position: relative;">
-        <canvas id="container" width='600' height='400'></canvas>
+        <div id="chart" width='600' height='400'></div>
     </div>
     <script src="node/socket.io/client-dist/socket.io.js"></script>
     <script>
         var socket = io()
     </script>
+
+    <script type="module" src="/tests/highcharts.js"></script>
     
 </body>
 </html>

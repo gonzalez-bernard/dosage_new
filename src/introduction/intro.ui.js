@@ -9,7 +9,7 @@ import { getEltID } from "../modules/utils/html.js"
 import * as ui from "./html_cts.js"
 import { ESPECES, MNU_ESPECES } from "../especes/html_cts.js"
 import { initEspeces } from "../especes/interface.js"
-import { gDosages } from "../environnement/globals.js"
+import { gDosage } from "../environnement/globals.js"
 import { MNU_PROBLEM } from "../problem/html_cts.js"
 
 
@@ -23,7 +23,7 @@ var run = function() {
     getEltID( ESPECES ).addClass( "show active" )
     getEltID( MNU_ESPECES ).removeClass( "disabled disabledTab" )
     getEltID( MNU_PROBLEM ).removeClass( "disabled disabledTab" )
-    initEspeces( gDosages.getCurrentDosage() )
+    initEspeces( gDosage)
 }
 
 getEltID( ui.IN_BT_RUN ).on( "click", run )

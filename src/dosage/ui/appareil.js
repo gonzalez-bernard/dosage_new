@@ -8,12 +8,13 @@
  * ***export display***
  */
 
-import { gDosages } from "../../environnement/globals.js"
-import { cts } from "../../environnement/constantes.js";
+import { gDosage, gGraphs } from "../../environnement/globals.js"
 import { ERROR_OBJ, ERROR_NUM, ERROR_STR } from "../../modules/utils/errors.js"
 import { isNumeric, isObject, isString } from "../../modules/utils/type.js"
 import { getEltID } from "../../modules/utils/html.js"
 import { DOS_CHART, DOS_DIV_GRAPH } from "./html_cts.js";
+import { displayGraphs, graphManager, showGraph } from "../dosage.graph.js";
+import { setButtonState, setButtonVisible } from "../dosage.ui.js";
 
 /**
 * @typedef {import("../../../types/classes").Potentiometre} Potentiometre
@@ -21,10 +22,11 @@ import { DOS_CHART, DOS_DIV_GRAPH } from "./html_cts.js";
 * @typedef {import("../../../types/classes").Conductimetre} Conductimetre
 * @typedef {import("../../../types/classes").Becher} Becher
 * @typedef {import('../../../types/classes').Canvas} Canvas
-*  @typedef {import('../../../types/types').tAPPAREIL} tAPPAREIL
-*  @typedef {import('../../../types/types').tPoint} tPoint
-*  @typedef {import('../../../types/interfaces').iCanvasImage} iCanvasImage
-*  @typedef {import('../../../types/interfaces').iCanvasText} iCanvasText
+* @typedef {import('../../../types/types').tAPPAREIL} tAPPAREIL
+* @typedef {import('../../../types/types').tPoint} tPoint
+* @typedef {import('../../../types/interfaces').iCanvasImage} iCanvasImage
+* @typedef {import('../../../types/interfaces').iCanvasText} iCanvasText
+  @typedef {import("../../../types/classes").Dosage} Dosage
 */
 
 
@@ -40,18 +42,19 @@ class Appareil {
    * @param {Canvas} canvas 
    * @param {string} unite 
    */
-  constructor(app, canvas, unite) {
+  constructor(app, canvas, unite, type) {
 
     if (!isObject(app) || !isObject(canvas)) throw new TypeError(ERROR_OBJ)
     if (!isString(unite)) throw new TypeError(ERROR_STR)
-
-    this.G = gDosages.getCurrentDosage()
 
     /** @type {tAPPAREIL}  */
     this.app = app;
     this.canvas = canvas;
     /** @type {number} */
     this.mesure = 0
+
+    // indique le type d'appareil
+    this.type = type;
 
     /** indique si appareil actif (1) 
      * @type {number} 
@@ -98,16 +101,18 @@ class Appareil {
       fill: "#0",
       origin: { x: "center", y: "center" }
     })
+
   }
 
   /** Positionne l'appareil
    * 
-   * @param {Becher} becher 
+   * @param {Becher} becher
+   * @param {number} etat 0 : on inactive et 1 : on active  
    * 
    */
-  dispose(becher) {
+  dispose(becher, etat) {
 
-    if (this.etat == 1) {
+    if (etat == 1) {
       // On active le conductimètre et on désactive le pHmètre
       this.fond.x = becher.sbecher.x + becher.sbecher.w / 2 + this.offsetX
       this.fond.y = becher.sbecher.y - becher.sbecher.h + this.offsetY
@@ -130,6 +135,37 @@ class Appareil {
       this.value.text = val + " " + this.unite;
     }
   }
+
+}
+
+
+/** Gère l'ensemble des actions lors d'un double clic sur un appareil
+ * 
+ * @param {Dosage} dosage instance de Dosage
+ * @param {Appareil} app instance appareil 
+ * @param {Becher} becher instanec bécher 
+ * @returns 
+ */
+function dbClicHandler(dosage, app, becher) {
+
+  // actualise et positionne appareil
+  if (!updateAppareil(app, becher)) return false
+
+  // désactive dbClic
+  dosage.setState('APPAREIL_ON', 1 - app.etat)
+
+  // active ou déscative le dosage
+  dosage.setState('DOSAGE_ON', app.etat)
+
+  // gestion du graphe
+  graphManager(dosage.getState('APPAREIL_TYPE'), -1)
+  displayGraphs()
+  showGraph()
+  // actualise les boutons
+  setButtonVisible(true)
+  setButtonState(true)
+
+  return false
 }
 
 /** Affiche ou cache les graphes
@@ -151,25 +187,26 @@ function display(app) {
  * 
  * @param {Phmetre|Conductimetre|Potentiometre} app Objet décrivant l'appareil 
  * @param {Becher} becher 
+ * @param {number} [etat] indique si l'appareil est actif 0 (non), 1 (oui) 
  * @returns {boolean}
  */
-function updateAppareil(app, becher) {
-  const G = gDosages.getCurrentDosage()
-
-  // détecte le type d'appareil
-  let type = G.getState('APPAREIL_TYPE')
+function updateAppareil(app, becher, etat = 0) {
 
   // annule l'action si un autre appareil est branché
-  if (G.getState('GRAPH_TYPE') == (type + 1) % 3 || G.getState('GRAPH_TYPE') == (type + 2) % 3) return false
+  const type = gDosage.getState('GRAPH_TYPE')
+  if (type !== app.type && type !== 0) return false
 
   // annule si mesure impossible ou especes non définies
-  if (G.getState('ESPECES_INIT') == 0) return false
+  if (gDosage.getState('ESPECES_INIT') == 0) return false
 
   // change l'état de branchement de l'appareil
-  //G.setState(etats[type], -1)
+  app.etat = 1 - app.etat
 
   // Positionne l'appareil
-  setAppareil(app, becher)
+  _setAppareil(app, becher)
+
+  // actualise etat
+  gDosage.setState('APPAREIL_TYPE', app.type)
 
   return true
 
@@ -184,20 +221,18 @@ function updateAppareil(app, becher) {
   @public
   @file initPhmetre.js
 */
-function setAppareil(app, becher) {
-
-  const G = gDosages.getCurrentDosage()
+function _setAppareil(app, becher) {
 
   // Positionne le phmetre ou le remet en place
-  app.dispose(becher);
+  app.dispose(becher, app.etat);
 
   // actualise le texte
   let text = ""
-  if (app.constructor.name == 'Phmetre') text = app.etat == 1 ? G.sph : "- - -"
-  else if (app.constructor.name == 'Conductimetre') text = app.etat == 1 ? G.scond : "- - -"
-  else if (app.constructor.name == 'Potentiometre') text = app.etat == 1 ? G.spot : "- - -"
+  if (app.constructor.name == 'Phmetre') text = app.etat == 1 ? gDosage.sph : "- - -"
+  else if (app.constructor.name == 'Conductimetre') text = app.etat == 1 ? gDosage.scond : "- - -"
+  else if (app.constructor.name == 'Potentiometre') text = app.etat == 1 ? gDosage.spot : "- - -"
 
   app.setText(text);
 }
 
-export { Appareil, display, updateAppareil }
+export { Appareil, display, updateAppareil, dbClicHandler }

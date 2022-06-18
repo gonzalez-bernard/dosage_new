@@ -16,7 +16,7 @@ divs.container.addChild( elts.intro )
 
 // Menu
 
-
+/** @typedef{import("../modules/dom.js").List} */
 const menu = new List( [
     new Link( '#' ).setText( txt.H_UI ).setAction( 'onClick', "$('#detail').children().hide(); $('#" + ui.H_UI + "').toggle() " ),
     new Link( '#' ).setText( txt.H_AC ).setAction( 'onClick', "$('#detail').children().hide(); $('#" + ui.H_AC + "').toggle()" ),
