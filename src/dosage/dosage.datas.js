@@ -4,12 +4,11 @@
 */
 
 import { gGraphs, gDosage } from "../environnement/globals.js";
-import { cts, etats } from "../environnement/constantes.js";
+import { cts} from "../environnement/constantes.js";
 import { roundDecimal } from "../modules/utils/number.js";
 import { uArray } from "../modules/utils/array.js";
 import { getData } from "../data.js"
-import { updGraphCharts } from "./dosage.graph.js";
-
+ 
 /** @typedef {import('../../types/classes').Burette} Burette */
 
 /** Récupère les espèces à partir de Python
@@ -193,7 +192,7 @@ function resetMesures(all = true) {
         gDosage.pot = 0;
         gDosage.spot = "---";
         gDosage.vols = [];
-        gDosage.etat = etats
+        
 
         // réinitialisation partielle
     } else {

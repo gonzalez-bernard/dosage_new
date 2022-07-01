@@ -1,7 +1,7 @@
 import { copyDeep, hasKey, isEmpty, replace, updateItem } from "./utils/object.js"
-import * as e from "./utils/errors.js"
+import * as E from "./utils/errors.js"
 import { isObject, isString, isNumeric, isInteger, isDefined, isArray, isFunction } from "./utils/type.js"
-import { createObjectFromString} from "../modules/utils/object.js"
+import { createObjectFromString } from "../modules/utils/object.js"
 
 
 
@@ -16,7 +16,7 @@ class ChartY {
   PLOT_COLOR = 2
   AXES_RANGE = 3
   AXES_TICKS = 4
-  
+
   /** Constructeur
    *
    * @param {string}  canvas nom du canvas destinataire "#canvas"
@@ -24,7 +24,7 @@ class ChartY {
    */
   constructor(canvas) {
 
-    if (!isString(canvas)) throw new TypeError(e.ERROR_STR);
+    if (!isString(canvas)) E.debugError(E.ERROR_STR);
     /** @type {string} */
     this.canvas = canvas; // enregistre l'id du canvas
     /** @type {object} */
@@ -51,7 +51,7 @@ class ChartY {
   createChart(canvas, options) {
     try {
       // @ts-ignore
-      
+
       this.chart = new Highcharts.Chart(this.canvas, options)
       return this.chart
     } catch (err) {
@@ -59,10 +59,10 @@ class ChartY {
     }
   }
 
-  
 
-  getCoordMouse(config){
-    return {x:config.globals.clientX, y:config.globals.clientY}
+
+  getCoordMouse(config) {
+    return { x: config.globals.clientX, y: config.globals.clientY }
   }
 
   /** Retourne le tableau de données
@@ -77,7 +77,7 @@ class ChartY {
   /** Désactive le listener
    * 
    */
-   evntMouseOut() {
+  evntMouseOut() {
     if (this.events.mousemove) {
       $("#" + this.canvas).off("mousemove")
       this.events.mousemove = false
@@ -96,7 +96,7 @@ class ChartY {
       var chart = $(this).highcharts();
       const e = chart.pointer.normalize(evt);
       let coord = self.getAxisCoord(e.chartX, e.chartY)
-      if (self.isInInterval(coord, 0)){
+      if (self.isInInterval(coord, 0)) {
         self.mouseX = coord.x
         self.mouseY = coord.y
         callback(coord.x, coord.y)
@@ -104,8 +104,8 @@ class ChartY {
     });
   }
 
-  isInInterval(coords, id = 0){
-    if (coords.x >= this.chart.xAxis[id].min && coords.x <= this.chart.xAxis[id].max && coords.y >= this.chart.yAxis[id].min && coords.y <= this.chart.yAxis[id].max) 
+  isInInterval(coords, id = 0) {
+    if (coords.x >= this.chart.xAxis[id].min && coords.x <= this.chart.xAxis[id].max && coords.y >= this.chart.yAxis[id].min && coords.y <= this.chart.yAxis[id].max)
       return true;
     return false
   }
@@ -117,8 +117,8 @@ class ChartY {
    * @param {number} id index de l'axe
    * @returns {{x:number, y:number}}
    */
-  getAxisCoord(x,y,id=0){
-    return {x: this.chart.xAxis[id].toValue(x), y: this.chart.xAxis[id].toValue(y)}
+  getAxisCoord(x, y, id = 0) {
+    return { x: this.chart.xAxis[id].toValue(x), y: this.chart.xAxis[id].toValue(y) }
   }
 
   /** Met à jour une série
@@ -127,20 +127,20 @@ class ChartY {
    * @param {array} data données 
    */
   updateSerie(id, data) {
-    if (!isNumeric(id) && !isString) throw new TypeError(e.ERROR_PRM)
-    if (!isArray(data)) throw new TypeError(e.ERROR_ARRAY)
+    if (!isNumeric(id) && !isString) E.debugError(E.ERROR_PRM)
+    if (!isArray(data)) E.debugError(E.ERROR_ARRAY)
 
     if (isNumeric(id)) {
       if (this.chart.series.length > id)
         this.chart.series[id].setData(data)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     } else {
       const serie = this.chart.series.filter(e => e.name == id)[0]
       if (serie)
         serie.setData(data)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     }
     this.chart.redraw()
   }
@@ -150,18 +150,18 @@ class ChartY {
    * @param {string|number} id identifie la série soit par son numéro soit par son nom
    */
   deleteSerie(id) {
-    if (!isNumeric(id) && !isString) throw new TypeError(e.ERROR_PRM)
+    if (!isNumeric(id) && !isString) E.debugError(E.ERROR_PRM)
     if (isNumeric(id)) {
       if (this.chart.series.length > id)
         this.chart.series[id].remove(false)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     } else {
       const serie = this.chart.series.filter(e => e.name == id)[0]
       if (serie)
         serie.remove(false)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     }
     this.chart.redraw()
   }
@@ -179,7 +179,7 @@ class ChartY {
     serieOptions.data = data
     if (axeOptions != null) {
       if (axeOptions.id === undefined)
-        throw new TypeError(e.ERROR_PRM)
+        E.debugError(E.ERROR_PRM)
       serieOptions.yAxis = axeOptions.id
       this.chart.addAxis(axeOptions)
     }
@@ -232,7 +232,7 @@ class ChartY {
     this.chart.update(o)
   }
 
-  
+
 }
 
 export { ChartY }

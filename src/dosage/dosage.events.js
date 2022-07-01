@@ -2,29 +2,32 @@
  * gDosage.events
  * 
  * dbClic sur appareil pour activer : @link appareils.js:dbClicHandler()
- *      update appareil @link appareil.js:updateAppareil() :
+ *      update appareil @link appareil.js:updateAppareil() : 
  *          repositionne appareil @link appareil.js:_setAppareil()
- *          actualise type d'appareil (APPAREIL_TYPE)  
- *      désactive le dbClic (APPAREIL_ON = 0)
- *      active dosage (DOSAGE_ON = 1)
- *      Gestion du graphe @link dosage.graphe:graphManager() :  
- *          si activation (APPAREIL_ACTIF == 0) : 
- *              si première création (GRAPH_INIT == 0)
- *                  crée structure currentChart.chart (GRAPH_INIT = 1)
- *              appareil actif (APPAREIL_ACTIF = 1)
- *              définit type graphe (GRAPH_TYPE = type appareil)
- *              vide currentChart.data
- *              si courbe déjà existe dans charts et visible :
- *                  remplit données (currentChart.data) à partir de charts
- *              sinon :
- *                  crée le graphe @link dosage.graphs.js:addGraphCharts
+ *          actualise type d'appareil (APPAREIL_TYPE)  et app.etat (0 ou 1)
+ *      active ou désactive le dbClic en fonction de app.etat (APPAREIL_ON = 0)
+ *      active ou désactive le dosage (DOSAGE_ON = 1)
+ *      Gestion du graphe @link dosage.graph:graphManager() :  
+ *          si activation (APPAREIL_TYPE != 0) :
+ *              si graphe en cours = gDosage.id:
+ *                  active visibilité  @link Graphs.setVisibility
+ *              sinon:
+ *                  si première création (GRAPH_INIT == 0)
+ *                      crée structure currentChart.chart (GRAPH_INIT = 1)
+ *                      ajoute graphe dans charts @link dosage.graphs.js:addGraphCharts
+ *                      vide currentChart.data
+ *                  sinon:
+ *                      si courbe déjà existe dans charts :
+ *                          active visibilité  @link Graphs.setVisibility
+ *                          remplit données (currentChart.data) à partir de charts
+ *                  fin si:
+ *              actualise idCurrentChart
+ *              affiche icone de menu @link dosage.graph.js:_updGraphmenuIcon()
  *          sinon désactivation :
- *              initialise idCurrentChart
  *              désactive visibilité @link Graphs.setVisibility
- *              annule type graphe (GRAPH_TYPE = 0)
- *              annule activation appareil (APPAREIL_ACTIF = 0)
- *          actualise icone de menu @link dosage.graph.js:_updGraphmenuIcon()
- *      
+ *              cache icone de menu @link dosage.graph.js:_updGraphmenuIcon()
+ *              idCurrentChart = ""
+ *              
  *      affiche graphes @link dosage.graphs.js:displayGraphs()
  *      actualise affichage @link dosage.graphs.js:showGraph()
  *      actualise les boutons @link dosage.ui.js:setButtonVisible
@@ -66,8 +69,6 @@
  * clic bouton nouveau dosage :
  *      modifie flags visible de toutes les courbes
  *      incrémente compteur (Dosage.id)
- *      réactive dosage (DOSAGE_ON = 1)
- *      réactive appareil (APPAREIL_ON = 1)
  *      désactive boutons @link setButtonClass()
  *      repositionne appareil
  *      bascule sur dosage
@@ -82,20 +83,21 @@
  *      affche graphes
 **************************************/
 
-import { cts, etats } from "../environnement/constantes.js";
+import { ETATS_GRAPH } from "../environnement/constantes.js";
 import * as ui from "./ui/html_cts.js";
-import * as e from "../modules/utils/errors.js"
+import * as E from "../modules/utils/errors.js"
 import { getEltID } from "../modules/utils/html.js";
 import { gDosage, gGraphMenu, gGraphs, gLab } from "../environnement/globals.js";
 import { isObject } from "../modules/utils/type.js";
-import { setPosFlacons, set_drag } from "./ui/flacon.js"
-import { resetMesures } from "./dosage.datas.js"
+
 import { setButtonState, setButtonClass, dspTabDosage } from "./dosage.ui.js"
 import { vidage } from "./dosage.js"
+import { resetMesures } from "./dosage.datas.js";
 import { dspInfo, dspContextInfo } from "../infos/infos.js";
 import { dspTabEspeces, initDataInfo } from "../especes/interface.js";
-import { displayGraphs, updGraphCharts, showGraph } from "./dosage.graph.js";
+import { displayGraphs, showGraph, updGraphCharts, updGraphMenuIcon } from "./dosage.graph.js";
 import { updateAppareil } from "../dosage/ui/appareil.js";
+import { setTangente } from "./classes/graphs.js";
 
 
 
@@ -108,7 +110,7 @@ function setEvents() {
 
     const currentChart = gGraphs.currentChart
 
-    if (!isObject(gLab.canvas)) throw new TypeError((e.ERROR_OBJ))
+    if (!isObject(gLab.canvas)) E.debugError((E.ERROR_OBJ))
 
     // Initie un listener d'événement de redimensionnement
     // @ts-ignore
@@ -125,8 +127,8 @@ function setEvents() {
      */
     function _resizeCanvas() {
 
-        if (etats.PERPENDICULAIRE == 1) {
-            etats.PERPENDICULAIRE = 0
+        if (gGraphs.getState('PERPENDICULAIRE') == 1) {
+            gGraphs.setState('PERPENDICULAIRE',  0)
             currentChart.hChart.dspPerpendiculaire();
         }
     }
@@ -134,34 +136,41 @@ function setEvents() {
     /** bouton reset (réinitialise le dosage) */
     getEltID(ui.DOS_BT_RESET).on("click", function () {
 
-        resetLabo(false)
-        resetGraph()
+        // réinitialise les constantes de dosage
+        resetMesures(true);
+        
+        gLab.reset(gDosage)
+        gGraphs.reset()
         gDosage.setState('APPAREIL_ON', 1)
 
         // désactive les boutons enregistrer
         setButtonClass(ui.DOS_BT_SAVE_GRAPH, 0)
         setButtonState()
-        
+
     })
 
     /** bouton new_dosage (réinitialise lee espèces) */
     getEltID(ui.DOS_BT_NEW_DOSAGE).on("click", function () {
 
-        resetLabo(true)
-        resetGraph()
+        // reinitialise appareil
+        updateAppareil(gLab.phmetre, gLab.becher, 0);
 
+        // resets
+        gLab.reset(gDosage)
+        gDosage.resetState(false)
+        gGraphs.reset()
+
+        // met à jour graphMenu
+        updGraphMenuIcon()
+
+        //displayGraphs()
+        //showGraph()
+        
         // incrémente le compteur
-        gDosage.id++;
-
-        // réactive dosage et appareil
-        gDosage.setState('DOSAGE_ON', 1)
-        gDosage.setState('APPAREIL_ON', 1)
-        gDosage.setState('APPAREIL_ACTIF', 0)
+        gDosage.number++;
 
         // désactive les boutons
         setButtonClass("")
-
-        updateAppareil(gLab.phmetre, gLab.becher);
 
         // On bascule sur le premier onglet
         dspTabEspeces(true)
@@ -199,7 +208,7 @@ function setEvents() {
         let currentChart = gGraphs.currentChart
 
         // si dérivée affichée on la supprime
-        if (gDosage.getState('DERIVEE_ON') == 1) {
+        if (gGraphs.getState('DERIVEE_ON') == 1) {
             currentChart.dspDerivee(0)
             gDosage.setState('DERIVEE_ON', 0)
             setButtonClass(ui.DOS_BT_DERIVEE, 0)
@@ -208,19 +217,19 @@ function setEvents() {
             gDosage.setState('DERIVEE_ON', 1)
             setButtonClass(ui.DOS_BT_DERIVEE, 1)
         }
-        gDosage.setState('MOVE_TANGENTE', 0)
+        gGraphs.setState('MOVE_TANGENTE', 0)
 
     });
 
     /** boutons affichage tangentes */
     getEltID(ui.DOS_BT_TAN1).on("click", function () {
-        _setTangente(1, ui.DOS_BT_TAN1)
+        setTangente(1, ui.DOS_BT_TAN1)
         setButtonClass(ui.DOS_BT_TAN1, -1)
     });
 
     /** affichage tangente N°2 */
     getEltID(ui.DOS_BT_TAN2).on("click", function () {
-        _setTangente(2, ui.DOS_BT_TAN2)
+        setTangente(2, ui.DOS_BT_TAN2)
         setButtonClass(ui.DOS_BT_TAN2, -1)
     });
 
@@ -229,11 +238,11 @@ function setEvents() {
 
         let currentChart = gGraphs.currentChart
         // on vérifie la présence des deux tangentes
-        if (gDosage.getState('TANGENTE') != 3)
+        if (gGraphs.getState('TANGENTE') != 3)
             return false;
 
         // si perpendiculaire déjà tracée on l'efface
-        if (gDosage.getState('PERPENDICULAIRE') == 1) {
+        if (gGraphs.getState('PERPENDICULAIRE') == 1) {
             currentChart.dspPerpendiculaire(0)
             gDosage.setState('PERPENDICULAIRE', 0)
             setButtonClass(ui.DOS_BT_PERP, 0)
@@ -247,7 +256,7 @@ function setEvents() {
         currentChart.indiceTangentes[2] = 0
         setButtonClass(ui.DOS_BT_PERP, 1)
         setButtonState()
-        gDosage.setState('PERPENDICULAIRE', 1)
+        gGraphs.setState('PERPENDICULAIRE', 1)
     });
 
     /** affiche graphe théorique */
@@ -255,7 +264,7 @@ function setEvents() {
         let currentChart = gGraphs.currentChart
 
         // si courbe théorique affichée
-        if (gDosage.getState('THEORIQUE') == 1) {
+        if (gGraphs.getState('THEORIQUE') == 1) {
             gDosage.event = 0
             // efface courbe 
             currentChart.dspCourbeTheorique(0)
@@ -267,8 +276,8 @@ function setEvents() {
             setButtonClass(ui.DOS_BT_COTH, - 1)
             getEltID(ui.DOS_BT_DERIVEE).removeAttr("disabled")
         }
-        gDosage.setState('MOVE_TANGENTE', 0)
-        gDosage.setState('THEORIQUE', -1)
+        gGraphs.setState('MOVE_TANGENTE', 0)
+        gGraphs.setState('THEORIQUE', -1)
     });
 
     /** affiche information */
@@ -291,117 +300,9 @@ function setEvents() {
     })
 }
 
-/** Réinitialise
-    * 
-    * @param {boolean} all
-    * On réinitialise la burette, le bécher, l'affichage des appareils et les flacons
-    * Si 'all' on supprime le graphe courant sinon on conserve le graphe mais on efface les données
-    * @file gDosage.events
-    */
-function resetLabo(all = false) {
 
-    // réinitialise les constantes de dosage
-    resetMesures(all);
 
-    // réinitialise la burette
-    gLab.burette.reset();
 
-    // réinitialise le bécher
-    gLab.becher.reset(gDosage.solution.vol);
-
-    gLab.burette.canvas.redraw();
-
-    // actualise l'affichage
-    gLab.phmetre.setText(gDosage.sph);
-    gLab.conductimetre.setText(gDosage.scond);
-    gLab.potentiometre.setText(gDosage.spot)
-
-    // positionne les flacons
-    setPosFlacons(gLab.flacons)
-
-    // supprime l'indicateur
-    gDosage.indic = null
-
-    // réactive drag flacons
-    set_drag(gLab.flacons, true)
-
-}
-
-/** Réinitialise les graphes
- * - réinitialise les tableaux data
- * - supprime les courbes (tangente,...)
- * - désactive visibilité graphes
- * 
- */
-function resetGraph() {
-
-    // On remet à zéro le graphe courant
-    if (gGraphs.idCurrentChart != '') {
-        //gGraphs.charts.get(gGraphs.idCurrentChart).data = []
-        gGraphs.currentChart.data = []
-        gGraphs.currentChart.data_theorique = []
-        gGraphs.currentChart.data_derive_theorique = []
-
-        // supprime les courbes si présentes
-        if (gDosage.getState('TANGENTE') == 1) {
-            _setTangente(1, ui.DOS_BT_TAN1)
-            setButtonClass(ui.DOS_BT_TAN1, 0)
-        }
-        if (gDosage.getState('TANGENTE') == 2) {
-            _setTangente(1, ui.DOS_BT_TAN2)
-            setButtonClass(ui.DOS_BT_TAN2, 0)
-        }
-        if (gDosage.getState('PERPENDICULAIRE') == 1) {
-            gGraphs.currentChart.dspPerpendiculaire(0)
-            gDosage.setState('PERPENDICULAIRE', 0)
-            setButtonClass(ui.DOS_BT_PERP, 0)
-        }
-        if (gDosage.getState('THEORIQUE') == 1) {
-            gGraphs.currentChart.dspCourbeTheorique(0)
-            setButtonClass(ui.DOS_BT_COTH, 0)
-        }
-
-        // désactive visibilité de tous les graphes
-        gGraphs.charts.forEach(e => { e.visible = false })
-
-        //displayGraphs()
-        //showGraph()
-    }
-}
-
-/** action lors du clic sur boutons tangente
- * 
- * @param {number} idTangente N° de la tangente
- * @param {string} idBtTangente ID bouton
- * @use _dspPerpendiculaire, setButtonState, setButtonClass
- */
-function _setTangente(idTangente, idBtTangente) {
-
-    const currentChart = gGraphs.currentChart
-
-    // si tan déjà affichée on l'efface
-    if (gDosage.getState('TANGENTE') & idTangente) {
-        gDosage.event = gDosage.getState('TANGENTE') ^ idTangente
-        gDosage.setState('TANGENTE', gDosage.event)
-        currentChart.delTangente(idTangente);
-
-        currentChart.indiceTangentes[idTangente] = -1
-
-        // supprime la perpendiculaire si existe
-        if (gDosage.getState('PERPENDICULAIRE') == 1) {
-            currentChart.dspPerpendiculaire(0)
-            gDosage.setState("PERPENDICULAIRE", 0)
-
-        }
-        // activation des boutons
-        setButtonState()
-    } else {
-        gDosage.event = idTangente
-        dspContextInfo("dspTangente")
-    }
-    gDosage.setState('MOVE_TANGENTE', 0)
-
-}
 
 
 function setEventsClick(evt) {
@@ -425,14 +326,14 @@ function setEventsClick(evt) {
                     return false
 
                 // test si tangente déjà tracée
-                if (gDosage.getState('TANGENTE') & idTangente) {
+                if (gGraphs.getState('TANGENTE') & idTangente) {
 
                     // on ne fait rien si déjà tracée au même point
                     if (selectPointIndex == gGraphs.currentChart.indiceTangentes[idTangente - 1])
                         return false;
 
                     gGraphs.currentChart.delTangente(idTangente);
-                    gDosage.setState('TANGENTE', gDosage.getState('TANGENTE') ^ idTangente)
+                    gGraphs.setState('TANGENTE', gGraphs.getState('TANGENTE') ^ idTangente)
                     gGraphs.currentChart.indiceTangentes[idTangente - 1] = 0
                 }
 
@@ -441,7 +342,7 @@ function setEventsClick(evt) {
 
                 // enregistre l'indice du point de la tangente
                 gGraphs.currentChart.indiceTangentes[idTangente - 1] = selectPointIndex;
-                gDosage.setState('TANGENTE', gDosage.getState('TANGENTE') ^ idTangente)
+                gGraphs.setState('TANGENTE', gGraphs.getState('TANGENTE') ^ idTangente)
 
                 setButtonState(false)
 
@@ -450,7 +351,6 @@ function setEventsClick(evt) {
     }
 }
 
-
-export { setEvents, setEventsClick, resetLabo, resetGraph }
+export { setEvents, setEventsClick}
 
 

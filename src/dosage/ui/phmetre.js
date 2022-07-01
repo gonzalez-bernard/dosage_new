@@ -5,7 +5,7 @@ import { PHMETRE } from "./interface.js"
 import { cts } from "../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
 import { isObject } from "../../modules/utils/type.js";
-import * as e from "../../modules/utils/errors.js";
+import * as E from "../../modules/utils/errors.js";
 import { dbClicHandler } from "./appareil.js"
 
 /**
@@ -71,7 +71,7 @@ class Phmetre extends Appareil {
  * @file Phmetre.js
  */
 function initPhmetre(G, lab) {
-  if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
+  if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) E.debugError(E.ERROR_OBJ)
 
   // Crée phmetre
   var phmetre = new Phmetre(PHMETRE, lab.canvas, "");

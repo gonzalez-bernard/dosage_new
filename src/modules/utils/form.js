@@ -8,7 +8,7 @@
  */
 
 import { isEvent, isString, isArray, isUndefined, isFunction, isDefined } from "./type.js"
-import * as e from "./errors.js"
+import * as E from "./errors.js"
 import { getEltID } from "./html.js"
 
 /** Affiche le message de feedback
@@ -24,8 +24,8 @@ import { getEltID } from "./html.js"
 /*
 function formSetFeedback( event, msg, id = null ) {
 
-    if ( !isEvent( event ) ) throw new TypeError( e.ERROR_EVT )
-    if ( !isString( msg ) || !isString( id ) && id !== null ) throw new TypeError( e.ERROR_STR )
+    if ( !isEvent( event ) ) E.debugError( E.ERROR_EVT )
+    if ( !isString( msg ) || !isString( id ) && id !== null ) E.debugError( E.ERROR_STR )
     let field
 
     if ( !id ) {
@@ -91,7 +91,7 @@ class Form {
      * 
      * @param {string} form nom du formulaire 
      */
-    constructor( form ) {
+    constructor(form) {
         this.idForm = form
         this.form = undefined // jQuery formulaire
         this.idField = undefined // 
@@ -121,39 +121,39 @@ class Form {
      * - validator? {function} fonction de validation (undefined)
      * @file 'modules/utils/forms'
      */
-    validButtons( event ) {
+    validButtons(event) {
 
-        if ( !isEvent( event ) && !(event instanceof jQuery.Event)) throw new TypeError( e.ERROR_EVT )
+        if (!isEvent(event) && !(event instanceof jQuery.Event)) E.debugError(E.ERROR_EVT)
 
         this.idField = event.currentTarget.id
-        this.field = getEltID( this.idField )
-        this.form = getEltID( event.currentTarget.closest( 'form' ).id )
-        this.mark = isUndefined( event.data.mark ) ? true : event.data.mark
-        this.pass = isUndefined( event.data.pass ) ? true : event.data.pass
-        this.pass = isUndefined( event.data.display ) ? false : event.data.display
-        if ( !isUndefined( event.data.buttons ) ) {
-            if ( isArray( event.data.buttons ) ) this.buttons = event.data.buttons
-            else this.buttons = [ event.data.buttons ]
+        this.field = getEltID(this.idField)
+        this.form = getEltID(event.currentTarget.closest('form').id)
+        this.mark = isUndefined(event.data.mark) ? true : event.data.mark
+        this.pass = isUndefined(event.data.pass) ? true : event.data.pass
+        this.pass = isUndefined(event.data.display) ? false : event.data.display
+        if (!isUndefined(event.data.buttons)) {
+            if (isArray(event.data.buttons)) this.buttons = event.data.buttons
+            else this.buttons = [event.data.buttons]
         }
-        this.callback = isUndefined( event.data.callback ) ? {} : event.data.callback
-        this.oValidator = isUndefined( event.data.validator ) ? {} : event.data.validator
+        this.callback = isUndefined(event.data.callback) ? {} : event.data.callback
+        this.oValidator = isUndefined(event.data.validator) ? {} : event.data.validator
 
         // test validité du champ courant (retourne un objet ou error)
-        this._isValidCurrentFile = this._validField( this.field, true )
-        this._feedbackMessage = this._get_feedbackMessage( this.idField, this._isValidCurrentFile )
+        this._isValidCurrentFile = this._validField(this.field, true)
+        this._feedbackMessage = this._get_feedbackMessage(this.idField, this._isValidCurrentFile)
 
         // on affiche message de feedback sinon on l'efface
-        this._dspFeedback( this.idField, this._isValidCurrentFile )
-            // On marque le champ courant
-        this._dspMark( this.idField, this._isValidCurrentFile )
+        this._dspFeedback(this.idField, this._isValidCurrentFile)
+        // On marque le champ courant
+        this._dspMark(this.idField, this._isValidCurrentFile)
 
         // test les autres champs si champ courant valide
-        if ( this._isValidCurrentFile ) {
+        if (this._isValidCurrentFile) {
             this._isValidAllFields = this._verifAllFields()
         }
 
         // test mot de passe
-        if ( this._isValidAllFields) {
+        if (this._isValidAllFields) {
             this._isValidPassword = this._valid_passwords()
         }
 
@@ -161,7 +161,7 @@ class Form {
         this._setButtons()
 
         // Appel callback
-        if ( this._isValidCurrentFile && this._isValidAllFields && this._isValidPassword )
+        if (this._isValidCurrentFile && this._isValidAllFields && this._isValidPassword)
             this._callBack()
 
     }
@@ -171,8 +171,8 @@ class Form {
      */
     _callBack() {
         // Gestion du callback
-        if ( !isUndefined( this.callback ) && 'fct' in this.callback && 'data' in this.callback) {
-            this.callback[ 'fct' ]( this.callback[ 'data' ] )
+        if (!isUndefined(this.callback) && 'fct' in this.callback && 'data' in this.callback) {
+            this.callback['fct'](this.callback['data'])
         }
     }
 
@@ -183,9 +183,9 @@ class Form {
 
         const valid = this._isValidCurrentFile && this._isValidAllFields && this._isValidPassword
 
-        this.buttons.forEach( function( bt ) {
-            $( bt ).prop( "disabled", !valid );
-        } )
+        this.buttons.forEach(function (bt) {
+            $(bt).prop("disabled", !valid);
+        })
     }
 
     /** vérifie l'égalité entre les mots de passe saisis
@@ -198,17 +198,17 @@ class Form {
         if (!this.pass)
             return result
 
-        $( "#" + this.idField + " :password" ).each( function() {
+        $("#" + this.idField + " :password").each(function () {
             // premier mot de passe
-            if ( pwd == "undefined" ) {
-                pwd = $( this ).val()
+            if (pwd == "undefined") {
+                pwd = $(this).val()
             } else {
                 // comparaison
-                if ( pwd != $( this ).val() ) {
+                if (pwd != $(this).val()) {
                     result = false
                 }
             }
-        } )
+        })
         return result
     }
 
@@ -220,25 +220,25 @@ class Form {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const _this = this
         let r, result = true
-        getEltID( _this.idForm, ":input" ).filter( ':visible' ).each( function() {
+        getEltID(_this.idForm, ":input").filter(':visible').each(function () {
             //$("#" + this.idField + " :input").filter(':visible').each(function () {
-            let elt = $( this );
+            let elt = $(this);
             // si champ actif et différent du champ courant
-            if ( !elt.prop( 'disabled' ) && elt != _this.field ) {
+            if (!elt.prop('disabled') && elt != _this.field) {
                 // on vérifie le champ
-                r = _this._validField( elt )
+                r = _this._validField(elt)
 
-                if ( !r ) result = false;
+                if (!r) result = false;
 
-                _this._get_feedbackMessage( this.id, r )
+                _this._get_feedbackMessage(this.id, r)
 
                 // on affiche message de feedback sinon on l'efface
-                _this._dspFeedback( this.id, r )
+                _this._dspFeedback(this.id, r)
 
                 // On marque le champ courant
-                _this._dspMark( this.id, r )
+                _this._dspMark(this.id, r)
             }
-        } )
+        })
         return result
     }
 
@@ -247,20 +247,20 @@ class Form {
      * @param {string} idField champ courant
      * @param {boolean} valid vrai si valide
      */
-    _dspMark( idField, valid ) {
-        if ( this.mark ) {
-            const field = getEltID( idField )
-            if ( field.val() != "" ) {
-                if ( valid ) {
-                    field[ 0 ].classList.add( "is-valid" );
-                    field[ 0 ].classList.remove( "is-invalid" );
+    _dspMark(idField, valid) {
+        if (this.mark) {
+            const field = getEltID(idField)
+            if (field.val() != "") {
+                if (valid) {
+                    field[0].classList.add("is-valid");
+                    field[0].classList.remove("is-invalid");
                 } else {
-                    field[ 0 ].classList.add( "is-invalid" );
-                    field[ 0 ].classList.remove( "is-valid" );
+                    field[0].classList.add("is-invalid");
+                    field[0].classList.remove("is-valid");
                 }
             } else {
-                field[ 0 ].classList.remove( "is-valid" )
-                field[ 0 ].classList.remove( "is-invalid" )
+                field[0].classList.remove("is-valid")
+                field[0].classList.remove("is-invalid")
             }
         }
     }
@@ -270,26 +270,26 @@ class Form {
      * @param {string} idField id du champ
      * @param {boolean} valid
      */
-    _dspFeedback( idField, valid ) {
-        if ( !isString( idField ) ) throw new TypeError( e.ERROR_STR )
-        if (isUndefined(idField)) throw new ReferenceError(e.ERROR_ABS)
-        
+    _dspFeedback(idField, valid) {
+        if (!isString(idField)) E.debugError(E.ERROR_STR)
+        if (isUndefined(idField)) throw new ReferenceError(E.ERROR_ABS)
+
         const feed = valid ? "valid_feedback" : "error_feedback"
         // On inscrit le message dans la balise adéquate
 
         // On cache les messages si égal à ""
         let elt
-        if ( idField !== undefined && (this._feedbackMessage == "" || isUndefined( this._feedbackMessage )) ) {
-            elt = _getFeedBack( idField, 'valid_feedback' ) 
-            if (elt === null) return false 
+        if (idField !== undefined && (this._feedbackMessage == "" || isUndefined(this._feedbackMessage))) {
+            elt = _getFeedBack(idField, 'valid_feedback')
+            if (elt === null) return false
             elt.hide()
-            elt = _getFeedBack( idField, 'error_feedback' )
-            if (elt === null) return false 
+            elt = _getFeedBack(idField, 'error_feedback')
+            if (elt === null) return false
             elt.hide()
         } else {
-            elt = _getFeedBack( idField, feed )
-            if (elt === null) return false 
-            elt.html( this._feedbackMessage ).show()
+            elt = _getFeedBack(idField, feed)
+            if (elt === null) return false
+            elt.html(this._feedbackMessage).show()
         }
 
     }
@@ -300,25 +300,25 @@ class Form {
      * @param {boolean} valid résultat de la validation du premier champ
      * @returns {string} message
      */
-    _get_feedbackMessage( idField, valid ) {
+    _get_feedbackMessage(idField, valid) {
         let msg
 
         // Champ non renseigné si autre que courant on renvoie une chaine vide 
-        let field = getEltID( idField )
-        if ( field.val() == "" && field != this.field ) return ""
-        
+        let field = getEltID(idField)
+        if (field.val() == "" && field != this.field) return ""
+
         // message à afficher selon l'état de valid
         const feed = valid ? "valid_feedback" : "error_feedback"
-        if ( valid )
+        if (valid)
             msg = this.display ? VALID_MESSAGE : ""
         else
             msg = ERROR_MESSAGE
-        
-        if ( feed in this.oValidator ) return this.oValidator[ feed ]
+
+        if (feed in this.oValidator) return this.oValidator[feed]
         else {
-            let _elt = _getFeedBack( idField, feed)
-            if (_elt === null || _elt[0] === undefined) return "" 
-            return _elt[ 0 ].textContent
+            let _elt = _getFeedBack(idField, feed)
+            if (_elt === null || _elt[0] === undefined) return ""
+            return _elt[0].textContent
             return msg
         }
     }
@@ -328,18 +328,18 @@ class Form {
      * @param {JQuery} field 
      * @returns {boolean} Vrai si champ valide
      */
-    _validField( field, isValidator = false ) {
+    _validField(field, isValidator = false) {
         // si champ invalide
         // @ts-ignore
-        if ( !field[ 0 ].validity.valid ) return false
-            // si validateur
-        if ( isValidator && this.oValidator ) {
-            if ( 'verif' in this.oValidator ) {
+        if (!field[0].validity.valid) return false
+        // si validateur
+        if (isValidator && this.oValidator) {
+            if ('verif' in this.oValidator) {
                 if (isUndefined(this.field)) return false
                 // @ts-ignore
-                return this.oValidator.verif( this.field[ 0 ] )
+                return this.oValidator.verif(this.field[0])
             }
-                
+
         }
         return true
     }
@@ -349,14 +349,14 @@ class Form {
      * @param {object} event évenement avec propriété 'data'
      * @file 'modules/utils/form.js'
      */
-    actionFields(event){
-        if (!isEvent(event)) throw new Error(e.ERROR_EVT)
-        if (isUndefined(event.data.fields)) throw new Error(e.ERROR_OBJ)
-        if (isUndefined(event.data.action)) throw new Error(e.ERROR_OBJ)
+    actionFields(event) {
+        if (!isEvent(event)) throw new Error(E.ERROR_EVT)
+        if (isUndefined(event.data.fields)) throw new Error(E.ERROR_OBJ)
+        if (isUndefined(event.data.action)) throw new Error(E.ERROR_OBJ)
         const context = this
         function _testFields(fields, context) {
             let r
-            fields.every( field => {
+            fields.every(field => {
                 r = context._validField($(field))
                 if (!r) return false
                 else return true
@@ -364,11 +364,11 @@ class Form {
             return r
         }
 
-        if (_testFields(event.data.fields, context)){
+        if (_testFields(event.data.fields, context)) {
             event.data.action(event.data.prm)
         }
 
-        
+
     }
 
 }
@@ -381,24 +381,24 @@ class Form {
  * @returns {string} chaine html de la liste
  * @file 'modules/utils/form.js'
  */
-function formSetOptions( data, label = "" ) {
+function formSetOptions(data, label = "") {
 
-    if ( !isArray( data ) ) throw new TypeError( e.ERROR_ARRAY )
-    if ( !isString( label ) ) throw new TypeError( e.ERROR_STR )
+    if (!isArray(data)) E.debugError(E.ERROR_ARRAY)
+    if (!isString(label)) E.debugError(E.ERROR_STR)
 
     let txt = ""
-    if ( label != "" )
+    if (label != "")
         txt += "<option disabled value>" + label + "</option>"
 
-    data.forEach( function( elt ) {
-        if ( elt.label != undefined ) {
-            if ( elt.id != undefined )
+    data.forEach(function (elt) {
+        if (elt.label != undefined) {
+            if (elt.id != undefined)
                 txt += "<option value=" + elt.id + ">" + elt.label + "</option>"
-            else if ( elt.value != undefined )
+            else if (elt.value != undefined)
                 txt += "<option value=" + elt.value + ">" + elt.label + "</option>"
         } else
             txt += "<option>" + elt + "</option>"
-    } )
+    })
     return txt
 }
 
@@ -410,13 +410,13 @@ function formSetOptions( data, label = "" ) {
  * @returns {JQuery|null}
  * @file 'modules/utils/form.js'
  */
-function _getFeedBack( idField, name ) {
-    if ( !isString( idField ) ) throw new TypeError( e.ERROR_STR )
-    if (isUndefined( idField )) throw new ReferenceError(e.ERROR_ABS)
-    
-    let elt = getEltID( idField ).parent().find( "p" ).filter( function() {
-        return ( this.className == name )
-    } )
+function _getFeedBack(idField, name) {
+    if (!isString(idField)) E.debugError(E.ERROR_STR)
+    if (isUndefined(idField)) throw new ReferenceError(E.ERROR_ABS)
+
+    let elt = getEltID(idField).parent().find("p").filter(function () {
+        return (this.className == name)
+    })
 
     return elt || null
 }

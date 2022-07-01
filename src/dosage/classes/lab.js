@@ -8,7 +8,7 @@ import { initBecher as _initBecher } from "../ui/becher.js";
 // @ts-ignore
 import { initTooltip as _initTooltip, Tooltip } from "../ui/tooltip.js";
 import { initBurette as _initBurette } from "../ui/burette.js";
-import { initFlacon as _initFlacon } from "../ui/flacon.js";
+import { initFlacon as _initFlacon, set_drag, setPosFlacons } from "../ui/flacon.js";
 import { initPhmetre as _initPhmetre } from "../ui/phmetre.js";
 import { initConductimetre as _initConductimetre } from "../ui/conductimetre.js";
 import { initPotentiometre as _initPotentiometre } from "../ui/potentiometre.js";
@@ -35,7 +35,7 @@ class Lab {
         /** @type {Canvas} */
         this.canvas = undefined
         /** @type {Becher} */
-        this.becher = {}    
+        this.becher = {}
         /** @type {Tolltip} */
         this.tooltip = {}
         this.labo = {}
@@ -111,6 +111,43 @@ class Lab {
     initPotentiometre(dosage) {
         // @ts-ignore
         this.potentiometre = _initPotentiometre(dosage, this);
+    }
+
+    setDragFlacons(etat) {
+        set_drag(this.flacons, etat)
+    }
+
+    setPosFlacons() {
+        setPosFlacons(this.flacons)
+    }
+
+    /** Réinitialise
+    * 
+    * @file gDosage.events
+    */
+    reset(gDosage) {
+
+        // réinitialise la burette
+        this.burette.reset();
+
+        // réinitialise le bécher
+        this.becher.reset(gDosage.solution.vol);
+
+        this.burette.canvas.redraw();
+
+        // actualise l'affichage
+        this.phmetre.setText(gDosage.sph);
+        this.conductimetre.setText(gDosage.scond);
+        this.potentiometre.setText(gDosage.spot)
+
+        // positionne les flacons
+        this.setPosFlacons()
+
+        // supprime l'indicateur
+        gDosage.indic = null
+
+        // réactive drag flacons
+        this.setDragFlacons(true)
     }
 }
 

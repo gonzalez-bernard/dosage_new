@@ -7,6 +7,11 @@
  * ***export NotElementException***
  */
 //import io from "socket.io-client"
+const ERROR_L1 = 3
+const ERROR_L2 = 2
+const ERROR_L3 = 1
+
+let DEBUG = ERROR_L3
 
 const ERRORTYPE = "Mauvais type de paramètre"
 const ERROR_STR = "Une chaine de caractère est attendue"
@@ -44,4 +49,20 @@ class serverError extends Error{
   }
 }
 
-export {ERRORTYPE, ERROR_STR, ERROR_ABS, ERROR_BOOL, ERROR_NUM, ERROR_RANGE, ERROR_OBJ, ERROR_ARRAY, ERROR_EVT, ERROR_STRNUM, NotElementException, ERROR_ELT, ERROR_COLOR, ERROR_PRM, ERROR_RETURN, ERROR_FCT, serverError}
+const debugError = (err) => {
+    if (DEBUG == ERROR_L1)
+      throw new TypeError(err)
+    else if (DEBUG == ERROR_L2)
+      console.error(err)
+    else
+      console.log(err)
+}
+
+const debugInformation = (err) => {
+    if (DEBUG == ERROR_L1)
+      console.error(err)
+    else if (DEBUG == ERROR_L2)
+      console.log(err)
+}
+
+export {ERRORTYPE, ERROR_STR, ERROR_ABS, ERROR_BOOL, ERROR_NUM, ERROR_RANGE, ERROR_OBJ, ERROR_ARRAY, ERROR_EVT, ERROR_STRNUM, NotElementException, ERROR_ELT, ERROR_COLOR, ERROR_PRM, ERROR_RETURN, ERROR_FCT, serverError, debugError, debugInformation, DEBUG, ERROR_L1, ERROR_L2, ERROR_L3}

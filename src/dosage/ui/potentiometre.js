@@ -11,7 +11,7 @@ import { Appareil, dbClicHandler } from "./appareil.js"
 import { POTENTIOMETRE } from "./interface.js";
 import { cts } from "../../environnement/constantes.js";
 import * as txt from "./lang_fr.js";
-import * as e from "../../modules/utils/errors.js";
+import * as E from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
 import { showGraph, graphManager, displayGraphs } from "../dosage.graph.js"
 import { updateAppareil } from "./appareil.js";
@@ -68,7 +68,7 @@ class Potentiometre extends Appareil {
  * @file initPotentiometre.js
  */
 function initPotentiometre(G, lab) {
-  if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
+  if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) E.debugError(E.ERROR_OBJ)
 
   // Crée potentiometre
   var potentiometre = new Potentiometre(POTENTIOMETRE, lab.canvas, "V");

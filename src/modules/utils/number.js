@@ -7,7 +7,7 @@
  */
 
 import { isBoolean, isNumeric, isUndefined } from "./type.js";
-import * as e from "./errors.js"
+import * as E from "./errors.js"
 
 /** Arrondit un nombre en tenant compte du nombre de chiffres
  * 
@@ -24,10 +24,10 @@ import * as e from "./errors.js"
  */
 var mathArrondir = function (nombre, precision) {
 
-    if (isNaN(nombre) || isNaN(precision)) throw new TypeError(e.ERROR_NUM)
+    if (isNaN(nombre) || isNaN(precision)) E.debugError(E.ERROR_NUM)
 
     // transforme le nombre en chaine
-    const  _nombre = nombre.toString()
+    const _nombre = nombre.toString()
     let nInteger = parseInt(_nombre).toString().length
     if (nInteger >= precision)
         return parseFloat(_nombre).toFixed(0)
@@ -46,8 +46,8 @@ var mathArrondir = function (nombre, precision) {
 */
 function roundDecimal(nombre, precision = 2) {
 
-    if (!isNumeric(nombre) || !isNumeric(precision)) throw new TypeError(e.ERROR_NUM)
-    
+    if (!isNumeric(nombre) || !isNumeric(precision)) E.debugError(E.ERROR_NUM)
+
     const tmp = Math.pow(10, precision);
     return Math.round(nombre * tmp) / tmp;
 }
@@ -61,7 +61,7 @@ function roundDecimal(nombre, precision = 2) {
 */
 function getDecimal(valeur) {
 
-    if (! isNumeric(valeur)) throw new TypeError(e.ERROR_NUM)
+    if (!isNumeric(valeur)) E.debugError(E.ERROR_NUM)
 
     let offset = 0
     if (valeur == 0)
@@ -82,7 +82,7 @@ function getDecimal(valeur) {
  * @param {number} precision nombre de chiffres significatifs
  * @returns 
  */
-function roundPrecision(valeur, precision){
+function roundPrecision(valeur, precision) {
     const offset = getDecimal(valeur)
     return mathArrondir(valeur, precision + offset)
 }
@@ -93,10 +93,10 @@ function roundPrecision(valeur, precision){
  * @param {number} valeur valeur à arrondir 
  * @returns nombre arrondi 
  */
-function around(valeur){
+function around(valeur) {
     let offset = getDecimal(valeur)
-    let v = valeur*Math.pow(10, offset)
-    return Math.ceil(v)*Math.pow(10, -offset)
+    let v = valeur * Math.pow(10, offset)
+    return Math.ceil(v) * Math.pow(10, -offset)
 }
 
 /** Détecte si une valeur est comprise dans un intervalle
@@ -109,9 +109,9 @@ function around(valeur){
  * @file 'modules/utils/math.js'
 */
 const isInInterval = function (value, min, max, strict = true) {
-    if (!isNumeric(value) || !isNumeric(min) || !isNumeric(max)) throw new TypeError(e.ERROR_NUM)
-    if (!isBoolean(strict)) throw new TypeError(e.ERROR_BOOL)
-    if (min >= max) throw new RangeError(e.ERROR_RANGE)
+    if (!isNumeric(value) || !isNumeric(min) || !isNumeric(max)) E.debugError(E.ERROR_NUM)
+    if (!isBoolean(strict)) E.debugError(E.ERROR_BOOL)
+    if (min >= max) throw new RangeError(E.ERROR_RANGE)
 
     if (strict)
         return value > min && value < max ? true : false

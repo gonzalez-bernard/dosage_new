@@ -25,6 +25,7 @@
     "jquery": "^3.6.0",
     "jquery-ui-dist": "^1.13.0",
     "mathjax": "^3.1.4",
+    "observable-slim": "^0.1.6",
     "ocanvas": "^2.10.0",
     "python-shell": "^3.0.1",
     "socket.io": "^4.4.1"

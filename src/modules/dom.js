@@ -9,7 +9,8 @@
 import { uString } from "./utils/string.js"
 import { uArray } from "./utils/array.js"
 import { getEltID } from "./utils/html.js"
-import { isArray, isObject} from "./utils/type.js"
+import { isArray, isObject } from "./utils/type.js"
+import * as E from "./utils/errors.js"
 
 /** classe Element */
 /**
@@ -40,7 +41,7 @@ class Element {
      */
     constructor(elt, o = null) {
         const local = ['text', 'parent', 'tabindex', 'ext', 'feedback', 'role', 'width', 'options']
-        const valid = ['name', 'id', 'style', 'class'] 
+        const valid = ['name', 'id', 'style', 'class']
         this._elt = elt
         this._div = null    // div englobante utilisée par exemeple pour alert
         this._global = null // pas utilisée
@@ -79,7 +80,7 @@ class Element {
         for (const att in attr) {
             try {
                 if (attr[att] == undefined)
-                    throw new TypeError("Attribut absent")
+                    E.debugError("Attribut absent")
                 if (this._attributes == null)
                     this._attributes = []
                 this._attributes.push(attr[att])
@@ -171,25 +172,25 @@ class Element {
     setAction(event, action, escape = false) {
         let _action = ""
         if (!escape)
-            if (isArray(event)){
+            if (isArray(event)) {
                 // @ts-ignore
-                event.forEach(function(e, index){
+                event.forEach(function (e, index) {
                     // @ts-ignore
-                    _action += e + "=" + action[index] +" "
+                    _action += e + "=" + action[index] + " "
                 })
             } else
-                _action = event + "=" + action +" "
+                _action = event + "=" + action + " "
         else
-            if (isArray(event)){
+            if (isArray(event)) {
                 // @ts-ignore
-                event.forEach(function(e, index){
+                event.forEach(function (e, index) {
                     // @ts-ignore
-                    _action += e + "=" + new uString(action[index]).convertHtmlChar().html +" "
-            })
-        } else
-            // @ts-ignore
-            _action = event + "=" + new uString(action).convertHtmlChar().html + " "
-        
+                    _action += e + "=" + new uString(action[index]).convertHtmlChar().html + " "
+                })
+            } else
+                // @ts-ignore
+                _action = event + "=" + new uString(action).convertHtmlChar().html + " "
+
         this._action = _action
         return this
     }
@@ -237,7 +238,7 @@ class Element {
         for (const elt in child) {
             try {
                 if (child[elt] == undefined)
-                    throw new TypeError("Enfant absent")
+                    E.debugError("Enfant absent")
                 if (this._childs == null)
                     this._childs = []
                 this._childs.push(child[elt])
@@ -291,7 +292,7 @@ class Element {
                 } else { // sinon
                     switch (prop) {
                         case "_action":
-                            html +=  value
+                            html += value
                             break
                         case '_role':
                             html += " role = '" + value + "' "
@@ -305,7 +306,7 @@ class Element {
                 }
             }
         }
-       
+
         html = html.slice(0, -1) + ">"
         if (this._text)
             html += this._text + "</" + this._elt + ">"
@@ -333,15 +334,15 @@ class Element {
          */
         function _setAttrs(o) {
             // on construit la chaîne feedback
-            if (o._feedback != null){
+            if (o._feedback != null) {
                 o.addFeedback(o._feedback)
                 html += o._feedback
             }
-            if (o._label != null){
+            if (o._label != null) {
                 o.addLabel(o._label.label, o._label.o)
                 html = o._label + html
             }
-                
+
         }
 
         return html
@@ -431,31 +432,31 @@ class Element {
  * const diag = new dom.Dialog("dialog-form", form, prm)
  * dialog-form est l'id d'une balise <div></div>
  */
-class Dialog{
-    
+class Dialog {
+
     /** Crée un dialogue
      * 
      * @param {string} idDialog id du div qui contient le dialogue
      * @param {Object} form objet contenant le formulaire
-     * @param {Object} diag paramètres du dialogue
+     * @param {Object} options paramètres du dialogue
      * 
      * diag contient les paramètres  
      * 
      * Le fichier 'dialog.js' est indispensable 
      */
-    constructor(idDialog, form, diag){
+    constructor(idDialog, form, options) {
         this.idDialog = idDialog
         this.form = form
         // @ts-ignore
-        this.dialogue = $("#"+this.idDialog).dialog(diag)
-        $("#"+this.idDialog).html(this.form.getHTML())
-    } 
+        this.dialogue = $("#" + this.idDialog).dialog(options)
+        $("#" + this.idDialog).html(this.form.getHTML())
+    }
 
 
     /** Affiche la boite de dialogue
      * 
      */
-    display(){
+    display() {
         this.dialogue.dialog('open')
     }
 
@@ -466,16 +467,20 @@ class Dialog{
         this.dialogue.dialog('close')
     }
 
-    getInputs(){
+    getInputs() {
         let val = []
         let o
         const tab = $($(this.dialogue)[0].children[0]).find("input")
         // @ts-ignore
         tab.each((index, elt) => {
-            o = {name:elt.name, id:elt.id, val:elt.value}
+            o = { name: elt.name, id: elt.id, val: elt.value }
             val.push(o)
         })
         return val
+    }
+
+    destroy(){
+        this.dialogue.dialog('destroy')
     }
 }
 
@@ -484,7 +489,7 @@ class Dialog{
  * @classdesc  Sert à insérer des enfants en ayant déclaré le parent avant
  */
 class Domus {
-    
+
     /**
      * 
      * @param {Element} parent élément parent 
@@ -618,7 +623,7 @@ class Input extends Element {
         this._feedback = null || o.feedback
         this.type = type
         const local = ["label", "feedback"]
-        const valid = ["value","size","max","min","pattern","placeholder"]
+        const valid = ["value", "size", "max", "min", "pattern", "placeholder"]
         if (o) {
             for (let key in o) {
                 if (local.includes(key))
@@ -636,14 +641,14 @@ class Input extends Element {
                 switch (key) {
                     // tableau d'objets
                     case '_ext':
-                        
+
                         // @ts-ignore
                         oElt.forEach(element => {
                             data = Object.entries(element)
                             prop = data[0][0] + "-" + data[0][1].toLowerCase()
-                            this[prop] = data[1][1]    
+                            this[prop] = data[1][1]
                         });
-                        
+
                         break
                     case 'default':
                         // on vérifie si une fonction existe en préfixant par 'add' 
@@ -677,7 +682,7 @@ class Input extends Element {
         return this
     }
 
-    setMaxLength(value){
+    setMaxLength(value) {
         this.maxlength = value
         return this
     }
@@ -722,15 +727,15 @@ class Input extends Element {
         const offset = oFeed.o.offset || 5
         const cls = oFeed.o.class || "feedback"
         const msgs = oFeed.feedback
-        
+
         // si type inline
-        if (oFeed.o.type && oFeed.o.type == 'inline'){
-            this._feedback = "<p class = 'error_feedback' id='invalid_" + id + "'>" + msgs[0] + "</p>"    
+        if (oFeed.o.type && oFeed.o.type == 'inline') {
+            this._feedback = "<p class = 'error_feedback' id='invalid_" + id + "'>" + msgs[0] + "</p>"
         } else {
             this._feedback = "<div class='row'><div class = 'col-" + offset + "'></div><div class = '" + cls + "'>"
-            this._feedback += "<p class = 'error_feedback' id='invalid_" + id + "'>" + msgs[0] + "</p>" 
+            this._feedback += "<p class = 'error_feedback' id='invalid_" + id + "'>" + msgs[0] + "</p>"
         }
-        
+
         if (msgs.length > 1)
             this._feedback += "<p class='valid_feedback' id='valid_" + id + "' >" + msgs[1] + "</p>"
         this._feedback += "</div></div>"
@@ -744,7 +749,7 @@ class Input extends Element {
      * @returns {Input}
      */
     setFeedback(msgs, prm) {
-        this._feedback = {feedback: msgs, o: prm}
+        this._feedback = { feedback: msgs, o: prm }
         return this
     }
 
@@ -783,10 +788,10 @@ class P extends Element {
     }
 }
 
-class Span extends Element{
+class Span extends Element {
 
-    constructor(text, o=null) {
-        super("span",o)
+    constructor(text, o = null) {
+        super("span", o)
         this._text = text
     }
 }
@@ -825,7 +830,7 @@ class Img extends Element {
         super('img', o)
         this.src = src
         const local = ["label", "feedback"]
-        const valid = ["alt","crossorigin","decoding", "height", "ismap", "max","min","pattern","placeholder", "width"]
+        const valid = ["alt", "crossorigin", "decoding", "height", "ismap", "max", "min", "pattern", "placeholder", "width"]
         if (o) {
             for (let key in o) {
                 if (local.includes(key))
@@ -834,7 +839,7 @@ class Img extends Element {
                     this[key] = o[key]
             }
         }
-        for (const key in o){
+        for (const key in o) {
             this[key] = o[key]
         }
     }
@@ -866,12 +871,12 @@ class Img extends Element {
  */
 class Alert {
 
-/**
- * 
- * @param {string} id ID
- * @param {string} type type de l'alerte
- * @param {string} message message
-*/ 
+    /**
+     * 
+     * @param {string} id ID
+     * @param {string} type type de l'alerte
+     * @param {string} message message
+    */
     constructor(id, type, message) {
         this.id = id
         this.type = type

@@ -14,19 +14,17 @@ import { gDosage, gGraphMenu, gGraphs, gLab } from "../environnement/globals.js"
 import { ES_BT_dspINFO_OX, MNU_ESPECES, ESPECES, ES_BT_dspINFO_AC } from "./../especes/html_cts.js"
 
 // utils
-import * as e from "../modules/utils/errors.js";
+import * as E from "../modules/utils/errors.js";
 import { uArray } from "../modules/utils/array.js";
 import { mixColors } from "../modules/utils/color.js";
-import { hasKey, isEmpty } from "../modules/utils/object.js";
+import { hasKey} from "../modules/utils/object.js";
 import { isNumeric } from "../modules/utils/type.js";
 import { getEltID, getElt } from "../modules/utils/html.js";
 import { dspContextInfo, dspErrorMessage } from "../infos/infos.js";
 
 // labo
-import { set_drag } from "./ui/flacon.js";
-
-import { setEvents, setEventsClick, resetLabo } from "./dosage.events.js";
-import { dspTabDosage, setButtonClass, initGraphMenu } from "./dosage.ui.js";
+import { setEvents, setEventsClick } from "./dosage.events.js";
+import { dspTabDosage, createGraphMenu } from "./dosage.ui.js";
 import { dspTabEspeces } from "../especes/especes.ui.js";
 import { resetMesures, setDosageValues, updValues, getDosage } from "./dosage.datas.js";
 import { showGraph } from "./dosage.graph.js";
@@ -68,23 +66,23 @@ async function initDosage(dosage) {
             // Dosage réussi
             else {
 
-                // initialise la constante dosage avec data
+                // initialise la constante dosage avec data issu de Python (dosage.data)
                 setDosageValues(dosage, data)
 
-                // modifie l'état
-                dosage.setState('DATA_INIT', 1)
-                dosage.setState('APPAREIL_ACTIF', 0)
-
                 // Affiche page
-                if (dosage.getState('GRAPH_TYPE') == 0) {
+                if (dosage.getState('LAB_INIT') == 0) {
                     getEltID(ui.DOSAGE).html(html);
                     getElt(".title").html(dosage.title)
-                    //initGraphMenu()
+
+                    // Initialisation du dosage (dosage.js), crée le graphMenu  
+                    createLab(dosage)
+                } else {
+                    gGraphMenu.displayMenu(true)
                 }
 
-                /** Initialisation du dosage (dosage.js)  */
-                if (!dosage.getState('LAB_INIT'))
-                    createLab(dosage)
+                gDosage.setState("DOSAGE_INIT",1)
+
+                dosage.setID()
 
                 // On bascule sur dosage
                 dspTabEspeces(false)
@@ -95,18 +93,13 @@ async function initDosage(dosage) {
                 // Affichage
                 showGraph()
 
-                resetLabo(false)
-                
-                // affiche menu déroulant si il y a des items suvegardés
-                if (! isEmpty(gGraphMenu.menu) && gGraphMenu.menu.getRows().length > 0) {
-                    // Affiche le menu
-                    gGraphMenu.menu.displayMenu(gGraphMenu.idRootMenu, true)
-                }
-                dosage.setState('INDIC_ON', 0)
+                // initialise les états
+                gDosage.resetState()
+                gGraphs.resetState()
 
                 // désactive les boutons
                 //setButtonClass("")
-                set_drag(gLab.flacons, true)
+                gLab.setDragFlacons(true)
             }
         })
     }
@@ -146,18 +139,9 @@ async function createLab(dosage) {
         // @ts-ignore
         // eslint-disable-next-line no-undef
         gLab.setCanvas("#" + ui.DOS_CANVAS, "./" + cts.FILE_BACKGROUND_LABO, labo)
-        /*
-        gLab.canvas = oCanvas.create({
-            canvas: "#" + ui.DOS_CANVAS,
-            fps: 40,
-            background: "./" + cts.FILE_BACKGROUND_LABO,
-        });
-        gLab.canvas.width = labo.CANVAS.width;
-        gLab.canvas.height = labo.CANVAS.height;
-        */
+
         // fond écran
         gLab.setBackground("image(" + cts.FILE_BACKGROUND_LABO + ")")
-        //gLab.canvas.background.set("image(" + cts.FILE_BACKGROUND_LABO + ")");
 
         // création des éléments
         gLab.initBecher(dosage)
@@ -181,9 +165,11 @@ async function createLab(dosage) {
     // Affiche info
     dspContextInfo("init")
 
-    initGraphMenu()
+    // initialise menu des graphes (GRAPMENU_INIT = 1)
+    createGraphMenu()
 
     dosage.setState('LAB_INIT', 1)
+    gGraphs.setState('GRAPHMENU_INIT', 1)
     /*
     } else {
         getEltID(ui.DOS_DIV_GRAPH).hide()
@@ -242,7 +228,7 @@ function vidage(lab, dosage) {
  * @file dosage.js
  */
 function getColor(container) {
-    if (!isNumeric(container)) throw new TypeError(e.ERROR_NUM);
+    if (!isNumeric(container)) E.debugError(E.ERROR_NUM);
 
     function _getColorPH() {
         let resp = ""
@@ -324,4 +310,7 @@ function getColor(container) {
     return resp
 }
 
-export { createLab, updValues, vidage, getColor, resetMesures, setDosageValues, setEvents, setEventsClick, initDosage };
+
+
+
+export { createLab, updValues, vidage, getColor, resetMesures, setDosageValues, setEvents, setEventsClick, initDosage};

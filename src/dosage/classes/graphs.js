@@ -1,10 +1,15 @@
 import { Graph } from "./graph.js"
 import { getValues } from "../dosage.datas.js"
-import { cts } from "../../environnement/constantes.js"
+import { cts, ETATS_GRAPH, ETATS_GRAPH_INIT } from "../../environnement/constantes.js"
 import { around, getDecimal } from "../../modules/utils/number.js"
 import { gDosage, gGraphs } from "../../environnement/globals.js"
 import { copyDeep } from "../../modules/utils/object.js"
 import { setEventsClick } from "../dosage.events.js"
+import { isArray, isBoolean, isNumeric, isString } from "../../modules/utils/type.js"
+import * as E from "../../modules/utils/errors.js"
+import * as ui from "../ui/html_cts.js"
+import { setButtonClass, setButtonState } from "../dosage.ui.js"
+import { dspContextInfo } from "../../infos/infos.js"
 
 /**
  * @classdesc Cette classe permer de préciser la courbe active ainsi que les paramètres et valeurs des courbes enregistrées.
@@ -27,6 +32,7 @@ class Graphs {
         /** @type {Graph} en cours */
         this.currentChart = new Graph(canvas)
 
+        this.etats = copyDeep(ETATS_GRAPH)
     }
 
     /** Calcule et retourne un ID de courbe
@@ -37,6 +43,9 @@ class Graphs {
      * @returns {string} nouvel ID
      */
     genNewID(type, idDosage) {
+        if (!(type in [1, 2, 3])) E.debugError(E.ERROR_RANGE)
+        if (!isNumeric(idDosage)) E.debugError(E.ERROR_NUM)
+
         const app = ['ph', 'cd', 'pt']
         return app[type] + idDosage
     }
@@ -47,30 +56,46 @@ class Graphs {
      * @visible {boolean|-1} indique l'état de visibilité, si -1 on inverse l'état 
     */
     setVisibility(id, visible) {
+        if (!isString(id)) E.debugError(E.ERROR_STR)
+        if (visible !== true && visible !== false && visible !== -1) E.debugError(E.ERROR_PRM)
+
         const o = this.charts.get(id)
-        if (o === undefined) return
-        if (visible == -1)
-            o.visible = !o.visible
+        if (o)
+            if (visible == -1)
+                o.visible = !o.visible
+            else
+                o.visible = visible
         else
-            o.visible = visible
+            E.debugError(E.ERROR_RETURN)
     }
 
     /** Retourne si un graphe est visible en fonction du ID
      * 
      * @param {string} id ID
-     * @return {boolean}
+     * @return {boolean|void}
      */
     isVisible(id) {
-        return this.charts.get(id).visible
+        if (!isString(id)) E.debugError(E.ERROR_STR)
+        const o = this.charts.get(id)
+        if (o)
+            return o.visible
+        else
+            E.debugError(E.ERROR_RETURN)
     }
 
     /** indique si le graphe est sauvé
      * 
      * @param {string} id 
-     * @returns {boolean}
+     * @returns {boolean|void}
      */
     isSave(id) {
-        return this.charts.get(id).save
+        if (!isString(id)) E.debugError(E.ERROR_STR)
+        // @ts-ignore
+        const o = this.charts.get(id)
+        if (o)
+            return o.save
+        else
+            E.debugError(E.ERROR_RETURN)
     }
 
     /** Actualise flag 'Save' dans le tableau 'charts'
@@ -80,14 +105,111 @@ class Graphs {
      * @file graphs.js
     */
     setChartSaveFlag(id, state) {
-        let val = this.charts.get(id)
-        val.save = state
-        this.charts.set(id, val)
+        if (!isString(id)) E.debugError(E.ERROR_STR)
+        if (!isBoolean(state)) E.debugError(E.ERROR_BOOL)
+
+        let o = this.charts.get(id)
+        if (o) {
+            o.save = state
+            this.charts.set(id, o)
+        } else {
+            E.debugError(E.ERROR_RETURN)
+        }
     }
+
+    setState(etat, value) {
+        this.etats[etat] = value
+    }
+
+    getState(etat) {
+        return this.etats[etat]
+    }
+
+    /** Réinitialise les graphes
+    * - réinitialise les tableaux data
+    * - supprime les courbes (tangente,...)
+    * - désactive visibilité graphes
+    * 
+    */
+    reset() {
+
+        // On remet à zéro le graphe courant
+        if (this.idCurrentChart != '') {
+            //gGraphs.charts.get(gGraphs.idCurrentChart).data = []
+            this.currentChart.data = []
+            this.currentChart.data_theorique = []
+            this.currentChart.data_derive_theorique = []
+
+            // supprime les courbes si présentes
+            if (this.getState('TANGENTE') == 1) {
+                setTangente(1, ui.DOS_BT_TAN1)
+                setButtonClass(ui.DOS_BT_TAN1, 0)
+            }
+            if (this.getState('TANGENTE') == 2) {
+                setTangente(1, ui.DOS_BT_TAN2)
+                setButtonClass(ui.DOS_BT_TAN2, 0)
+            }
+            if (this.getState('PERPENDICULAIRE') == 1) {
+                gGraphs.currentChart.dspPerpendiculaire(0)
+                this.setState('PERPENDICULAIRE', 0)
+                setButtonClass(ui.DOS_BT_PERP, 0)
+            }
+            if (this.getState('THEORIQUE') == 1) {
+                this.currentChart.dspCourbeTheorique(0)
+                setButtonClass(ui.DOS_BT_COTH, 0)
+            }
+
+            // désactive visibilité de tous les graphes
+            this.charts.forEach(e => { e.visible = false })
+        }
+    }
+
+    resetState(){
+        ETATS_GRAPH_INIT.forEach((e) => {
+            this.setState(e, 0)
+        })
+    }
+
+}
+
+/** action lors du clic sur boutons tangente
+ * 
+ * @param {number} idTangente N° de la tangente
+ * @param {string} idBtTangente ID bouton
+ * @use _dspPerpendiculaire, setButtonState, setButtonClass
+ */
+ function setTangente(idTangente, idBtTangente) {
+
+    const currentChart = gGraphs.currentChart
+
+    // si tan déjà affichée on l'efface
+    if (gGraphs.getState('TANGENTE') & idTangente) {
+        gDosage.event = gGraphs.getState('TANGENTE') ^ idTangente
+        gGraphs.setState('TANGENTE', gDosage.event)
+        currentChart.delTangente(idTangente);
+
+        currentChart.indiceTangentes[idTangente] = -1
+
+        // supprime la perpendiculaire si existe
+        if (gGraphs.getState('PERPENDICULAIRE') == 1) {
+            currentChart.dspPerpendiculaire(0)
+            gGraphs.setState("PERPENDICULAIRE", 0)
+
+        }
+        // activation des boutons
+        setButtonState()
+    } else {
+        gDosage.event = idTangente
+        dspContextInfo("dspTangente")
+    }
+    gGraphs.setState('MOVE_TANGENTE', 0)
+
 }
 
 
 function _getYaxeName(id) {
+    if (!isString(id)) E.debugError(E.ERROR_STR)
+
     const _values = ['pH', 'Conductance (mS)', 'Potentiel (V)']
     const _types = ['ph', 'cd', 'pt']
 
@@ -140,10 +262,16 @@ function getOptionsFromCharts() {
 
 /** Retourne l'option
 * 
-* @param {string} id
+* @param {string} id id de la courbe
+* @param {number} chartsIndex indice de la courbe
+* @param {[]} data tableau des valeurs
 * @returns {object} option
 */
 function getOption(id, chartsIndex = 0, data = []) {
+    if (!isString(id)) E.debugError(E.ERROR_STR)
+    if (!isNumeric(chartsIndex)) E.debugError(E.ERROR_NUM)
+    if (!isArray(data)) E.debugError(E.ERROR_ARRAY)
+
     const values = getValues(id)
     let options = jQuery.extend(true, {}, cts._GR_OPTIONS)
     options['chart']['events'] = {
@@ -177,4 +305,15 @@ function getOption(id, chartsIndex = 0, data = []) {
     return options
 }
 
-export { Graphs, getOption, getOptionsFromCharts }
+var gGraphListenUpdate = (data, o) => {
+    const vars = ['GRAPHMENU_INIT', 'GRAPH_INIT', 'GRAPH_TYPE']
+    if (vars.indexOf(data.property) != -1) {
+        if (E.DEBUG == E.ERROR_L2)
+            console.error(data)
+        else if (E.DEBUG == E.ERROR_L3)
+            console.log(data)
+    }
+    
+}
+
+export { Graphs, getOption, getOptionsFromCharts, setTangente, gGraphListenUpdate }

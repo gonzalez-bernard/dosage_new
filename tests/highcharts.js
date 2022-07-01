@@ -1,7 +1,7 @@
 
-import * as e from "../src/modules/utils/errors.js"
+import * as E from "../src/modules/utils/errors.js"
 import { isNumeric, isString, isArray } from "../src/modules/utils/type.js"
-import { createObjectFromString} from "../src/modules/utils/object.js"
+import { createObjectFromString } from "../src/modules/utils/object.js"
 
 const canvas = 'chart'
 let _data1 = [[0.5, 0.5], [2, 8], [3, 15]]
@@ -60,15 +60,15 @@ class Highchart {
       const e = chart.pointer.normalize(evt);
       let coord = self.getAxisCoord(e.chartX, e.chartY)
       //if (self.isInInterval(coord, 0)){
-        self.mouseX = coord.x
-        self.mouseY = coord.y
-        callback(coord.x, coord.y)
+      self.mouseX = coord.x
+      self.mouseY = coord.y
+      callback(coord.x, coord.y)
       //}
     });
   }
 
-  isInInterval(coords, id = 0){
-    if (coords.x >= this.chart.xAxis[id].min && coords.x <= this.chart.xAxis[id].max && coords.y >= this.chart.yAxis[id].min && coords.y <= this.chart.yAxis[id].max) 
+  isInInterval(coords, id = 0) {
+    if (coords.x >= this.chart.xAxis[id].min && coords.x <= this.chart.xAxis[id].max && coords.y >= this.chart.yAxis[id].min && coords.y <= this.chart.yAxis[id].max)
       return true;
     return false
   }
@@ -80,8 +80,8 @@ class Highchart {
    * @param {number} id index de l'axe
    * @returns {{x:number, y:number}}
    */
-  getAxisCoord(x,y,id=0){
-    return {x: this.chart.xAxis[id].toValue(x), y: this.chart.yAxis[id].toValue(y)}
+  getAxisCoord(x, y, id = 0) {
+    return { x: this.chart.xAxis[id].toValue(x), y: this.chart.yAxis[id].toValue(y) }
   }
 
   /** Met à jour une série
@@ -90,20 +90,20 @@ class Highchart {
    * @param {array} data données 
    */
   updateSerie(id, data) {
-    if (!isNumeric(id) && !isString) throw new TypeError(e.ERROR_PRM)
-    if (!isArray(data)) throw new TypeError(e.ERROR_ARRAY)
+    if (!isNumeric(id) && !isString) E.debugError(E.ERROR_PRM)
+    if (!isArray(data)) E.debugError(E.ERROR_ARRAY)
 
     if (isNumeric(id)) {
       if (this.chart.series.length > id)
         this.chart.series[id].setData(data)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     } else {
       const serie = this.chart.series.filter(e => e.name == id)[0]
       if (serie)
         serie.setData(data)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     }
     this.chart.redraw()
   }
@@ -113,18 +113,18 @@ class Highchart {
    * @param {string|number} id identifie la série soit par son numéro soit par son nom
    */
   deleteSerie(id) {
-    if (!isNumeric(id) && !isString) throw new TypeError(e.ERROR_PRM)
+    if (!isNumeric(id) && !isString) E.debugError(E.ERROR_PRM)
     if (isNumeric(id)) {
       if (this.chart.series.length > id)
         this.chart.series[id].remove(false)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     } else {
       const serie = this.chart.series.filter(e => e.name == id)[0]
       if (serie)
         serie.remove(false)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     }
     this.chart.redraw()
   }
@@ -142,7 +142,7 @@ class Highchart {
     serieOptions.data = data
     if (axeOptions != null) {
       if (axeOptions.name === undefined)
-        throw new TypeError(e.ERROR_PRM)
+        E.debugError(E.ERROR_PRM)
       serieOptions.yAxis = axeOptions.name
       this.chart.addAxis(axeOptions)
     }
@@ -200,14 +200,14 @@ class Highchart {
 document.addEventListener('DOMContentLoaded', function () {
 
   const activeEventMouse = () => {
-    if (iChart.events.mousemove){
+    if (iChart.events.mousemove) {
       iChart.evntMouseOut()
     }
     else {
       iChart.evntMouseMove(distance)
     }
     console.log(iChart.events.mousemove)
-      
+
   }
 
   const changeDataSerie = () => {
@@ -220,14 +220,14 @@ document.addEventListener('DOMContentLoaded', function () {
     //iChart.updateChart(iChart.PLOT_COLOR, ["scatter","#FF55FF"])
     //iChart.addSerie(_data3, { name: 'test', , color: "#0C00FF" }, { title: { text: "t3" }, id: "data3" }, true, { duration: 0 })
     iChart.updateChart(iChart.AXES_RANGE, ["xAxis", 0, 20])
-    iChart.updateChart(iChart.AXES_TICKS, ["xAxis",10, 2])
+    iChart.updateChart(iChart.AXES_TICKS, ["xAxis", 10, 2])
   }
 
   const iChart = new Highchart(canvas)
   const options = {
     chart: {
       type: 'scatter',
-      
+
     },
     plotOptions: {
       series: {
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
     iChart.chart.series[0].setData(d, false, false, false)
     iChart.chart.redraw()
     //if (x < 1)
-      //iChart.evntMouseOut()
+    //iChart.evntMouseOut()
   }
 
   //iChart.evntMouseMove(distance)

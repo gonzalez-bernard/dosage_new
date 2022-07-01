@@ -5,12 +5,12 @@
 import * as ui from "./html_cts.js"
 import { cts } from "../environnement/constantes.js"
 import { gEspeces, gDosage } from "../environnement/globals.js"
-import { setDosageOxValues, setDosageAcValues} from "./especes.data.js"
+import { setDosageOxValues, setDosageAcValues } from "./especes.data.js"
 import { getElt, getValue, getEltID } from "../modules/utils/html.js"
 import { inputValidSaisie, updSaisieSelect, getListEspeceTitrante, changeOxSelect, initDataInfo } from "./especes.ui.js"
 import { Form } from "../modules/utils/form.js"
 import { dspInfo } from "../infos/infos.js";
-import { initDosage} from "../dosage/dosage.js"
+import { initDosage } from "../dosage/dosage.js"
 import { MNU_DOSAGE } from "../dosage/ui/html_cts.js";
 
 // test
@@ -91,11 +91,11 @@ function setEvents(G) {
 
     /**  Validation        */
     getEltID(ui.ES_BT_VALID).on('click', function () {
-        
+
         // type de dosage (acide/base ou autres)
         gDosage.type = getValue("input[name='choice_type']:checked", { type: "int" });
 
-        // initialise espèces et calcule les différents points (volume, pH,...)
+        // initialise espèces avec le formulaire
         if (gDosage.type == cts.TYPE_ACIDEBASE) {
             setDosageAcValues(gDosage, gEspeces);
             gDosage.title = "Dosage " + gDosage.titre.nomc + " par " + gDosage.titrant.nomc;
@@ -103,10 +103,14 @@ function setEvents(G) {
             setDosageOxValues(gDosage, gEspeces);
             gDosage.title = new uString(gDosage.label).convertExpoIndice().html;
         }
-        initDosage(gDosage)
 
         // indique que les espèces ont été enregistrées
         gDosage.setState('ESPECES_INIT', 1);
+
+        // Calcule les différents points (volume, pH,...) (dosage.js)
+        // Crée l'interface Labo et graphMenu si nécessaire
+        // actualise gDosage;etat (DOSAGE_INIT et GRPHMENU_INIT)
+        initDosage(gDosage)
 
         // active l'onglet dosage
         getEltID(MNU_DOSAGE).removeClass("disabled disabledTab");

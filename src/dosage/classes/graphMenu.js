@@ -80,12 +80,14 @@ class graphMenu {
 
   /** Affiche le menu et initialise les events
    * 
-   * @param {string} id id de la page web
+   * //@param {string} id id de la page web
    * @param {boolean} display indique si on doit afficher le menu
    * @file dom.js
    */
-  displayMenu(id, display = false) {
-    this.menu.displayMenu(id, display)
+  displayMenu(display = false) {
+    if (display && this.menu.getRows().length == 0)
+      return
+    this.menu.displayMenu(this.idRootMenu, display)
   }
 
   /** Génère le menu
@@ -114,7 +116,19 @@ class graphMenu {
   // cache le dialogue
   hideDialog() {
     this.dialog.hide()
+    //this.dialog.destroy()
   }
+
+  // Définit les listeners qui affichent ou cachent le menu
+  displayEvents() {
+    this.menu.displayEvents();
+  }
+
+  // Gère le changement d'icone
+  changeIconEvents() {
+    this.menu.changeIconEvents()
+  }
+
 }
 
 export { graphMenu }

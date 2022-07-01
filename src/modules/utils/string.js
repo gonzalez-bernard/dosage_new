@@ -6,8 +6,8 @@
  * ***
  * ***export uString dspHtmlLatex***
 */
-import {isBoolean, isString, isInteger, isFloat} from "./type.js" 
-import * as e from "./errors.js"
+import { isBoolean, isString, isInteger, isFloat } from "./type.js"
+import * as E from "./errors.js"
 class uString extends String {
 
   /** 
@@ -22,17 +22,17 @@ class uString extends String {
   }
 
   /** retourne la valeur */
-  getVal(){
+  getVal() {
     return this.val
   }
 
   /** retourne chaîne HTML */
-  getHtml(){
+  getHtml() {
     return this.html
   }
 
   /** retourne tableau */
-  getArray(){
+  getArray() {
     return this.array
   }
 
@@ -45,11 +45,11 @@ class uString extends String {
    * @file 'modules/utils/string.js'
    */
   insertMotif(motif, pos = 0, exist = false) {
-    
-    if (! isString(motif)) throw new TypeError(e.ERROR_STR)
-    if (! isInteger(pos)) throw new TypeError(e.ERROR_NUM)
-    if (pos >= this.val.length) throw new RangeError(e.ERROR_RANGE)
-    if (! isBoolean(exist)) throw new TypeError(e.ERROR_BOOL) 
+
+    if (!isString(motif)) E.debugError(E.ERROR_STR)
+    if (!isInteger(pos)) E.debugError(E.ERROR_NUM)
+    if (pos >= this.val.length) throw new RangeError(E.ERROR_RANGE)
+    if (!isBoolean(exist)) E.debugError(E.ERROR_BOOL)
     if (this.val.indexOf(motif) == pos) return this
 
     let left = this.val.substring(0, pos)
@@ -77,8 +77,8 @@ class uString extends String {
    */
   insertRegChaine(ajout = '', debut = true) {
 
-    if (!isString(ajout)) throw new TypeError(e.ERROR_STR)
-    if (!isBoolean(debut)) throw new TypeError(e.ERROR_BOOL)
+    if (!isString(ajout)) E.debugError(E.ERROR_STR)
+    if (!isBoolean(debut)) E.debugError(E.ERROR_BOOL)
 
     let subst = ''
     if (debut)
@@ -96,29 +96,29 @@ class uString extends String {
   convertHtmlChar() {
     // @ts-ignore
     const code = {
-      ' ' : '&nbsp;',
-      '¢' : '&cent;',
-      '£' : '&pound;',
-      '¥' : '&yen;',
-      '€' : '&euro;', 
-      '©' : '&copy;',
-      '®' : '&reg;',
-      '<' : '&lt;', 
-      '>' : '&gt;',  
-      '"' : '&quot;', 
-      '&' : '&amp;',
-      '\'' : '&apos;',
-      '\n' : '&#10;'
-  };
-  this.html =  this.val.replace(/[\u00A0-\u9999<>\n\&''""]/gm, (i)=>code[i]);
-  //this.html = this.html.replace('&new;','<br>')
+      ' ': '&nbsp;',
+      '¢': '&cent;',
+      '£': '&pound;',
+      '¥': '&yen;',
+      '€': '&euro;',
+      '©': '&copy;',
+      '®': '&reg;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      '&': '&amp;',
+      '\'': '&apos;',
+      '\n': '&#10;'
+    };
+    this.html = this.val.replace(/[\u00A0-\u9999<>\n\&''""]/gm, (i) => code[i]);
+    //this.html = this.html.replace('&new;','<br>')
 
     //this.html = this.val.replaceAll("'", "&apos;")
     //return this
     //this.html = .replace(/(&#(\d+);)/g, function(match, capture, charCode) {
     //return String.fromCharCode(charCode);
-    //this.html = this.val.replace(/[\\x26\\x0A\\<>'"]/g,function(e){return"&#"+e.charCodeAt(0)+";"})
-    
+    //this.html = this.val.replace(/[\\x26\\x0A\\<>'"]/g,function(e){return"&#"+E.charCodeAt(0)+";"})
+
     return this
   }
 
@@ -130,7 +130,7 @@ class uString extends String {
  * @file 'modules/utils/string.js'
  */
   convertArrow(right = "->", left = "<-") {
-    if (!isString(right) || !isString(left)) throw new TypeError(e.ERROR_STR)
+    if (!isString(right) || !isString(left)) E.debugError(E.ERROR_STR)
 
     if (this.html != '')
       this.html = this.html.replace(right, '&rarr;')
@@ -152,15 +152,15 @@ class uString extends String {
 */
   convertExpoIndice(html = true, num_only = true, exp = "'", ind = "_") {
 
-    if (!isBoolean(html) || !isBoolean(num_only)) throw new TypeError(e.ERROR_BOOL)
-    if (!isString(exp) || !isString(ind)) throw new TypeError(e.ERROR_STR)
+    if (!isBoolean(html) || !isBoolean(num_only)) E.debugError(E.ERROR_BOOL)
+    if (!isString(exp) || !isString(ind)) E.debugError(E.ERROR_STR)
 
     var reg_sup, reg_inf
     const r1 = "([\\d\\+\\-]*)"
     const r2 = "([\\da-z\\(\\)\\+\\-]*)"
     const r0 = "([\\d]*)"
     const r3 = "([\\da-z\\(\\)]*)"
- 
+
     if (num_only) {
       if (html)
         reg_sup = new RegExp(exp + r1 + exp + "|&apos;" + r1 + "&apos;", 'g')
@@ -191,15 +191,15 @@ class uString extends String {
   * @file 'modules/utils/string.js'
  */
   strListToArray(sep = ",", html = false) {
-    
-    if (!isBoolean(html)) throw new TypeError(e.ERROR_BOOL)
-    if (!isString(sep) ) throw new TypeError(e.ERROR_STR)
+
+    if (!isBoolean(html)) E.debugError(E.ERROR_BOOL)
+    if (!isString(sep)) E.debugError(E.ERROR_STR)
 
     if (html && this.html != '')
       this.array = this.html.replace(/[[\]]/g, '').split(sep)
     else
       this.array = this.val.replace(/[[\]]/g, '').split(sep)
-    
+
     // Analyse chaque élément et les transforme en nombre si nécessaire
     this.array = this.array.map(element => {
       if (isFloat(element)) return parseFloat(element)
@@ -216,10 +216,10 @@ class uString extends String {
    * @param {number} pos définit le type
    * @return {string} chaîne tronquée
    * */
-  getStringDelimSymbol(symbol, pos = 0){
-    const regexp = pos == 0 ? new RegExp("([^"+symbol+"])") : new RegExp(symbol + "([^"+symbol+"])") 
+  getStringDelimSymbol(symbol, pos = 0) {
+    const regexp = pos == 0 ? new RegExp("([^" + symbol + "])") : new RegExp(symbol + "([^" + symbol + "])")
     const v = this.val.match(regexp)
-    if ( v == null || v.length === 0 ) return ""
+    if (v == null || v.length === 0) return ""
     return v[0]
   }
 }
@@ -234,8 +234,8 @@ class uString extends String {
  */
 var dspHtmlLatex = function (html, target) {
 
-  if (! isString(html) || !isString(target)) throw new TypeError(e.ERROR_STR)
-  
+  if (!isString(html) || !isString(target)) E.debugError(E.ERROR_STR)
+
   // @ts-ignore
   MathJax.typesetPromise().then(() => {
     $(target).html(html)
@@ -252,7 +252,7 @@ var dspHtmlLatex = function (html, target) {
  * @returns {string}
  * @file 'modules/utils/string.js'
  */
-function insertDiese(str){
+function insertDiese(str) {
   if (str.indexOf("#") == 0)
     return str
   return new uString(str).insertMotif('#').getVal()
@@ -265,11 +265,11 @@ function insertDiese(str){
  * @param {number} pos pos = 0 en début sinon en fin de chaîne
  * @returns str
  */
-function insertChar(str, char, pos = 0){
+function insertChar(str, char, pos = 0) {
   if (str.indexOf(char) == 0) return str
   return new uString(str).insertMotif(char, pos).getVal()
 }
 
 
 
-export {dspHtmlLatex, insertDiese, insertChar, uString }
+export { dspHtmlLatex, insertDiese, insertChar, uString }

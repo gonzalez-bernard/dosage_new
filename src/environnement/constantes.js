@@ -1,28 +1,35 @@
 //import { setEventsClick } from "../dosage/dosage.events.js"
 
 // Constantes javascript
-const etats = {
-    ESPECES_INIT: 0,    /** espèces définies */
-    APPAREIL_ON: 0,     /** on peut activer un appareil */
-    APPAREIL_TYPE: 0,   /** pHmètre (1), conductimètre (2) ou potentiomètre (3) branché */
-    APPAREIL_ACTIF: 0,  /** appareil actif ou inactif */
-    DOSAGE_ON: 0,       /** on peut vidanger */
-    LAB_INIT: 0,        /** laboratoire créé */
+const ETATS_DOSAGE = {
+    ESPECES_INIT: 0,    /** espèces définies après saisie dans especes */
+    APPAREIL_ON: 0,     /** appareil activable nécessite ESPECES_INIT, LAB_INIT et DOSAGE_INIT */
+    APPAREIL_TYPE: 0,   /** necessite APPAREIL_ON - inactif(0), pHmètre(1), conductimètre(2), potentiomètre (3) branché */
+    DOSAGE_ON: 0,       /** on peut vidanger necessite APPAREIL_TYPE*/
+    LAB_INIT: 0,        /** laboratoire créé lors du premier dosage*/
     INDIC_ON: 0,        /** indicateur coloré mis */
-    GRAPH_INIT: 0,      /** le graphe a été créé */
-    GRAPH_TYPE: 0,      /** type de graphe affiché 1:PH, 2: CD et 3:PT ou 4: multiple*/
-    DATA_INIT: 0,       /** données existantes */
+    DOSAGE_INIT: 0,     /** données existantes dans la structure gDosage */
+    PROBLEM: 0,         /** probleme actif */
+}
+
+const ETATS_GRAPH = {
+    GRAPH_INIT: 0,      /** la structure de graphe a été créé */
+    GRAPHMENU_INIT:0,   /** le menu graphe est créé */
+    GRAPH_TYPE: 0,      /** type de graphe affiché 0: rien 1:PH, 2: CD et 3:PT ou 4: multiple*/
     DERIVEE_INIT: 0,    /** indique si les valeurs de la dérivée sont calculées */
     DERIVEE_ON: 0,      /** indique si la dérivée est affichée */
     DERIVEE_EXP: 0,     /** dérivée expérimentale affichée */
     TANGENTE: 0,        /** précise les tangentes affichées 0: aucune, 1: tan1, 2: tan2, 3: tan1 et 2*/
     PERPENDICULAIRE: 0, /** perpendiculaire entre tangente 0: aucune, 1: perpendiculaire affichée*/
     MOVE_TANGENTE: 0,   /** déplacement tangente activé */
-    GRAPH_SAVE: 0,      /** Sauvegarde des courbes */
+    GRAPH_SAVE: 0,      /** Sauvegarde des courbes utile pour affichage du menu */
     THEORIQUE: 0,       /** courbe théorique affichée */
-    PROBLEM: 0,         /** probleme actif */
-
+    
 }
+
+/** liste des états à initialiser lors d'un nouveau dosage */
+const ETATS_DOSAGE_INIT = ['APPAREIL_TYPE','INDIC_ON','PROBLEM']
+const ETATS_GRAPH_INIT = ['GRAPH_TYPE','DERIVEE_INIT','DERIVEE_ON','DERIVEE_EXP','TANGENTE','PERPENDICULAIRE','MOVE_TANGENTE','THEORIQUE']
 
 const cts = {
 
@@ -106,7 +113,7 @@ const cts = {
         title: {
             text: 'Dosage'
         },
-        
+
         // colors: ['#ff0000','#42C4F0FF'],
         /* grid: {
             position: 'front',
@@ -196,4 +203,4 @@ const cts = {
     DOS_TITRANT_MIN: 1
 }
 
-export { cts, etats }
+export { cts, ETATS_DOSAGE, ETATS_DOSAGE_INIT, ETATS_GRAPH, ETATS_GRAPH_INIT }

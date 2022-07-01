@@ -91,7 +91,7 @@
  */
 
 import { copyDeep, hasKey, isEmpty, replace, updateItem } from "./utils/object.js"
-import * as e from "./utils/errors.js"
+import * as E from "./utils/errors.js"
 import { isObject, isString, isNumeric, isInteger, isDefined, isArray, isFunction } from "./utils/type.js"
 
 
@@ -109,7 +109,7 @@ class ChartX {
      */
     constructor(canvas) {
 
-        if (!isString(canvas)) throw new TypeError(e.ERROR_STR);
+        if (!isString(canvas)) E.debugError(E.ERROR_STR);
         /** @type {string} */
         this.canvas = canvas; // enregistre l'id du canvas
         /** @type {object} */
@@ -128,12 +128,12 @@ class ChartX {
      * @param {import("chart.js").ChartConfiguration} config contient label, data et autres paramètres (other)
      */
     async createChart(config) {
-        if (!isObject(config)) throw new TypeError(e.ERROR_OBJ)
-        if (!config.hasOwnProperty('type')) throw new TypeError(e.ERROR_OBJ)
-        if (!config.hasOwnProperty('data')) throw new TypeError(e.ERROR_OBJ)
+        if (!isObject(config)) E.debugError(E.ERROR_OBJ)
+        if (!config.hasOwnProperty('type')) E.debugError(E.ERROR_OBJ)
+        if (!config.hasOwnProperty('data')) E.debugError(E.ERROR_OBJ)
         // @ts-ignore
         this.chart = new Chart(this.canvas, config)
-        }
+    }
 
     /** Crée un dataset
      *
@@ -144,10 +144,10 @@ class ChartX {
      * @returns {object} dataset
      */
     createDataset(label, data, yAxe = "", other = undefined) {
-        if (!isString(label)) throw new TypeError(e.ERROR_STR)
-        if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
-        if (isDefined(yAxe) && !isString(yAxe)) throw new TypeError(e.ERROR_STR)
-        if (isDefined(other) && !isObject(other)) throw new TypeError(e.ERROR_OBJ)
+        if (!isString(label)) E.debugError(E.ERROR_STR)
+        if (!isObject(data)) E.debugError(E.ERROR_OBJ)
+        if (isDefined(yAxe) && !isString(yAxe)) E.debugError(E.ERROR_STR)
+        if (isDefined(other) && !isObject(other)) E.debugError(E.ERROR_OBJ)
 
         const dataset = {};
         dataset.label = label;
@@ -166,8 +166,8 @@ class ChartX {
      * @returns {object}
      */
     setData(dataset, labels = []) {
-        if (!isObject(dataset)) throw new TypeError(e.ERROR_OBJ)
-        if (!isArray(labels)) throw new TypeError(e.ERROR_ARRAY)
+        if (!isObject(dataset)) E.debugError(E.ERROR_OBJ)
+        if (!isArray(labels)) E.debugError(E.ERROR_ARRAY)
 
         return {
             labels: labels,
@@ -184,9 +184,9 @@ class ChartX {
      * @returns {import("chart.js").ChartConfiguration}
      */
     setConfig(type, data, options, plugins = []) {
-        if (!isString(type)) throw new TypeError(e.ERROR_STR)
-        if (!isObject(data) && !isObject(options)) throw new TypeError(e.ERROR_OBJ)
-        if (!isArray(plugins)) throw new TypeError(e.ERROR_ARRAY)
+        if (!isString(type)) E.debugError(E.ERROR_STR)
+        if (!isObject(data) && !isObject(options)) E.debugError(E.ERROR_OBJ)
+        if (!isArray(plugins)) E.debugError(E.ERROR_ARRAY)
 
         return {
             type: type,
@@ -206,10 +206,10 @@ class ChartX {
      * @param {object} option : objet définissant les options 
      */
     setOption(root, option) {
-        if (!isString(root)) throw new TypeError(e.ERROR_STR)
-        if (!isObject(option)) throw new TypeError(e.ERROR_OBJ)
+        if (!isString(root)) E.debugError(E.ERROR_STR)
+        if (!isObject(option)) E.debugError(E.ERROR_OBJ)
 
-        if (root == ""){
+        if (root == "") {
             this.chart.options = copyDeep(option)
         } else {
             replace(this.chart.options[root], copyDeep(option), '', true)
@@ -222,8 +222,8 @@ class ChartX {
      * @param {Function} callback : fonction de traitement
      */
     setEvent(event, callback) {
-        if (!isString(event)) throw new TypeError(e.ERROR_STR)
-        if (!isFunction(callback)) throw new TypeError(e.ERROR_FCT);
+        if (!isString(event)) E.debugError(E.ERROR_STR)
+        if (!isFunction(callback)) E.debugError(E.ERROR_FCT);
 
         const evts = ['mouseenter', 'mouseout', 'mouseup', 'mousedown', 'mousemove']
         const evt = event.substring(2).toLowerCase();
@@ -250,22 +250,22 @@ class ChartX {
      * @param {Dataset} dataset dataset
      * @param {{root:string, opt:{}}} options précise les options
      */
-    addChart(label, dataset, options = {root:'', opt:{}}) {
+    addChart(label, dataset, options = { root: '', opt: {} }) {
 
-        if (!isString(label)) throw new TypeError(e.ERROR_STR)
-        if (!isObject(dataset)) throw new TypeError(e.ERROR_OBJ)
+        if (!isString(label)) E.debugError(E.ERROR_STR)
+        if (!isObject(dataset)) E.debugError(E.ERROR_OBJ)
 
-        this.chart.data.datasets.push({...dataset} );
+        this.chart.data.datasets.push({ ...dataset });
         this.chart.data.labels.push(label);
 
-        if (! isEmpty(options.opt) )
+        if (!isEmpty(options.opt))
             this.setOption(options.root, options.opt)
-        
+
         this.chart.update();
     }
 
-    
-    addOption(root, option){
+
+    addOption(root, option) {
         this.chart.options[root] = copyDeep(option)
     }
 
@@ -279,21 +279,21 @@ class ChartX {
      * @param {number} index : index de la courbe
      */
     changeData(data, index = 0) {
-        if (!isObject(data)) throw new TypeError(e.ERROR_OBJ)
-        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
+        if (!isObject(data)) E.debugError(E.ERROR_OBJ)
+        if (!isInteger(index)) E.debugError(E.ERROR_NUM)
 
         this.chart.data.datasets[index].data = data;
         this.chart.update();
     }
 
-   /** Complète ou modifie l'objet other
-     * 
-     * @param {{}} other précise les paramètres  
-     * @param {{}} upd paramètres à ajouter ou modifier
-     */
+    /** Complète ou modifie l'objet other
+      * 
+      * @param {{}} other précise les paramètres  
+      * @param {{}} upd paramètres à ajouter ou modifier
+      */
     updOther(other, upd) {
-        if (!isObject(other)) throw new TypeError(e.ERROR_OBJ);
-        if (!isObject(upd)) throw new TypeError(e.ERROR_OBJ);
+        if (!isObject(other)) E.debugError(E.ERROR_OBJ);
+        if (!isObject(upd)) E.debugError(E.ERROR_OBJ);
 
         replace(other, upd, '', true)
     }
@@ -303,11 +303,11 @@ class ChartX {
      * @param {string} path chemin indiquant l'option à modifier ex: scales/y/max  
      * @param {any} value valeur  
      */
-    updOptions(path, value){
-        if (!isString(path)) throw new TypeError(e.ERROR_STR);
-        
+    updOptions(path, value) {
+        if (!isString(path)) E.debugError(E.ERROR_STR);
+
         try {
-            updateItem(path,this.chart.options,value)
+            updateItem(path, this.chart.options, value)
         } catch (customError) {
             console.log(customError)
         }
@@ -338,8 +338,8 @@ class ChartX {
      * @param {number} index : indice de la courbe
      */
     removeChart(index = 0) {
-        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
-        if (this.chart.data.datasets.length <= index) throw new RangeError(e.ERROR_RANGE);
+        if (!isInteger(index)) E.debugError(E.ERROR_NUM)
+        if (this.chart.data.datasets.length <= index) throw new RangeError(E.ERROR_RANGE);
         if (index == -1) return
 
         // si on supprime toute la courbe
@@ -384,9 +384,9 @@ function updGraphCharts(id) {
 pprimer
      */
     removeData(index = 0, indice = -1) {
-        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
-        if (isDefined(indice) && !isInteger(indice)) throw new TypeError(e.ERROR_NUM)
-        if (this.chart.data.datasets.length <= index) throw new RangeError(e.ERROR_RANGE);
+        if (!isInteger(index)) E.debugError(E.ERROR_NUM)
+        if (isDefined(indice) && !isInteger(indice)) E.debugError(E.ERROR_NUM)
+        if (this.chart.data.datasets.length <= index) throw new RangeError(E.ERROR_RANGE);
         if (index == -1) return
 
         // si on supprime toute la courbe
@@ -408,19 +408,19 @@ pprimer
                     AFFICHAGE
     ***********************************************************/
     hideChart(index) {
-        if (!isNumeric(index)) throw new TypeError(e.ERROR_NUM);
+        if (!isNumeric(index)) E.debugError(E.ERROR_NUM);
         if (this.chart.data.datasets.length > index - 1)
             this.chart.hide(index)
     }
 
     toggleChart(index) {
-        if (!isNumeric(index)) throw new TypeError(e.ERROR_NUM);
+        if (!isNumeric(index)) E.debugError(E.ERROR_NUM);
         if (this.chart.data.datasets.length > index - 1)
             this.chart.toggleDataVisibility(index)
     }
 
     showChart(index) {
-        if (!isNumeric(index)) throw new TypeError(e.ERROR_NUM);
+        if (!isNumeric(index)) E.debugError(E.ERROR_NUM);
         if (this.chart.data.datasets.length > index - 1)
             this.chart.show(index)
     }
@@ -435,7 +435,7 @@ pprimer
      * @return {Array}
      */
     getEventArray(evt) {
-        //if (!isEvent(evt)) throw new TypeError(e.ERROR_EVT);
+        //if (!isEvent(evt)) E.debugError(E.ERROR_EVT);
 
         return this.chart.getElementsAtEventForMode(
             evt,
@@ -450,7 +450,7 @@ pprimer
      * @return {number} indice de la courbe
      */
     getEventIndexChart(elt) {
-        if (!isObject(elt)) throw new TypeError(e.ERROR_OBJ);
+        if (!isObject(elt)) E.debugError(E.ERROR_OBJ);
 
         return elt[0].datasetIndex;
     }
@@ -461,7 +461,7 @@ pprimer
      * @return {number} indice du point
      */
     getEventIndicePoint(elt) {
-        if (!isObject(elt)) throw new TypeError(e.ERROR_OBJ);
+        if (!isObject(elt)) E.debugError(E.ERROR_OBJ);
 
         return elt[0].index;
     }
@@ -472,7 +472,7 @@ pprimer
      * @return {number[]}
      */
     getEventCoordPixel(elt) {
-        if (!isObject(elt)) throw new TypeError(e.ERROR_OBJ);
+        if (!isObject(elt)) E.debugError(E.ERROR_OBJ);
 
         let coords = [];
         coords.push(elt[0].element.x, elt[0].element.y);
@@ -485,14 +485,14 @@ pprimer
      * @returns {number[]}
      */
     getEventCoord(elt) {
-        if (!isObject(elt)) throw new TypeError(e.ERROR_OBJ);
+        if (!isObject(elt)) E.debugError(E.ERROR_OBJ);
 
         let coords = [];
         coords.push(elt[0].element.$context.parsed.x, elt[0].element.$context.parsed.y);
         return coords;
     }
 
-    getCurrentChartID(id){
+    getCurrentChartID(id) {
         return this.getChartByProp('id', id)
     }
 
@@ -503,8 +503,8 @@ pprimer
      * @returns {number} indice du graphe
      */
     getChartByProp(prop, value) {
-        if (!isString(prop)) throw new TypeError(e.ERROR_STR)
-        if (!isString(value) && !isNumeric(value)) throw new TypeError(e.ERRORTYPE)
+        if (!isString(prop)) E.debugError(E.ERROR_STR)
+        if (!isString(value) && !isNumeric(value)) E.debugError(E.ERRORTYPE)
 
         if (!this.chart.data) return -1
         for (var i = 0; i < this.chart.data.datasets.length; i++) {
@@ -523,8 +523,8 @@ pprimer
      * @return {object}
      */
     getIdChart(index) {
-        if (!isInteger(index)) throw new TypeError(e.ERROR_NUM)
-        if (index >= this.chart.data.datasets.length) throw new RangeError(e.ERROR_RANGE)
+        if (!isInteger(index)) E.debugError(E.ERROR_NUM)
+        if (index >= this.chart.data.datasets.length) throw new RangeError(E.ERROR_RANGE)
 
         var o = {};
         o.label = this.chart.data.datasets[index].label;
@@ -540,7 +540,7 @@ pprimer
     getData(prm) {
         if (typeof prm === "number") {
             if (prm >= this.chart.data.datasets.length)
-                throw new RangeError(e.ERROR_RANGE);
+                throw new RangeError(E.ERROR_RANGE);
             return this.chart.data.datasets[prm].data;
         }
         // @ts-ignore
@@ -548,7 +548,7 @@ pprimer
             let index = this.getEventIndexChart(prm);
             return this.chart.data.datasets[index].data;
         }
-        throw new TypeError(e.ERRORTYPE);
+        E.debugError(E.ERRORTYPE);
     }
 
 }
@@ -586,7 +586,7 @@ class Dataset {
     }
 
     setEvent(name, callback) {
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
+        if (!isString(name)) E.debugError(E.ERROR_STR)
 
         this.options[name] = function (evt, elt) {
             callback(evt, elt);

@@ -13,7 +13,7 @@ import * as txt from "./lang_fr.js";
 import { getColor } from "../dosage.js";
 import { isObject } from "../../modules/utils/type.js";
 import { cts } from "../../environnement/constantes.js"
-import * as e from "../../modules/utils/errors.js"
+import * as E from "../../modules/utils/errors.js"
 
 /**
  * @typedef {import('../../../types/classes').Canvas} Canvas 
@@ -276,7 +276,7 @@ function setPosFlacons(flacons) {
  */
 function initFlacon(G, canvas, tooltip, becher, sFlacon) {
 
-  if (!isObject(canvas) || !isObject(tooltip) || !isObject(becher)) throw new TypeError(e.ERROR_OBJ)
+  if (!isObject(canvas) || !isObject(tooltip) || !isObject(becher)) E.debugError(E.ERROR_OBJ)
 
   // Crée les flacons
   /** @type {Flacon[]} flacons */

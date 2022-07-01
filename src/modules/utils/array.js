@@ -8,7 +8,7 @@
   */
 
 import { isNumeric, isUndefined, isString, isBoolean, isArray } from "./type.js"
-import * as e from "./errors.js"
+import * as E from "./errors.js"
 
 
 /**
@@ -32,8 +32,8 @@ class uArray extends Array {
      * @file 'modules/utils/array.js'
      */
     getInterval(numInterval) {
-        if (! isNumeric(numInterval)) throw new TypeError(e.ERROR_NUM)
-        if (numInterval <=0) throw new RangeError(e.ERROR_RANGE)
+        if (!isNumeric(numInterval)) E.debugError(E.ERROR_NUM)
+        if (numInterval <= 0) throw new RangeError(E.ERROR_RANGE)
 
         return (Math.max(...this.val) - Math.min(...this.val)) / numInterval
     }
@@ -49,9 +49,9 @@ class uArray extends Array {
     */
     getArrayObjectExtremumValues(attr, mode) {
 
-        if (!isString(attr) || attr == "" || !isString(mode)) throw new TypeError(e.ERROR_STR)
-        if (mode !== "min" && mode != "max") throw new RangeError(e.ERROR_RANGE)
-        
+        if (!isString(attr) || attr == "" || !isString(mode)) E.debugError(E.ERROR_STR)
+        if (mode !== "min" && mode != "max") throw new RangeError(E.ERROR_RANGE)
+
         if (mode == 'max')
             return Math.max(...this.val.map(o => o[attr]), 0);
         else
@@ -67,20 +67,20 @@ class uArray extends Array {
     */
     getArrayObjectNearIndex(attr, value) {
 
-        if (!isString(attr) || attr == "") throw new TypeError(e.ERROR_STR)
-        if (!isNumeric(value)) throw new TypeError(e.ERROR_NUM)
+        if (!isString(attr) || attr == "") E.debugError(E.ERROR_STR)
+        if (!isNumeric(value)) E.debugError(E.ERROR_NUM)
 
         var i = 1
         var long = this.val.length;
-        while (i < long-1 && value > this.val[i][attr]) {
+        while (i < long - 1 && value > this.val[i][attr]) {
             i++
         }
         var a = Math.abs(value - this.val[i][attr])
         var b = Math.abs(value - this.val[i - 1][attr])
-        if (a == b) 
-            return i-1 
+        if (a == b)
+            return i - 1
         else
-        return a > b ? i - 1 : i
+            return a > b ? i - 1 : i
     }
 
     /** Recherche la valeur la plus proche d'un élément dans un tableau
@@ -92,7 +92,7 @@ class uArray extends Array {
     */
     getArrayNearIndex(value, sorted = 0) {
 
-        if (!isNumeric(value) || !isNumeric(sorted)) throw new TypeError(e.ERROR_NUM)
+        if (!isNumeric(value) || !isNumeric(sorted)) E.debugError(E.ERROR_NUM)
 
         var len = this.val.length;
         var ecarts = []
@@ -164,17 +164,17 @@ class uArray extends Array {
     */
     delArrayElement(elt, copy = false) {
 
-        if (isUndefined(elt)) throw new ReferenceError(e.ERROR_ABS)
-        if (! isBoolean(copy)) throw new TypeError(e.ERROR_BOOL)
+        if (isUndefined(elt)) throw new ReferenceError(E.ERROR_ABS)
+        if (!isBoolean(copy)) E.debugError(E.ERROR_BOOL)
 
 
         let index = this.val.indexOf(elt);
-        if (index == -1) throw new e.NotElementException()
+        if (index == -1) throw new E.NotElementException()
         if (copy) {
             let ctab = [...this.val]
-            this.array = ctab.slice(0,index).concat(ctab.slice(index+1));
+            this.array = ctab.slice(0, index).concat(ctab.slice(index + 1));
         } else
-            this.array = this.val.slice(0,index).concat(this.val.slice(index+1)); 
+            this.array = this.val.slice(0, index).concat(this.val.slice(index + 1));
         return this.array
     }
 
@@ -185,11 +185,11 @@ class uArray extends Array {
      * @return {number} index ou -1 si échoue
      * @file 'modules/utils/array.js'
      */
-    getIndexObjectValue(key, value){
+    getIndexObjectValue(key, value) {
 
-        if ( !isString( key ) ) throw new TypeError( e.ERROR_STR )
-        if ( isUndefined( value) ) throw new ReferenceError( e.ERROR_OBJ )
-        
+        if (!isString(key)) E.debugError(E.ERROR_STR)
+        if (isUndefined(value)) throw new ReferenceError(E.ERROR_OBJ)
+
         for (const [index, o] of this.val.entries()) {
             if (o.hasOwnProperty(key) && o[key] == value)
                 return index
@@ -201,7 +201,7 @@ class uArray extends Array {
      * 
      * @param {*} condition 
      */
-    getNumberElts(condition){}
+    getNumberElts(condition) { }
 
 
     /** Extrapole pour trouver la valeur dans tab_y correpondante à x de tab_x 
@@ -213,19 +213,19 @@ class uArray extends Array {
      * @returns {number} la valeur de tab_y extrapolée 
      * @file 'modules/utils/array.js'
      */
-    static extrapolate(x, indice, tab_x, tab_y ) {
+    static extrapolate(x, indice, tab_x, tab_y) {
 
 
-    if (!isNumeric(x) || !isNumeric(indice)) throw new TypeError(e.ERROR_NUM)
-    if (!isArray(tab_x) || !isArray(tab_y)) throw new TypeError(e.ERROR_ARRAY)
+        if (!isNumeric(x) || !isNumeric(indice)) E.debugError(E.ERROR_NUM)
+        if (!isArray(tab_x) || !isArray(tab_y)) E.debugError(E.ERROR_ARRAY)
 
-    if (x == tab_x[indice] || (x > tab_x[indice] && tab_x.length < indice + 2) || (indice == 0 && x < tab_x[indice]))
-        return tab_y[indice]
-    else if (x > tab_x[indice]) {
-        return tab_y[indice] + (tab_y[indice + 1] - tab_y[indice]) * (x - tab_x[indice]) / (tab_x[indice + 1] - tab_x[indice])
-    } else {
-        return tab_y[indice] + (tab_y[indice] - tab_y[indice - 1]) * (x - tab_x[indice]) / (tab_x[indice] - tab_x[indice - 1])
-    }
+        if (x == tab_x[indice] || (x > tab_x[indice] && tab_x.length < indice + 2) || (indice == 0 && x < tab_x[indice]))
+            return tab_y[indice]
+        else if (x > tab_x[indice]) {
+            return tab_y[indice] + (tab_y[indice + 1] - tab_y[indice]) * (x - tab_x[indice]) / (tab_x[indice + 1] - tab_x[indice])
+        } else {
+            return tab_y[indice] + (tab_y[indice] - tab_y[indice - 1]) * (x - tab_x[indice]) / (tab_x[indice] - tab_x[indice - 1])
+        }
     }
 
     /** Convertit un tableau de nombres en chaines
@@ -233,7 +233,7 @@ class uArray extends Array {
      * @returns {string[]}
      * @file 'modules/utils/array.js'
      */
-    int2str(){
+    int2str() {
         return this.val.map(e => e.toString())
     }
 
@@ -242,10 +242,10 @@ class uArray extends Array {
      * @param {string} key clé
      * @return [] tableau avec les valeurs de array correspondante à la clé
      */
-    extract(key){
+    extract(key) {
         const l = this.val.length;
         const tab = []
-        for(let i=0; i<l; i++){
+        for (let i = 0; i < l; i++) {
             tab.push(this.val[i][key])
         }
         return tab
@@ -255,4 +255,4 @@ class uArray extends Array {
 
 
 
-export {uArray }
+export { uArray }

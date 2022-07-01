@@ -9,7 +9,7 @@
  */
 
 import { gDosage, gGraphs } from "../../environnement/globals.js"
-import { ERROR_OBJ, ERROR_NUM, ERROR_STR } from "../../modules/utils/errors.js"
+import * as E from "../../modules/utils/errors.js"
 import { isNumeric, isObject, isString } from "../../modules/utils/type.js"
 import { getEltID } from "../../modules/utils/html.js"
 import { DOS_CHART, DOS_DIV_GRAPH } from "./html_cts.js";
@@ -44,8 +44,8 @@ class Appareil {
    */
   constructor(app, canvas, unite, type) {
 
-    if (!isObject(app) || !isObject(canvas)) throw new TypeError(ERROR_OBJ)
-    if (!isString(unite)) throw new TypeError(ERROR_STR)
+    if (!isObject(app) || !isObject(canvas)) E.debugError(E.ERROR_OBJ)
+    if (!isString(unite)) E.debugError(E.ERROR_STR)
 
     /** @type {tAPPAREIL}  */
     this.app = app;
@@ -129,7 +129,7 @@ class Appareil {
    */
   setText(val) {
 
-    if (!isString(val)) throw new TypeError(ERROR_STR)
+    if (!isString(val)) E.debugError(E.ERROR_STR)
 
     if (this.etat == 1) {
       this.value.text = val + " " + this.unite;
@@ -177,7 +177,7 @@ function dbClicHandler(dosage, app, becher) {
  * 
  */
 function display(app) {
-  if (!isString(app)) throw new TypeError(ERROR_STR)
+  if (!isString(app)) E.debugError(E.ERROR_STR)
 
   getEltID(DOS_DIV_GRAPH).show();
   getEltID(DOS_CHART).show();
@@ -190,24 +190,30 @@ function display(app) {
  * @param {number} [etat] indique si l'appareil est actif 0 (non), 1 (oui) 
  * @returns {boolean}
  */
-function updateAppareil(app, becher, etat = 0) {
+function updateAppareil(app, becher, etat = undefined) {
 
   // annule l'action si un autre appareil est branché
-  const type = gDosage.getState('GRAPH_TYPE')
+  const type = gGraphs.getState('GRAPH_TYPE')
   if (type !== app.type && type !== 0) return false
 
   // annule si mesure impossible ou especes non définies
   if (gDosage.getState('ESPECES_INIT') == 0) return false
 
   // change l'état de branchement de l'appareil
-  app.etat = 1 - app.etat
+  if (etat) 
+    app.etat = etat
+  else
+    app.etat = 1 - app.etat
 
   // Positionne l'appareil
   _setAppareil(app, becher)
 
   // actualise etat
-  gDosage.setState('APPAREIL_TYPE', app.type)
-
+  if (app.etat != 0)
+    gDosage.setState('APPAREIL_TYPE', app.type)
+  else
+    gDosage.setState('APPAREIL_TYPE', 0)
+    
   return true
 
 }

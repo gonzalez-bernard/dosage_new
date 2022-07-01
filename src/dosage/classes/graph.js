@@ -8,7 +8,7 @@
 */
 
 import { gDosage } from "../../environnement/globals.js";
-import * as e from "../../modules/utils/errors.js"
+import * as E from "../../modules/utils/errors.js"
 import { uArray } from "../../modules/utils/array.js";
 import { isArray, isNumeric, isObject } from "../../modules/utils/type.js"
 import { around } from "../../modules/utils/number.js";
@@ -74,8 +74,8 @@ class Graph extends Highchart {
    * @param {1|2|3} type indique le type de dosage 
    */
   setType(type) {
-    if (!isNumeric(type)) throw new TypeError(e.ERROR_NUM)
-    if (!(type in [this.TYPE_PH, this.TYPE_CD, this.TYPE_PT])) throw new TypeError(e.ERROR_RANGE)
+    if (!isNumeric(type)) E.debugError(E.ERROR_NUM)
+    if (!(type in [this.TYPE_PH, this.TYPE_CD, this.TYPE_PT])) E.debugError(E.ERROR_RANGE)
     this.type = type
   }
 
@@ -205,7 +205,7 @@ class Graph extends Highchart {
      * @file graphx.js
      */
   dspTangente(point, idTangente) {
-    if (!isNumeric(idTangente) || !isObject(point)) throw new TypeError(e.ERROR_NUM)
+    if (!isNumeric(idTangente) || !isObject(point)) E.debugError(E.ERROR_NUM)
 
 
     const xlim = [Math.max(1, point.x - 5), Math.min(23, point.x + 5)]
@@ -276,8 +276,8 @@ class Graph extends Highchart {
    * @param {tPoint[]} pts point courant et 2 points extremités tangente 
    */
   addTangente(num, pts) {
-    if (!isNumeric(num)) throw new TypeError(e.ERROR_NUM)
-    if (!isArray(pts)) throw new TypeError(e.ERROR_ARRAY)
+    if (!isNumeric(num)) E.debugError(E.ERROR_NUM)
+    if (!isArray(pts)) E.debugError(E.ERROR_ARRAY)
 
     let label, id, col
     if (num == 1) {
@@ -377,7 +377,7 @@ class Graph extends Highchart {
   * Affiche ou cache le graphe en fonction de GRAPH_TYPE
   */
   display() {
-    if (gDosage.getState('GRAPH_TYPE') != 0) {
+    if (gGraphs.getState('GRAPH_TYPE') != 0) {
       $(this.canvas).hide();
     } else {
       $(this.canvas).show();
@@ -394,8 +394,8 @@ class Graph extends Highchart {
      * @return {number} pente
      * */
   _calcPente(indice_1, indice_2, tangenteCoords, points) {
-    if (!isNumeric(indice_1) || !isNumeric(indice_2)) throw new TypeError(e.ERROR_NUM)
-    if (!isArray(tangenteCoords) && !isArray(points)) throw new TypeError(e.ERROR_ARRAY)
+    if (!isNumeric(indice_1) || !isNumeric(indice_2)) E.debugError(E.ERROR_NUM)
+    if (!isArray(tangenteCoords) && !isArray(points)) E.debugError(E.ERROR_ARRAY)
 
     // test validité
     if (points) {

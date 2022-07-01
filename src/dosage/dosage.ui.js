@@ -52,17 +52,17 @@ function setButtonState(clear = true) {
     }
 
     // activation de graphe théorique
-    getEltID(ui.DOS_BT_COTH).prop("disabled", gDosage.getState('APPAREIL_ACTIF') != 1)
+    getEltID(ui.DOS_BT_COTH).prop("disabled", gDosage.getState('APPAREIL_TYPE') != 1)
 
 
     // on active ou désactive tan2 selon tan1
-    if (gDosage.getState('TANGENTE') == 1)
+    if (gGraphs.getState('TANGENTE') == 1)
         getEltID(ui.DOS_BT_TAN2).prop("disabled", false);
     else
         getEltID(ui.DOS_BT_TAN2).prop("disabled", true);
 
     // on active perp si tan1 et tan2 tracées
-    if (gDosage.getState('TANGENTE') == 3)
+    if (gGraphs.getState('TANGENTE') == 3)
         getEltID(ui.DOS_BT_PERP).prop("disabled", false);
     else
         getEltID(ui.DOS_BT_PERP).prop("disabled", true);
@@ -91,12 +91,15 @@ function closeDialog() {
  */
 function saveDialog() {
     // Ajoute un item du graphe courant à la liste des graphes
-    const name = $("#graphName").val() || ''
+    const name = $("#graphName").val() || ""
     addGraphMenuItem(name.toString(), gGraphs.idCurrentChart)
     // Affiche le menu
-    gGraphMenu.displayMenu(gGraphMenu.idRootMenu, true)
+    gGraphMenu.displayMenu(true)
     // ferme le dialogue
     closeDialog();
+
+    // cache le container
+    $(ui.DOS_DIV_INFO).hide()
 
     // inscrit le nom choisi dans la structure charts
     const o = gGraphs.charts.get(gGraphs.idCurrentChart)
@@ -148,7 +151,7 @@ function initDialog() {
  * 
  * @file dialog.ui.js
  */
-function initGraphMenu() {
+function createGraphMenu() {
 
     // si menu non défini on le crée
     if (isEmpty(gGraphMenu.menu)) {
@@ -166,17 +169,24 @@ function initGraphMenu() {
         /** @type {ListMenu}*/
         gGraphMenu.menu = new ListMenu(prop, rows)
         gGraphMenu.createMenu()
-        gGraphMenu.displayMenu("#" + gGraphMenu.idMenu)
+        gGraphMenu.displayMenu()
+        gGraphMenu.displayEvents()
+        gGraphMenu.changeIconEvents()
+
         gGraphMenu.dialog = initDialog()
-    } else {
+
+        gGraphs.setState('GRAPHMENU_INIT',1)
+
+    } 
+    /*else {
         // affiche menu déroulant si il y a des items suvegardés
         if (gGraphMenu.getRows().length > 0) {
             // Affiche le menu
-            gGraphMenu.displayMenu(gGraphMenu.idRootMenu, true)
+            gGraphMenu.displayMenu(true)
 
             updGraphMenuIcon()
         }
-    }
+    }*/
 }
 
 /** Ajoute une courbe à la liste
@@ -272,4 +282,4 @@ function dspTabDosage(display) {
     }
 }
 
-export { setButtonState, setButtonClass, dspTabDosage, displayEspece, setButtonVisible, initGraphMenu, dspGraphMenu }
+export { setButtonState, setButtonClass, dspTabDosage, displayEspece, setButtonVisible, createGraphMenu, dspGraphMenu }

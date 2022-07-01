@@ -13,7 +13,7 @@
  */
 
 import { isEvent } from "./type.js"
-import * as e from "./errors.js"
+import * as E from "./errors.js"
 
 /** Affiche une fenêtre modale
  *   
@@ -27,7 +27,7 @@ import * as e from "./errors.js"
  */
 var dspModalInfo = function (event) {
 
-    if (!isEvent(event)) throw new TypeError(e.ERROR_EVT)
+    if (!isEvent(event)) E.debugError(E.ERROR_EVT)
     const id_container = event.data.container
     const idModal = 'idModal'
     const txt_titre = event.data.titre

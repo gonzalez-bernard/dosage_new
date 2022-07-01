@@ -8,7 +8,7 @@
 */
 
 import { isColor, isString, isInteger } from "./type.js"
-import * as e from "./errors.js"
+import * as E from "./errors.js"
 
 /** Calcule la couleur obtenue par mixage de deux couleurs
  *
@@ -23,9 +23,9 @@ import * as e from "./errors.js"
 function mixColors(col1, col2, val1, val2) {
 
     // on teste la validité des paramètres
-    if (!isColor(col1) || !isColor(col2)) throw new TypeError(e.ERROR_STR)
-    if (isNaN(val1) || isNaN(val2)) throw new TypeError(e.ERROR_NUM)
-    if (val1 < 0 || val1 > 1 || val2 < 0 || val2 > 1) throw new RangeError(e.ERROR_RANGE)
+    if (!isColor(col1) || !isColor(col2)) E.debugError(E.ERROR_STR)
+    if (isNaN(val1) || isNaN(val2)) E.debugError(E.ERROR_NUM)
+    if (val1 < 0 || val1 > 1 || val2 < 0 || val2 > 1) throw new RangeError(E.ERROR_RANGE)
 
     // Cas où val1 + val2 = 1, on ne prend pas la moyenne
     var div = val1 + val2 == 1 ? 1 : 2
@@ -52,7 +52,7 @@ function mixColors(col1, col2, val1, val2) {
 */
 function StringColorToValues(str) {
 
-    if (!isString(str)) throw new TypeError(e.ERROR_STR)
+    if (!isString(str)) E.debugError(E.ERROR_STR)
 
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(str);
     if (result) {
@@ -96,8 +96,8 @@ function StringColorToValues(str) {
 */
 function rgbToHex(r, g, b) {
 
-    if (isNaN(r) || isNaN(g) || isNaN(b) ) throw new TypeError(e.ERROR_NUM)
-    if (r<0 || r>255 || g<0 || g>255 || b<0 || b>255) throw new RangeError(e.ERROR_RANGE)
+    if (isNaN(r) || isNaN(g) || isNaN(b)) E.debugError(E.ERROR_NUM)
+    if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) throw new RangeError(E.ERROR_RANGE)
 
     r = Math.round(r)
     g = Math.round(g)
@@ -116,9 +116,9 @@ function rgbToHex(r, g, b) {
 */
 function valuesToRgba(r, g, b, a) {
 
-    if (isNaN(r) || isNaN(g) || isNaN(b) ) throw new TypeError(e.ERROR_NUM)
-    if (r<0 || r>255 || g<0 || g>255 || b<0 || b>255) throw new RangeError(e.ERROR_RANGE)
-    
+    if (isNaN(r) || isNaN(g) || isNaN(b)) E.debugError(E.ERROR_NUM)
+    if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) throw new RangeError(E.ERROR_RANGE)
+
     r = Math.round(r)
     g = Math.round(g)
     b = Math.round(b)

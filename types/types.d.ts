@@ -3,10 +3,10 @@ import {Becher, Phmetre, Conductimetre, Potentiometre, Burette, Flacon, Canvas, 
 
 type tEtat = {
   ESPECES_INIT: number,
-  APPAREIL_ACTIF: number,
+  APPAREIL_TYPE: number,
   INDIC_ON: number,
   GRAPH_TYPE: number
-  DATA_INIT: number
+  DOSAGE_INIT: number
   DERIVEE_EXP: number
   TANGENTE: number
   PERPENDICULAIRE: number

@@ -1,4 +1,4 @@
-import * as e from "../modules/utils/errors.js"
+import * as E from "../modules/utils/errors.js"
 import { Element, Div, Button, Img } from "../modules/dom.js";
 import { insertDiese } from "../modules/utils/string.js";
 
@@ -9,7 +9,7 @@ import { insertDiese } from "../modules/utils/string.js";
  * ***
  * ***export Infos***
  */
- class Infos {
+class Infos {
 
     /** Constructeur
      *
@@ -27,11 +27,11 @@ import { insertDiese } from "../modules/utils/string.js";
      * - setmsg {function?} fonction chargée de construire la chaîne 'msg' (défaut = undefined)
      * - prm {object?} paramètres utilisés par 'setmsg'
      */
-    constructor( info ) {
-        if ( !( 'idcontainer' in info ) || !( 'title' in info ) || !( 'msg' in info ) ) throw new TypeError( e.ERROR_OBJ )
+    constructor(info) {
+        if (!('idcontainer' in info) || !('title' in info) || !('msg' in info)) E.debugError(E.ERROR_OBJ)
 
         const defaults = { idmodal: 'idModal', idbtclose: 'idBtClose', labelbtclose: 'Quitter', actionBtClose: undefined, latex: false }
-        const params = {...defaults, ...info }
+        const params = { ...defaults, ...info }
 
 
         this.idContainer = params.idcontainer
@@ -50,19 +50,19 @@ import { insertDiese } from "../modules/utils/string.js";
 
 
         // si action sur clic bouton fermeture
-        if ( this.actionBtClose != undefined && typeof this.actionBtClose == "function" ) {
-            $( document ).on( "hide.bs.modal", "#" + this.idModal, function() {
+        if (this.actionBtClose != undefined && typeof this.actionBtClose == "function") {
+            $(document).on("hide.bs.modal", "#" + this.idModal, function () {
                 params.actionbtclose();
-            } );
+            });
         }
 
         // gère les callbacks
-        if ( params[ 'callbacks' ] != undefined ) {
+        if (params['callbacks'] != undefined) {
             let _key
-            Object.keys( params[ 'callbacks' ] ).forEach( ( key ) => {
-                _key = insertDiese( key )
-                $( document ).on( "click", _key, params[ 'callbacks' ][ key ] );
-            } );
+            Object.keys(params['callbacks']).forEach((key) => {
+                _key = insertDiese(key)
+                $(document).on("click", _key, params['callbacks'][key]);
+            });
         }
     }
 
@@ -75,57 +75,57 @@ import { insertDiese } from "../modules/utils/string.js";
             elts = {},
             buttons = {};
 
-        elts.h5 = new Element( "h5", { id: "modal-title" } ).setText( this.title );
-        elts.span = new Element( "span", {} )
-            .setAria( "hidden", "true" )
-            .setText( "&times" );
+        elts.h5 = new Element("h5", { id: "modal-title" }).setText(this.title);
+        elts.span = new Element("span", {})
+            .setAria("hidden", "true")
+            .setText("&times");
         buttons.close = new Button("")
-            .addClass( "close" )
-            .setData( "dismiss", "modal" )
-            .setAria( "label", "Close" )
-            .addChild( elts.span );
-        divs.header = new Div( "modal-header" ).addChild( elts.h5, buttons.close );
+            .addClass("close")
+            .setData("dismiss", "modal")
+            .setAria("label", "Close")
+            .addChild(elts.span);
+        divs.header = new Div("modal-header").addChild(elts.h5, buttons.close);
 
         // si image
-        if (this.img){
+        if (this.img) {
             this.img = encodeURI(this.img)
             divs.msg = new Div('row')
             divs.txt = new Div("col-9").setText(this.msg)
             const x = this.img
             const t = `height:100%; background :url("${x}") center/100%`
-            
+
             divs.bloc_img = new Div("img-rounded").setStyle(t)
             divs.img = new Div("col-3").addChild(divs.bloc_img)
             divs.msg.addChild(divs.txt, divs.img)
             divs.body = new Div("modal-body").addChild(divs.msg)
-        } else 
-        divs.body = new Div( "modal-body" ).setText( this.msg );
-        
+        } else
+            divs.body = new Div("modal-body").setText(this.msg);
 
-        buttons.exit = new Button( this.labelBtClose )
-            .addClass( "btn btn-secondary" )
-            .setData( "dismiss", "modal" )
-            .setID( this.idBtClose );
-        divs.footer = new Div( "modal-footer" ).addChild( buttons.exit );
 
-        divs.content = new Div( "modal-content" ).addChild(
+        buttons.exit = new Button(this.labelBtClose)
+            .addClass("btn btn-secondary")
+            .setData("dismiss", "modal")
+            .setID(this.idBtClose);
+        divs.footer = new Div("modal-footer").addChild(buttons.exit);
+
+        divs.content = new Div("modal-content").addChild(
             divs.header,
             divs.body,
             divs.footer
         );
-        divs.dialog = new Div( "modal-dialog modal-lg" )
-            .setRole( "document" )
-            .addChild( divs.content );
-        divs.modal = new Div( "modal fade", this.idModal )
-            .setData( "dismiss", "modal" )
-            .setRole( "dialog" )
-            .setTabIndex( "-1" )
-            .setAria( "hidden", "true" )
-            .addChild( divs.dialog );
+        divs.dialog = new Div("modal-dialog modal-lg")
+            .setRole("document")
+            .addChild(divs.content);
+        divs.modal = new Div("modal fade", this.idModal)
+            .setData("dismiss", "modal")
+            .setRole("dialog")
+            .setTabIndex("-1")
+            .setAria("hidden", "true")
+            .addChild(divs.dialog);
 
         let html = divs.modal.getHTML();
         return html;
     }
 }
 
-export {Infos}
+export { Infos }

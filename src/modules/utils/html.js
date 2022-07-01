@@ -8,7 +8,7 @@
 */
 
 import { isString, isNumeric } from "./type.js"
-import * as e from "./errors.js"
+import * as E from "./errors.js"
 
 /** Lit la valeur d'un champ identifié par son ID
  * 
@@ -19,7 +19,7 @@ import * as e from "./errors.js"
  */
 function getValue(id, { sym = "", type = null } = {}) {
 
-    if (!isString(id)) throw new TypeError(e.ERROR_STR)
+    if (!isString(id)) E.debugError(E.ERROR_STR)
 
     const s = $(sym + id).val()
     if (!type)
@@ -43,7 +43,7 @@ function getValue(id, { sym = "", type = null } = {}) {
  * @file 'modules/utils/html.js'
  */
 function getValueID(id, type = null) {
-    if (!isString(id)) throw new TypeError(e.ERROR_STR)
+    if (!isString(id)) E.debugError(E.ERROR_STR)
 
     return getValue(id, { sym: "#", type: type })
 }
@@ -56,8 +56,8 @@ function getValueID(id, type = null) {
  * @file 'modules/utils/html.js'
  */
 function setValueID(id, val) {
-    if (!isString(id)) throw new TypeError(e.ERROR_STR)
-    if (!isString(val) && !isNumeric(val)) throw new TypeError(e.ERROR_STRNUM)
+    if (!isString(id)) E.debugError(E.ERROR_STR)
+    if (!isString(val) && !isNumeric(val)) E.debugError(E.ERROR_STRNUM)
 
     return setValue(id, "#", val)
 }
@@ -71,9 +71,9 @@ function setValueID(id, val) {
  * @file 'modules/utils/html.js'
  */
 function setValue(id, sym, val) {
-    if (!isString(id) || !isString(sym)) throw new TypeError(e.ERROR_STR)
-    if (sym !== "#" && sym !== ".") throw new RangeError(e.ERROR_RANGE)
-    if (!isString(val) && !isNumeric(val)) throw new TypeError(e.ERRORTYPE)
+    if (!isString(id) || !isString(sym)) E.debugError(E.ERROR_STR)
+    if (sym !== "#" && sym !== ".") throw new RangeError(E.ERROR_RANGE)
+    if (!isString(val) && !isNumeric(val)) E.debugError(E.ERRORTYPE)
 
     return $(sym + id).val(val)
 }
@@ -86,7 +86,7 @@ function setValue(id, sym, val) {
  *@file 'modules/utils/html.js'
 */
 function getElt(id, { sym = "", opt = null } = {}) {
-    if (!isString(id)) throw new TypeError(e.ERROR_STR)
+    if (!isString(id)) E.debugError(E.ERROR_STR)
 
     if (!opt)
         return $(sym + id)
@@ -102,9 +102,9 @@ function getElt(id, { sym = "", opt = null } = {}) {
  * @file 'modules/utils/html.js'
  */
 function getEltID(id, opt = null) {
-    if (!isString(id)) throw new TypeError(e.ERROR_STR)
-    if (!isString(opt) && opt !== null) throw new TypeError(e.ERRORTYPE)
-    
+    if (!isString(id)) E.debugError(E.ERROR_STR)
+    if (!isString(opt) && opt !== null) E.debugError(E.ERRORTYPE)
+
     let symbol = id.indexOf("#") == 0 ? "" : "#"
     return getElt(id, { sym: symbol, opt: opt })
 }

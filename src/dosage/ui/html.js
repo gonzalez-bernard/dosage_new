@@ -61,7 +61,7 @@ divs.dgName.addChild(divs.dgRow)
 const dgFieldset = new Element('fieldset').setStyle("margin-right:1em").addChild(label, divs.dgName)
 const dgForm = new Form().addChild(dgFieldset)
 
-divs.dialog = new Div("", "dialog-form").setStyle("display:none").addChild(dgForm)
+divs.dialog = new Div("", "dialog-form").addChild(dgForm)
 
 
 /************************************************** */

@@ -1,6 +1,6 @@
 import { Appareil } from "./appareil.js"
 import * as txt from "./lang_fr.js";
-import * as e from "../../modules/utils/errors.js";
+import * as E from "../../modules/utils/errors.js";
 import { isObject } from "../../modules/utils/type.js";
 import { CONDUCTIMETRE } from "./interface.js";
 import { dbClicHandler } from "./appareil.js";
@@ -54,7 +54,7 @@ class Conductimetre extends Appareil {
  * @file Conductimetre
  */
 function initConductimetre(G, lab) {
-    if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) throw new TypeError(e.ERROR_OBJ)
+    if (!isObject(lab.canvas) || !isObject(lab.tooltip) || !isObject(lab.becher)) E.debugError(E.ERROR_OBJ)
 
     // Crée conductimetre
     var conductimetre = new Conductimetre(CONDUCTIMETRE, lab.canvas, "mS");

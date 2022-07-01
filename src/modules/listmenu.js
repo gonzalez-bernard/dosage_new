@@ -347,8 +347,8 @@ class ListMenu {
      */
     displayMenu(id, display = false) {
         $(insertDiese(this._idRootMenu)).html(this._html)
-        this.displayEvents()
-        this.changeIconEvents()
+        //this.displayEvents()
+        //this.changeIconEvents()
         this.actionEvents()
         if (display)
             $(insertDiese(this._idMenu)).show()
@@ -361,6 +361,7 @@ class ListMenu {
         this._rows.forEach((row) => {
             row.forEach((elt) => {
                 if (elt.id && elt.action) {
+                    $(insertDiese(elt.id)).off("click")
                     $(insertDiese(elt.id)).on("click", elt.action)
                 }
             })

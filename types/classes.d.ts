@@ -4,6 +4,7 @@ import {iBecher, iCanvasText, iCanvasImage, iCanvasRect, iFlacon, iAppareil, iCa
 
 
 declare class Dosage {
+    [x: string]: any;
     type: number;
     equation: tEquation;
     titre: tReactif;

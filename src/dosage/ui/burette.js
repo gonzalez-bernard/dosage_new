@@ -161,8 +161,8 @@ class Burette {
    */
   vidange(debit, becher) {
 
-    if (!isNumeric(debit)) throw new TypeError(ERROR_NUM)
-    if (!isObject(becher)) throw new TypeError(ERROR_OBJ)
+    if (!isNumeric(debit)) E.debugError(ERROR_NUM)
+    if (!isObject(becher)) E.debugError(ERROR_OBJ)
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     var o = this
@@ -257,7 +257,7 @@ class Burette {
    * @file burette.js
    */
   setColor(color) {
-    if (color == undefined || !isColor(color)) throw new TypeError(ERROR_COLOR)
+    if (color == undefined || !isColor(color)) E.debugError(ERROR_COLOR)
     this.contenu.fill = color
     this.canvas.redraw()
 
@@ -290,7 +290,7 @@ export { Burette }
  */
 function initBurette(dosage, lab) {
 
-  if (!isObject(lab.canvas)) throw new TypeError(ERROR_OBJ)
+  if (!isObject(lab.canvas)) E.debugError(ERROR_OBJ)
 
   // crée burette
   const burette = new Burette(BURETTE, lab.canvas);

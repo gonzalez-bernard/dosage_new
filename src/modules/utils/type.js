@@ -5,7 +5,7 @@
  * Gestion des types de données
  * ***
  * ***export isNumeric, isFloat, isInteger, isColor, isDefined, isUndefined, isString, isArray,isBoolean, isEvent, assert, isValidArgs, isStrNum, isObject, isPoint***
- */ 
+ */
 
 /** Détecte si la chaine passée en arguments correspond à un code couleur CSS
  * 
@@ -14,15 +14,15 @@
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
- const isColor = function( strColor ) {
+const isColor = function (strColor) {
   var s = new Option().style;
   strColor = strColor.toLowerCase();
   s.color = strColor;
   var test1 = s.color == strColor;
-  var test2 = /^#([0-9a-f]{6}|[0-9a-f]{8})$/i.test( strColor );
-  var test3 = /^rgba\(\d{1,3},\d{1,3},\d{1,3},[1,0]\.?\d*\)$/i.test( strColor )
-  var test4 = /^rgb\(\d{1,3},\d{1,3},\d{1,3}\)$/i.test( strColor )
-  return ( test1 == true || test2 == true || test3 == true || test4 == true )
+  var test2 = /^#([0-9a-f]{6}|[0-9a-f]{8})$/i.test(strColor);
+  var test3 = /^rgba\(\d{1,3},\d{1,3},\d{1,3},[1,0]\.?\d*\)$/i.test(strColor)
+  var test4 = /^rgb\(\d{1,3},\d{1,3},\d{1,3}\)$/i.test(strColor)
+  return (test1 == true || test2 == true || test3 == true || test4 == true)
 }
 
 /** Détecte si un nombre est un réel
@@ -32,12 +32,12 @@
  * @return {boolean}
  * @file 'modules/utils/type.js'
  */
-const isFloat = function( n ) {
-  return Number( n ) === n && n % 1 !== 0;
+const isFloat = function (n) {
+  return Number(n) === n && n % 1 !== 0;
 }
 
 /** détecte si nombre entier */
-const isInteger = function( n ) {
+const isInteger = function (n) {
   return !isNaN(n) && Number.isInteger(parseFloat(n));;
 }
 
@@ -47,8 +47,8 @@ const isInteger = function( n ) {
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isUndefined = function(arg){
-  return (typeof arg === 'undefined' )
+const isUndefined = function (arg) {
+  return (typeof arg === 'undefined')
 }
 
 /** détecte si argument défini
@@ -57,8 +57,8 @@ const isUndefined = function(arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isDefined = function (arg){
-  return ! (typeof arg === 'undefined' )
+const isDefined = function (arg) {
+  return !(typeof arg === 'undefined')
 }
 
 /** détecte si argument chaîne
@@ -67,8 +67,12 @@ const isDefined = function (arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isString = function(arg){
+const isString = function (arg) {
   return (typeof arg === 'string')
+}
+
+const isMap = function (arg) {
+  return (arg instanceof Map)
 }
 
 /** détecte si argument tableau
@@ -77,7 +81,7 @@ const isString = function(arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isArray = function(arg){
+const isArray = function (arg) {
   return Array.isArray(arg)
 }
 
@@ -86,9 +90,9 @@ const isArray = function(arg){
 * @param {number | *} n - nombre
 * @returns {boolean}
 */
-const isNumeric = function( n ) {
-  if ( !isInteger( n ) )
-      return isFloat( n )
+const isNumeric = function (n) {
+  if (!isInteger(n))
+    return isFloat(n)
   return true
 }
 
@@ -98,8 +102,8 @@ const isNumeric = function( n ) {
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isBoolean = function(arg){
-  return (typeof arg === 'boolean' )
+const isBoolean = function (arg) {
+  return (typeof arg === 'boolean')
 }
 
 /** détecte si argument est un événement
@@ -108,11 +112,11 @@ const isBoolean = function(arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isEvent = function(arg){
-  const isObject = typeof arg  === 'object'
+const isEvent = function (arg) {
+  const isObject = typeof arg === 'object'
   if (isObject && arg.hasOwnProperty('originalEvent'))
     return true
-  return false; 
+  return false;
 }
 
 /** détecte si argument est un objet
@@ -121,7 +125,7 @@ const isEvent = function(arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isObject = function(arg){
+const isObject = function (arg) {
   if (arg === null) return false
   return (typeof arg === "object")
 }
@@ -131,8 +135,8 @@ const isObject = function(arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isStrNum = function(arg){
-  if ( isString(arg) || isNumeric(arg)) return true
+const isStrNum = function (arg) {
+  if (isString(arg) || isNumeric(arg)) return true
   return false
 }
 
@@ -142,8 +146,8 @@ const isStrNum = function(arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isPoint = function (arg){
-  if (! isObject(arg)) return false
+const isPoint = function (arg) {
+  if (!isObject(arg)) return false
   if (!arg.hasOwnProperty('x') || !arg.hasOwnProperty('y')) return false
   return true
 }
@@ -154,7 +158,7 @@ const isPoint = function (arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isFunction = function(arg){
+const isFunction = function (arg) {
   return typeof arg === 'function'
 }
 
@@ -169,18 +173,18 @@ const isFunction = function(arg){
  * @returns {boolean}
  * @file 'modules/utils/type.js'
  */
-const isValidArgs = function( args ) {
+const isValidArgs = function (args) {
   let elt
-  for ( var k in args ) {
-      elt = args[ k ]
-          // Analyse du type (on traite le cas ou on utilise le pipe pour le coix entre plusieurs types )
-      let types = elt[ 'type' ].split( '|' )
-      for ( let key in types ) {
-          if ( typeof elt[ 'arg' ] == types[ key ] )
-              return true
-      }
-      if ( undefined === elt[ 'arg' ] || null === elt[ 'arg' ] )
-          return false;
+  for (var k in args) {
+    elt = args[k]
+    // Analyse du type (on traite le cas ou on utilise le pipe pour le coix entre plusieurs types )
+    let types = elt['type'].split('|')
+    for (let key in types) {
+      if (typeof elt['arg'] == types[key])
+        return true
+    }
+    if (undefined === elt['arg'] || null === elt['arg'])
+      return false;
 
   }
   return false;
@@ -192,9 +196,9 @@ const isValidArgs = function( args ) {
  * @param {string} message message 
  * @file 'modules/utils/type.js'
 */
-const assert = function( condition, message ) {
-  if ( !condition )
-      throw Error( 'Assert failed: ' + ( message || '' ) );
+const assert = function (condition, message) {
+  if (!condition)
+    throw Error('Assert failed: ' + (message || ''));
 };
 
 /**
@@ -202,19 +206,19 @@ const assert = function( condition, message ) {
  * @param {any} arg variable à transformer
  * @param {string} type type à obtenir ex. "string", "int", "float"
  */
-const parseType = function(arg, type){
-  switch ( type ){
+const parseType = function (arg, type) {
+  switch (type) {
     case 'string':
-      if (!isString(arg) && isNumeric(arg)) 
+      if (!isString(arg) && isNumeric(arg))
         return arg.toString();
       break;
     case 'int':
-      if (isInteger(arg)) 
+      if (isInteger(arg))
         return parseInt(arg);
       break;
     case 'float':
-        if (isFloat(arg)) 
-          return parseFloat(arg);
+      if (isFloat(arg))
+        return parseFloat(arg);
     default:
       return arg
   }
@@ -226,12 +230,12 @@ const parseType = function(arg, type){
  * @param {string[]} list liste des propriétés à traiter 
  * @param {string} type 
  */
-const parseObjectType = function(obj, list, type){
-  for (const prop in obj){
-    if (list.includes(prop)){
+const parseObjectType = function (obj, list, type) {
+  for (const prop in obj) {
+    if (list.includes(prop)) {
       obj[prop] = parseType(obj[prop], type)
     }
   }
 }
 
-export {isNumeric, isFloat, isInteger, isColor, isDefined, isUndefined, isString, isArray,isBoolean, isEvent, assert, isValidArgs, isStrNum, isObject, isPoint, isFunction, parseType, parseObjectType}
+export { isNumeric, isFloat, isInteger, isColor, isDefined, isUndefined, isString, isArray, isBoolean, isEvent, assert, isValidArgs, isStrNum, isObject, isPoint, isFunction, parseType, parseObjectType, isMap }

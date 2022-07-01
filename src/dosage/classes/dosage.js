@@ -1,8 +1,8 @@
 // Variable pour enregistrer toutes les informations d'un dosage
 
 import { isNumeric, isString } from "../../modules/utils/type.js";
-import * as e from "../../modules/utils/errors.js"
-import { etats } from "../../environnement/constantes.js";
+import * as E from "../../modules/utils/errors.js"
+import { ETATS_DOSAGE, ETATS_DOSAGE_INIT } from "../../environnement/constantes.js";
 import { copyDeep } from "../../modules/utils/object.js";
 
 /** 
@@ -25,6 +25,7 @@ class Dosage {
 
         this.dpHs = [] // dérivée du pH
 
+        // paramètres eau
         this.eau = {
             vol: 0,
             conc: 0,
@@ -38,9 +39,11 @@ class Dosage {
             id: -1,
             params: []
         }
-        this.etat = copyDeep(etats)
+        this.etat = copyDeep(ETATS_DOSAGE)
         this.event = 0
-        this.exc = { // espèce excipient (H+)
+
+        // espèce excipient (H+)
+        this.exc = {
             vol: 0,
             conc: 0,
             type: 0,
@@ -63,7 +66,8 @@ class Dosage {
         // indique le type de mesure possible en fonction des espèces choisies pH(1), conductimètre (2), potentiomètre (4). Les valeurs se cumulent ex : pH et potentiomètre => 3
         this.mesure = 0
 
-        this.reactif = { // espèce supplémentaire pour dosage retour
+        // espèce supplémentaire pour dosage retour
+        this.reactif = {
             conc: 0,
             vol: 0,
             type: 0,
@@ -79,7 +83,8 @@ class Dosage {
         this.sph = "----" // pH courant formaté
         this.spot = "" // texte potentiel
 
-        this.solution = { // solution
+        // solution
+        this.solution = {
             vol: 0,
             conc: 0,
             type: 0,
@@ -89,7 +94,8 @@ class Dosage {
         this.title = ""
 
         /** @type {tReactif} */
-        this.titrant = { // structure précisant l'espèce titrante
+        // structure précisant l'espèce titrante
+        this.titrant = {
             type: 0,
             vol: 0,
             conc: 0,
@@ -98,7 +104,8 @@ class Dosage {
         }
 
         /** @type {tReactif} */
-        this.titre = { // structure précisant l'espèce titrée
+        // structure précisant l'espèce titrée
+        this.titre = {
             type: 0,
             vol: 0,
             conc: 0,
@@ -107,11 +114,12 @@ class Dosage {
         }
 
         /** @type {number} */
-        this.type = 0 // type de dosage
+        this.type = 0 // type de dosage (1 = ph, 2 = cd, 3 = pt)
         this.typeDetail = undefined
 
-        this.vols = [] // volumes ajoutés
-        this.id = 0     // premier dosage
+        this.vols = []  // volumes ajoutés
+        this.number = 0 // premier dosage
+        this.id = ''    // id du dosage construit avec le type (ph, pt, cd) suivi du numéro du dosage
     }
 
 
@@ -121,8 +129,8 @@ class Dosage {
      * @param {any} value valeur
      */
     set(name, value) {
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
-        if (!(name in this)) throw new TypeError(e.ERROR_ELT)
+        if (!isString(name)) E.debugError(E.ERROR_STR)
+        if (!(name in this)) E.debugError(E.ERROR_ELT)
 
         this.name = value
     }
@@ -133,8 +141,8 @@ class Dosage {
      * @returns {any} valeur
      */
     get(name) {
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
-        if (!(name in this)) throw new TypeError(e.ERROR_ELT)
+        if (!isString(name)) E.debugError(E.ERROR_STR)
+        if (!(name in this)) E.debugError(E.ERROR_ELT)
         return this[name]
     }
 
@@ -143,7 +151,7 @@ class Dosage {
      * @param {string} name nom
      * @returns {number}    */
     getState(name) {
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
+        if (!isString(name)) E.debugError(E.ERROR_STR)
         return this.etat[name]
     }
 
@@ -154,9 +162,17 @@ class Dosage {
      * @returns {number} résultat du masque entre this.name et value
      */
     getMask(name, value) {
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
-        if (!isNumeric(value)) throw new TypeError(e.ERROR_NUM)
+        if (!isString(name)) E.debugError(E.ERROR_STR)
+        if (!isNumeric(value)) E.debugError(E.ERROR_NUM)
         return this.get(name) & value
+    }
+
+    /** Définit l'ID du dosage
+     * 
+     */
+    setID() {
+        const types = ["ph", "cd", "pt"]
+        this.id = types[this.type - 1] + this.number
     }
 
     /** Modifie la variable "etat"
@@ -166,8 +182,8 @@ class Dosage {
      * @param {number| undefined} prm
      */
     setState(name, value, prm = undefined) {
-        if (!isNumeric(value)) throw new TypeError(e.ERROR_NUM)
-        if (!isString(name)) throw new TypeError(e.ERROR_STR)
+        if (!isNumeric(value)) E.debugError(E.ERROR_NUM)
+        if (!isString(name)) E.debugError(E.ERROR_STR)
 
         if (value == -1) {
             if (prm) {
@@ -179,6 +195,32 @@ class Dosage {
             this.etat[name] = value
         }
     }
+
+    /** Réinitialise les états pour un nouveau dosage
+    * - ne modifie pas LAB_INIT, DOSAGE_INIT, GRAPH_INIT, GRAPHMENU_INIT
+    */
+    resetState() {
+        ETATS_DOSAGE_INIT.forEach((e) => {
+            this.setState(e, 0)
+        })
+    }
+
 }
 
-export { Dosage }
+var gDosageListenUpdate = (data, o) => {
+    const vars = ['APPAREIL_TYPE', 'DOSAGE_ON', 'ESPECES_INIT']
+    if (vars.indexOf(data.property) != -1) {
+        if (E.DEBUG == E.ERROR_L2)
+            console.error(data)
+        else if (E.DEBUG == E.ERROR_L3)
+            console.log(data)
+    }
+    /*
+    switch (data.property){
+        case 'APPAREIL_TYPE':
+            console.log(data)
+            break;
+    }*/
+}
+
+export { Dosage, gDosageListenUpdate }

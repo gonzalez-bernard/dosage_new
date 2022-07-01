@@ -6,7 +6,7 @@
  */
 
 import { isObject } from "../../modules/utils/type.js";
-import * as e from "../../modules/utils/errors.js"
+import * as E from "../../modules/utils/errors.js"
 
 /**
  * @typedef {import ('../../../types/classes').Canvas} Canvas
@@ -18,28 +18,28 @@ import * as e from "../../modules/utils/errors.js"
  * @class Agitateur
  * @classdesc construit l'objet agitateur
   */
- class Agitateur {
-    /**
-    * 
-    * @param {tAGITATEUR} sagitateur données agitateur   
-    * @param {Canvas} canvas canvas
-     */
-    constructor(sagitateur, canvas){
-      this.canvas = canvas
-      this.sagitateur = sagitateur
-      
-      this.fond = canvas.display.image({
-        x: sagitateur.x,
-        y: sagitateur.y,
-        width: sagitateur.w,
-        height: sagitateur.h,
-        image: sagitateur.image,
-        zindex: "back"
-      })
-    }
+class Agitateur {
+  /**
+  * 
+  * @param {tAGITATEUR} sagitateur données agitateur   
+  * @param {Canvas} canvas canvas
+   */
+  constructor(sagitateur, canvas) {
+    this.canvas = canvas
+    this.sagitateur = sagitateur
+
+    this.fond = canvas.display.image({
+      x: sagitateur.x,
+      y: sagitateur.y,
+      width: sagitateur.w,
+      height: sagitateur.h,
+      image: sagitateur.image,
+      zindex: "back"
+    })
   }
-  
-  export {Agitateur}
+}
+
+export { Agitateur }
 /**
  * Initie Agitateur
  * @param {Canvas} canvas Canvas
@@ -48,12 +48,12 @@ import * as e from "../../modules/utils/errors.js"
  *
  * @file initAgitateur.js
  */
-function initAgitateur( canvas, sAgitateur ) {
-    if ( !isObject(canvas) )  throw new TypeError( e.ERROR_OBJ );
+function initAgitateur(canvas, sAgitateur) {
+  if (!isObject(canvas)) E.debugError(E.ERROR_OBJ);
 
-    const agitateur = new Agitateur( sAgitateur, canvas );
-    canvas.addChild( agitateur.sagitateur );
-    return agitateur;
+  const agitateur = new Agitateur(sAgitateur, canvas);
+  canvas.addChild(agitateur.sagitateur);
+  return agitateur;
 }
 
 export { initAgitateur }

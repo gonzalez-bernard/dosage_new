@@ -59,6 +59,7 @@ import { uArray } from "../modules/utils/array.js"
 import { copyDeep, isEmpty } from "../modules/utils/object.js";
 import { updateAppareil } from "./ui/appareil.js";
 import { getOptionsFromCharts } from "./classes/graphs.js";
+import { getKeyFromPropertyValue } from "../modules/utils/maps.js";
 
 /**
  * @typedef {import('../../types/classes').Canvas} Canvas
@@ -83,7 +84,7 @@ import { getOptionsFromCharts } from "./classes/graphs.js";
  */
 function graphManager(app, action, _id = '') {
 
-    if (app == 0) return -1
+    //if (app == 0) return -1
     app = app - 1
     const CLIC_APPAREIL = -1
     const CLIC_ICONE_ON = 0
@@ -93,75 +94,114 @@ function graphManager(app, action, _id = '') {
 
     // action sur un appareil
     if (action == CLIC_APPAREIL) {
+
         // appareil non actif donc on l'active
-        if (gDosage.getState('APPAREIL_ACTIF') == 0) {
+        if (gDosage.getState('APPAREIL_TYPE') != 0) {
 
-            // calcule ID du dosage en cours
-            id = gGraphs.genNewID(app, gDosage.id)
+            // si le graphe en cours correspond à celui du dosage
+            if (gGraphs.idCurrentChart == gDosage.id) {
 
-            gGraphs.idCurrentChart = id
+                // on modifie l'icone
+                gGraphs.setVisibility(gDosage.id, true)
+            } else {
+                // si la courbe n'existe pas on la crée
+                if (gGraphs.getState('GRAPH_INIT') == 0) {
+                    try {
+                        gGraphs.currentChart.createChart('chart', gDosage.id)
+                        gGraphs.setState('GRAPH_INIT', 1)
+                    } catch (err) {
+                        console.error(err)
+                    }
 
-            // la courbe n'existe pas on la crée
-            if (gDosage.getState('GRAPH_INIT') == 0) {
-                try {
-                    gGraphs.currentChart.createChart('chart', id)
-                    gDosage.setState('GRAPH_INIT', 1)
-                } catch (err) {
-                    console.error(err)
+                    // ajoute la courbe à charts
+                    addGraphCharts(gDosage.id, { visible: true, save: false, type: app + 1, data: [] })
+
+                    // on vide le tableau data dans currentChart
+                    gGraphs.currentChart.data = []
+
+                } else {
+                    // la courbe existe 
+                    if (gGraphs.charts.has(gDosage.id)) {
+                        // on modifie l'icone
+                        gGraphs.setVisibility(gDosage.id, true)
+
+                        // on récupère les données
+                        gGraphs.currentChart.data = copyDeep(gGraphs.charts.get(gDosage.id).data)
+                    }
                 }
+
             }
-            gDosage.setState('APPAREIL_ACTIF', 1)
+
+            gGraphs.idCurrentChart = gDosage.id
+            //gDosage.setState('APPAREIL_TYPE', 0)
             gDosage.setState('GRAPH_TYPE', app + 1)
 
-            // on vide le tableau data dans currentChart
-            gGraphs.currentChart.data = []
-
-            // si courbe déjà enregistrée on positionne le flag visible sinon on ajoute la courbe au tableau charts
-            if (gGraphs.charts.has(id)) {
-                gGraphs.setVisibility(id, true)
-                gGraphs.currentChart.data = copyDeep(gGraphs.charts.get(id).data)
-            }
-            else
-                addGraphCharts(id, { visible: true, save: false, type: app + 1, data: [] })
+            _updGraphMenuIcon(gDosage.id, 1)
 
             // Appareil inactivé
         } else {
-            id = gGraphs.idCurrentChart
-            gGraphs.idCurrentChart = ""
-            gGraphs.setVisibility(id, false)
+            // modifie visibilité
+            gGraphs.setVisibility(gDosage.id, false)
+            _updGraphMenuIcon(gDosage.id, 0)
+
+            // active la première courbe visible du tableau charts
+            /*
+            const id = getKeyFromPropertyValue(gGraphs.charts, 'visible', true)
+            if (id) {
+                gGraphs.idCurrentChart = id
+                _updGraphMenuIcon(id, 1)
+
+            } else
+                gGraphs.idCurrentChart = ""
+            */
             //updGraphCharts(id)
 
-            gDosage.setState('APPAREIL_ACTIF', 0)
-            gDosage.setState('GRAPH_TYPE', 0)
+            //gDosage.setState('APPAREIL_ACTIF', 0)
+            //gDosage.setState('GRAPH_TYPE', 0)
         }
 
-        _updGraphMenuIcon(id, gDosage.getState('APPAREIL_ACTIF'))
 
     } else if (action == CLIC_ICONE_ON || action == CLIC_ICONE_OFF) {
         // clic sur icone visibilité
         const APPAREILS = [gLab.phmetre, gLab.conductimetre, gLab.potentiometre]
 
-        if (action == CLIC_ICONE_ON) {
-            if (gDosage.getState("GRAPH_INIT") == 0){
+        // Affiche courbe
+        if (action == CLIC_ICONE_OFF) {
+            /*
+            if (gGraphs.getState("GRAPH_INIT") == 0) {
                 gGraphs.currentChart.createChart('chart', _id)
-                gDosage.setState('GRAPH_INIT', 1)
+                gGraphs.setState('GRAPH_INIT', 1)
             }
+            */
 
+            // état visible
             gGraphs.setVisibility(_id, true)
-            gDosage.setState('GRAPH_TYPE', gGraphs.charts.get(_id).type)
+            _updGraphMenuIcon(_id, 1)
+
+            // gGraphs.setState('GRAPH_TYPE', gGraphs.charts.get(_id).type)
         }
         else {
-            if (gDosage.getState('GRAPH_TYPE') == 0) return
+            // if (gGraphs.getState('GRAPH_TYPE') == 0) return
 
-            // désactive l'appareil si id correspond à currentID
-            if (_id == gGraphs.idCurrentChart) {
+            // désactive l'appareil  si id correspond à currentID et appareil actif
+            if (_id == gGraphs.idCurrentChart && gDosage.getState("APPAREIL_ACTIF") == 1) {
                 updateAppareil(APPAREILS[app], gLab.becher)
-                gDosage.setState('GRAPH_TYPE', 0)
-                gDosage.setState('APPAREIL_ACTIF', 0)        
+                gDosage.setState('APPAREIL_ACTIF', 0)
             }
-            APPAREILS[app].etat = 1
+
+            // état caché
             gGraphs.setVisibility(_id, false)
+            _updGraphMenuIcon(_id, 0)
+            gGraphs.idCurrentChart = ""
+
+            // si autre courbe affichée on la définit comme courante
+            const id = getKeyFromPropertyValue(gGraphs.charts, 'visible', true)
+            if (id) {
+                gGraphs.idCurrentChart = id
+                _updGraphMenuIcon(id, 1)
+            }
         }
+        // gDosage.setState('GRAPH_TYPE', 0)
     }
 
 
@@ -256,7 +296,7 @@ function displayGraphs() {
     let options = getOptionsFromCharts()
 
     if (!isEmpty(options))
-        gGraphs.currentChart.hChart.update(options,true,true)
+        gGraphs.currentChart.hChart.update(options, true, true)
 }
 
 /** Affiche ou cache le graphe 
@@ -268,7 +308,9 @@ function displayGraphs() {
 function showGraph() {
     let display = false
     // Recherche s'il existe une courbe affichée
-    display = Array.from(gGraphs.charts.values()).filter(e => e.visible === true).length > 0;
+    
+    if (gGraphs.charts.size > 0)
+        display = Array.from(gGraphs.charts.values()).filter(e => e.visible === true).length > 0;
 
     if (display) {
         getEltID(ui.DOS_IMG).hide()

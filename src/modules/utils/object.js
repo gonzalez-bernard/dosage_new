@@ -8,7 +8,7 @@
  */
 
 import { isArray, isObject, isString, isBoolean } from "./type.js"
-import * as e from "./errors.js"
+import * as E from "./errors.js"
 
 const INVALID_KEY = "Clé absente dans l'objet"
 
@@ -45,7 +45,7 @@ const isEmpty = (o) => {
  * @file 'modules/utils/object.js'
  */
 function createClassByObject(obj) {
-    if (!isObject(obj)) throw new TypeError(e.ERROR_OBJ)
+    if (!isObject(obj)) E.debugError(E.ERROR_OBJ)
 
     let c = {}
     for (let key in obj) {
@@ -63,8 +63,8 @@ function createClassByObject(obj) {
  * @file 'modules/utils/object.js'
  */
 function hasKey(obj, key, format = false) {
-    if (!isObject(obj)) throw new TypeError(e.ERROR_OBJ)
-    if (!isString(key)) throw new TypeError(e.ERROR_STR);
+    if (!isObject(obj)) E.debugError(E.ERROR_OBJ)
+    if (!isString(key)) E.debugError(E.ERROR_STR);
     if (format)
         key = key.toLowerCase()
 
@@ -78,7 +78,7 @@ function hasKey(obj, key, format = false) {
  * @file 'modules/utils/object.js'
  */
 function propLower(obj) {
-    if (!isObject(obj)) throw new TypeError(e.ERROR_OBJ)
+    if (!isObject(obj)) E.debugError(E.ERROR_OBJ)
 
     let elt
     Object.keys(obj).forEach((key) => {
@@ -98,8 +98,8 @@ function propLower(obj) {
  * @file 'modules/utils/object.js'
  */
 function replace(obj, oChange, path = '', add = true) {
-    if (!isObject(obj) || !isObject(oChange)) throw new TypeError(e.ERROR_OBJ)
-    if (!isBoolean(add)) throw new TypeError(e.ERROR_BOOL)
+    if (!isObject(obj) || !isObject(oChange)) E.debugError(E.ERROR_OBJ)
+    if (!isBoolean(add)) E.debugError(E.ERROR_BOOL)
 
     let o = obj
 
@@ -138,12 +138,12 @@ function replace(obj, oChange, path = '', add = true) {
  * @returns {boolean} true si la suppression est réalisée
  */
 function removeItem(keys, obj) {
-    if (!isString(keys)) throw new TypeError(e.ERROR_STR)
-    if (!isObject(obj)) throw new TypeError(e.ERROR_OBJ)
+    if (!isString(keys)) E.debugError(E.ERROR_STR)
+    if (!isObject(obj)) E.debugError(E.ERROR_OBJ)
 
     const result = _search("r", keys.split("/"), obj, 0)
     if (!result) {
-        throw new e.serverError(new Error(INVALID_KEY))
+        throw new E.serverError(new Error(INVALID_KEY))
     }
     return result
 }
@@ -158,12 +158,12 @@ function removeItem(keys, obj) {
  * @returns {boolean} true si la mise à jour est réalisée
  */
 function updateItem(keys, obj, value) {
-    if (!isString(keys)) throw new TypeError(e.ERROR_STR)
-    if (!isObject(obj)) throw new TypeError(e.ERROR_OBJ)
+    if (!isString(keys)) E.debugError(E.ERROR_STR)
+    if (!isObject(obj)) E.debugError(E.ERROR_OBJ)
 
     const result = _search("u", keys.split("/"), obj, 0, value)
     if (!result) {
-        throw new e.serverError(new Error(INVALID_KEY))
+        throw new E.serverError(new Error(INVALID_KEY))
     }
 
     return result
@@ -177,12 +177,12 @@ function updateItem(keys, obj, value) {
  * @returns {any} la valeur de l'item ou undefined
  */
 function getItem(keys, obj) {
-    if (!isString(keys)) throw new TypeError(e.ERROR_STR)
-    if (!isObject(obj)) throw new TypeError(e.ERROR_OBJ)
+    if (!isString(keys)) E.debugError(E.ERROR_STR)
+    if (!isObject(obj)) E.debugError(E.ERROR_OBJ)
 
     const result = _search("g", keys.split("/"), obj, 0)
     if (!result) {
-        throw new e.serverError(new Error(INVALID_KEY))
+        throw new E.serverError(new Error(INVALID_KEY))
     }
     return result
 }
@@ -193,7 +193,7 @@ function getItem(keys, obj) {
  * @returns {object}
  */
 function copyDeep(obj) {
-    if (!isObject(obj)) throw new TypeError(e.ERROR_OBJ)
+    if (!isObject(obj)) E.debugError(E.ERROR_OBJ)
 
     const deepCopy = JSON.parse(JSON.stringify(obj));
 
@@ -225,7 +225,7 @@ function createObjectFromString(path, value) {
         o[keys[0]] = {}
         return _createObj(o[keys[0]], keys.slice(1), value)
     }
-    
+
 }
 
 
@@ -238,12 +238,12 @@ function createObjectFromString(path, value) {
  * @returns {any} dépend du type d'opération 
  * */
 function _search(type, keys, obj, k = 0, value = undefined) {
-    if (!isString(type)) throw new TypeError(e.ERROR_STR)
+    if (!isString(type)) E.debugError(E.ERROR_STR)
     type = type.toLowerCase()
 
-    if (!(['r', "u", 'g'].includes(type))) throw new TypeError(e.ERROR_STR)
-    if (!isArray(keys)) throw new TypeError(e.ERROR_ARRAY)
-    if (!isObject(obj)) throw new TypeError(e.ERROR_OBJ)
+    if (!(['r', "u", 'g'].includes(type))) E.debugError(E.ERROR_STR)
+    if (!isArray(keys)) E.debugError(E.ERROR_ARRAY)
+    if (!isObject(obj)) E.debugError(E.ERROR_OBJ)
 
     // récupère clés de 'obj'
     let props = Object.keys(obj)

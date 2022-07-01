@@ -1,5 +1,5 @@
 import { isString, isUndefined } from "./type.js";
-import * as e from "./errors.js"
+import * as E from "./errors.js"
 
 /** Retourne le nom du fichier
  * 
@@ -8,9 +8,9 @@ import * as e from "./errors.js"
  * @file 'modules/utils/file.js'
  */
 const getFileName = function (str) {
-    if ( !isString( str ) ) throw new TypeError( e.ERROR_STR )
-    if (isUndefined(str)) throw new ReferenceError(e.ERROR_ABS)
-    
+    if (!isString(str)) E.debugError(E.ERROR_STR)
+    if (isUndefined(str)) throw new ReferenceError(E.ERROR_ABS)
+
     // @ts-ignore
     return str.split('\\').pop().split('/').pop();
 }
@@ -20,11 +20,11 @@ const getFileName = function (str) {
  * @param {string} str url fichier
  * @returns 
  */
-const getDirName = function (str){
-    if ( !isString( str ) ) throw new TypeError( e.ERROR_STR )
-    if (isUndefined(str)) throw new ReferenceError(e.ERROR_ABS)
-    
+const getDirName = function (str) {
+    if (!isString(str)) E.debugError(E.ERROR_STR)
+    if (isUndefined(str)) throw new ReferenceError(E.ERROR_ABS)
+
     return str.match(/.*\//);
 }
 
-export {getFileName, getDirName}
+export { getFileName, getDirName }

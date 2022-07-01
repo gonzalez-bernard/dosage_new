@@ -7,8 +7,8 @@
 */
 
 import { cts } from "../environnement/constantes.js";
-import { gDosage } from "../environnement/globals.js";
-import * as e from "../modules/utils/errors.js"
+import { gDosage, gGraphs } from "../environnement/globals.js";
+import * as E from "../modules/utils/errors.js"
 import { ChartX } from "../modules/chartX.js";
 import { calcDistance2Pts, getMedium } from "../modules/utils/math.js";
 import { uArray } from "../modules/utils/array.js";
@@ -61,8 +61,8 @@ class Graphx extends ChartX {
     }
 
     setType(type) {
-        if (!isNumeric(type)) throw new TypeError(e.ERROR_NUM)
-        if (!(type in [this.TYPE_PH, this.TYPE_CD, this.TYPE_PT])) throw new TypeError(e.ERROR_RANGE)
+        if (!isNumeric(type)) E.debugError(E.ERROR_NUM)
+        if (!(type in [this.TYPE_PH, this.TYPE_CD, this.TYPE_PT])) E.debugError(E.ERROR_RANGE)
         this.type = type
     }
 
@@ -90,7 +90,7 @@ class Graphx extends ChartX {
      * @file graphx.js
      */
     setDatas(data) {
-        if (!isArray(data)) throw new TypeError(e.ERROR_ARRAY)
+        if (!isArray(data)) E.debugError(E.ERROR_ARRAY)
 
         // enregistre dans la structure
         this.data = data;
@@ -122,7 +122,7 @@ class Graphx extends ChartX {
      * Affiche ou cache le graphe en fonction de GRAPH_TYPE
      */
     display() {
-        if (gDosage.getState('GRAPH_TYPE') != 0) {
+        if (gGraphs.getState('GRAPH_TYPE') != 0) {
             $(this.canvas).hide();
         } else {
             $(this.canvas).show();
@@ -137,8 +137,8 @@ class Graphx extends ChartX {
      * @file graphx.js
      */
     dspTangente(chartID, elt, idTangente) {
-        if (!isNumeric(idTangente) || !isNumeric(chartID)) throw new TypeError(e.ERROR_NUM)
-        if (!isObject(elt)) throw new TypeError(e.ERROR_OBJ);
+        if (!isNumeric(idTangente) || !isNumeric(chartID)) E.debugError(E.ERROR_NUM)
+        if (!isObject(elt)) E.debugError(E.ERROR_OBJ);
 
         const xlim = [0.5, 24]
         const ylim = [0.5, 13]
@@ -164,8 +164,8 @@ class Graphx extends ChartX {
      * @param {tPoint[]} pts
      */
     addTangente(num, pts) {
-        if (!isNumeric(num)) throw new TypeError(e.ERROR_NUM)
-        if (!isArray(pts)) throw new TypeError(e.ERROR_ARRAY)
+        if (!isNumeric(num)) E.debugError(E.ERROR_NUM)
+        if (!isArray(pts)) E.debugError(E.ERROR_ARRAY)
         let label, id, col
         if (num == 1) {
             label = this.TAN1;
@@ -199,7 +199,7 @@ class Graphx extends ChartX {
      * @file graphx.js
      */
     delTangente(index) {
-        if (!isNumeric(index)) throw new TypeError(e.ERROR_NUM)
+        if (!isNumeric(index)) E.debugError(E.ERROR_NUM)
         // récupère l'indice de la tangente dans le tableau data.datasets et supprime
 
         let n_tangente = this.getChartByProp("id", "tan" + index)
@@ -220,8 +220,8 @@ class Graphx extends ChartX {
      */
     movTangente(evt, indice, points, idx) {
 
-        if (!isNumeric(indice) || !isNumeric(idx)) throw new TypeError(e.ERROR_NUM)
-        if (!isArray(points)) throw new TypeError(e.ERROR_ARRAY)
+        if (!isNumeric(indice) || !isNumeric(idx)) E.debugError(E.ERROR_NUM)
+        if (!isArray(points)) E.debugError(E.ERROR_ARRAY)
 
         var px, py, pente;
         if (idx == 1 || idx == 2) {
@@ -265,14 +265,14 @@ class Graphx extends ChartX {
      */
     dspDerivee() {
         // si graph pH non affiché
-        if (gDosage.getState('GRAPH_TYPE') != 1) return;
+        if (gGraphs.getState('GRAPH_TYPE') != 1) return;
 
         let option;
         // initialise les données théoriques
         this.initDataTheorique();
 
 
-        if (gDosage.getState('THEORIQUE') == 1) {
+        if (gGraphs.getState('THEORIQUE') == 1) {
             /*
             option = this._initOptions(this.data_derive_theorique);
             const _dataset = this.createDataset(this.DERIVEE_TH, this.data_derive_theorique, this.YNAME_DERIVEE, other)
@@ -286,9 +286,10 @@ class Graphx extends ChartX {
                 name: "derivée",
                 data: lst_derivee,
                 type: 'line'
-            })}
+            })
+        }
 
-            gDosage.setState("DERIVEE_INIT", 1)
+        gGraphs.setState("DERIVEE_INIT", 1)
     }
 
     /** Affiche la courbe théorique
@@ -465,8 +466,8 @@ class Graphx extends ChartX {
      * @return {number} pente
      * */
     _calcPente(indice_1, indice_2, points) {
-        if (!isNumeric(indice_1) || !isNumeric(indice_2)) throw new TypeError(e.ERROR_NUM)
-        if (!isArray(points)) throw new TypeError(e.ERROR_ARRAY)
+        if (!isNumeric(indice_1) || !isNumeric(indice_2)) E.debugError(E.ERROR_NUM)
+        if (!isArray(points)) E.debugError(E.ERROR_ARRAY)
 
         var dy = points[indice_1].y - points[indice_2].y;
         var dx = points[indice_1].x - points[indice_2].x;

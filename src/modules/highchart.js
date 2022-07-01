@@ -1,4 +1,4 @@
-import * as e from "./utils/errors.js"
+import * as E from "./utils/errors.js"
 import { isNumeric, isString, isArray } from "./utils/type.js"
 import { createObjectFromString } from "./utils/object.js"
 
@@ -88,21 +88,21 @@ class Highchart {
    * @param {array} data données 
    */
   updateSerie(id, data) {
-    if (!isNumeric(id) && !isString) throw new TypeError(e.ERROR_PRM)
-    if (!isArray(data)) throw new TypeError(e.ERROR_ARRAY)
+    if (!isNumeric(id) && !isString) E.debugError(E.ERROR_PRM)
+    if (!isArray(data)) E.debugError(E.ERROR_ARRAY)
 
     if (isNumeric(id)) {
       if (this.chart.series.length > id)
         this.chart.series[id].setData(data, true, false, false)
       //this.chart.series[id].update({data: data}, true)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     } else {
       const serie = this.chart.series.filter(e => e.name == id)[0]
       if (serie)
         serie.setData(data, false, false, false)
       else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     }
     this.chart.redraw()
   }
@@ -113,7 +113,7 @@ class Highchart {
    * @param {boolean} axe indique si on doit aussi supprimer l'axe
    */
   removeSerie(id, axe = false) {
-    if (!isNumeric(id) && !isString) throw new TypeError(e.ERROR_PRM)
+    if (!isNumeric(id) && !isString) E.debugError(E.ERROR_PRM)
 
     let serie
 
@@ -121,7 +121,7 @@ class Highchart {
       if (this.chart.series.length > id) {
         serie = this.chart.series[id]
       } else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     } else {
       serie = this.chart.get(id)
     }
@@ -170,7 +170,7 @@ class Highchart {
     serieOptions.data = data
     if (axeOptions != null) {
       if (axeOptions.id === undefined)
-        throw new TypeError(e.ERROR_PRM)
+        E.debugError(E.ERROR_PRM)
       serieOptions.yAxis = axeOptions.id
       this.chart.addAxis(axeOptions)
     }
@@ -233,7 +233,7 @@ class Highchart {
    * @returns {[]|boolean} tableau des points
    */
   getData(id) {
-    if (!isNumeric(id) && !isString) throw new TypeError(e.ERROR_PRM)
+    if (!isNumeric(id) && !isString) E.debugError(E.ERROR_PRM)
 
     let serie
 
@@ -241,7 +241,7 @@ class Highchart {
       if (this.chart.series.length > id) {
         serie = this.chart.series[id]
       } else
-        throw new TypeError(e.ERROR_RANGE)
+        E.debugError(E.ERROR_RANGE)
     } else {
       serie = this.chart.get(id)
     }
@@ -267,7 +267,7 @@ class Highchart {
    * @param {number} id index de la série
    * @returns {string} nom de la série
    */
-  getNamefromIndex(id){
+  getNamefromIndex(id) {
     return this.chart.series[id].name
   }
 }

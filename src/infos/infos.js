@@ -15,8 +15,8 @@
 
 
 
-import * as e from "../modules/utils/errors.js"
-import {Infos} from "./infos.cls.js"
+import * as E from "../modules/utils/errors.js"
+import { Infos } from "./infos.cls.js"
 import { isEvent, isFunction, isString } from "../modules/utils/type.js";
 import { propLower } from "../modules/utils/object.js";
 import { DO_INFO_COND, DO_INFO_ERRPENTE, DO_INFO_INIT, DO_INFO_MOVE, DO_INFO_P1, DO_INFO_P2, DO_INFO_PERP1, DO_INFO_PERP2, DO_INFO_PERPDEL, DO_INFO_TAN } from "./lang_fr.js"
@@ -50,61 +50,61 @@ import { displayEspece } from "../dosage/dosage.ui.js";
  * @file infos.js
  * 
  */
-var dspInfo = function( arg ) {
+var dspInfo = function (arg) {
 
 
     // on récupère les infos dans data si Event
-    let data = isEvent( arg ) ? propLower( arg.data ) : propLower( arg )
+    let data = isEvent(arg) ? propLower(arg.data) : propLower(arg)
 
     // si arg est un objet, on l'analyse pour voir s'il existe un item "fct"
     // dans ce cas, on applique la fonction avec le premier argument
-    if ( "fct" in data && isFunction( data[ 'fct' ] ) ) {
-        data = propLower( data[ 'fct' ]( data[ 'arg' ] ) );
+    if ("fct" in data && isFunction(data['fct'])) {
+        data = propLower(data['fct'](data['arg']));
     }
 
     // test validité
-    if ( !( 'idcontainer' in data ) || !( 'idbtclose' in data ) || !( 'title' in data ) ) 
-        throw new TypeError( e.ERROR_OBJ )
-    if ( !isString( data[ 'idmodal' ] ) || !isString( data[ 'title' ] ) || !isString( data[ 'idbtclose' ] ) ) 
-        throw new TypeError( e.ERROR_STR )
+    if (!('idcontainer' in data) || !('idbtclose' in data) || !('title' in data))
+        E.debugError(E.ERROR_OBJ)
+    if (!isString(data['idmodal']) || !isString(data['title']) || !isString(data['idbtclose']))
+        E.debugError(E.ERROR_STR)
 
     // pas de message ni de callback
-    if ( ( !( 'msg' in data ) || !data[ 'msg' ] ) && !( 'setmsg' in data ) ) 
-        throw new TypeError( e.ERROR_OBJ )
+    if ((!('msg' in data) || !data['msg']) && !('setmsg' in data))
+        E.debugError(E.ERROR_OBJ)
 
     let cInfo // instance de la classe Info
     let html
 
     // message défini
-    if ( 'msg' in data && isString( data[ 'msg' ] ) ) {
-        cInfo = new Infos( data )
+    if ('msg' in data && isString(data['msg'])) {
+        cInfo = new Infos(data)
     } else {
         // message à construire avec fonction de création de message 'setmsg'
         let info
         try {
             // si setmsg a un argument
-            if ( 'prm' in data ){
+            if ('prm' in data) {
                 // si l'argument est une fonction
-                info = isFunction(data['prm']) ? data[ 'setmsg' ]( data[ 'prm' ]() ) : data[ 'setmsg' ]( data[ 'prm' ]) 
+                info = isFunction(data['prm']) ? data['setmsg'](data['prm']()) : data['setmsg'](data['prm'])
             }
             else
-                info = data[ 'setmsg' ]()
+                info = data['setmsg']()
 
-            data[ 'msg' ] = info.msg
-            data[ 'title' ] = info.title
-            cInfo = new Infos( data )
-        } catch ( error ) {
-            throw new TypeError( e.ERROR_RETURN )
+            data['msg'] = info.msg
+            data['title'] = info.title
+            cInfo = new Infos(data)
+        } catch (error) {
+            E.debugError(E.ERROR_RETURN)
         }
     }
     html = cInfo.init_html()
 
     // si latex
-    if ( 'latex' in data && data[ 'latex' ] )
-        dspHtmlLatex( html, cInfo[ 'idContainer' ], cInfo[ 'idModal' ] )
+    if ('latex' in data && data['latex'])
+        dspHtmlLatex(html, cInfo['idContainer'], cInfo['idModal'])
     else {
-        getEltID( cInfo.idContainer ).html( html )
-        getEltID( cInfo.idModal ).modal()
+        getEltID(cInfo.idContainer).html(html)
+        getEltID(cInfo.idModal).modal()
     }
 
 }
@@ -114,17 +114,17 @@ var dspInfo = function( arg ) {
  * @param {String} html : contenu html à afficher
  * @param {String} target : id de la balise d'affichage
  */
-var dspHtmlLatex = function( html, target, idModal ) {
+var dspHtmlLatex = function (html, target, idModal) {
 
     // @ts-ignore
     // eslint-disable-next-line no-undef
-    MathJax.typesetPromise().then( () => {
-        getEltID( target ).html( html )
-        getEltID( idModal ).modal();
+    MathJax.typesetPromise().then(() => {
+        getEltID(target).html(html)
+        getEltID(idModal).modal();
         // @ts-ignore
         // eslint-disable-next-line no-undef
         MathJax.typesetPromise();
-    } ).catch( ( err ) => console.log( err.message ) );
+    }).catch((err) => console.log(err.message));
 }
 
 
@@ -135,30 +135,30 @@ var dspHtmlLatex = function( html, target, idModal ) {
  * @returns void
  * @file info.js
  */
-function dspContextInfo( type, arg = [undefined, undefined] ) {
+function dspContextInfo(type, arg = [undefined, undefined]) {
 
-    if ( !isString( type ) ) throw new TypeError( e.ERROR_STR )
+    if (!isString(type)) E.debugError(E.ERROR_STR)
 
     let info
     var p1, p2
-    switch ( type ) {
+    switch (type) {
         case "init":
             info = DO_INFO_INIT;
             break
         case "pente":
-            p1 = arg[ 1 ] == undefined ? "--" : arg[ 1 ].toFixed( 2 )
+            p1 = arg[1] == undefined ? "--" : arg[1].toFixed(2)
             info = DO_INFO_P1 + p1;
             break
         case "pentes":
-            p1 = arg[ 1 ] == undefined ? "--" : arg[ 1 ].toFixed( 2 )
-            p2 = arg[ 2 ] == undefined ? "--" : arg[ 2 ].toFixed( 2 )
+            p1 = arg[1] == undefined ? "--" : arg[1].toFixed(2)
+            p2 = arg[2] == undefined ? "--" : arg[2].toFixed(2)
             info = DO_INFO_P1 + p1 + DO_INFO_P2 + p2;
             break
         case "err_pentes":
             info = DO_INFO_ERRPENTE;
             break
         case "perp":
-            info = DO_INFO_PERP1 + arg[ 2 ].x.toFixed( 1 ) + DO_INFO_PERP2 + arg[ 2 ].y.toFixed( 2 )
+            info = DO_INFO_PERP1 + arg[2].x.toFixed(1) + DO_INFO_PERP2 + arg[2].y.toFixed(2)
             break
         case "perp_move":
             info = DO_INFO_MOVE;
@@ -173,7 +173,7 @@ function dspContextInfo( type, arg = [undefined, undefined] ) {
             info = DO_INFO_TAN
     }
 
-    getEltID( DOS_INFO ).html( "<p><u>Information</u> : <span style='color:red'>" + info + "</span></p>" )
+    getEltID(DOS_INFO).html("<p><u>Information</u> : <span style='color:red'>" + info + "</span></p>")
 
 }
 
@@ -195,7 +195,7 @@ function dspContextInfo( type, arg = [undefined, undefined] ) {
  *  - callbacks {object?} {id:function}
  * @file infos.js
  */
-function dspErrorMessage(title, msg, idButton, options={}){
+function dspErrorMessage(title, msg, idButton, options = {}) {
     const data = {
         idmodal: "idModal",
         idcontainer: ES_DIV_INFO,
@@ -206,12 +206,12 @@ function dspErrorMessage(title, msg, idButton, options={}){
         msg: msg,
     };
 
-    if (options){
-        for (const key in options){
+    if (options) {
+        for (const key in options) {
             data[key] = options[key]
         }
     }
-    
+
     dspInfo(data);
 }
 
